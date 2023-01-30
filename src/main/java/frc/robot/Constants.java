@@ -78,4 +78,29 @@ public class Constants {
 
     }
 
+    public static final class WristConstants {
+
+        public static final int writstID = 0;
+
+        public static final double GEARBOX_RATIO = 25;
+
+        // Wrist MAX angle limit
+        public static final double UPPER_LIMIT = 45;
+        // Wrist MIN angle limit
+        public static final double LOWER_LIMIT = -45;
+
+        public static final double kP = 0.0;
+        public static final double kI = 0.0;
+        public static final double kD = 0.0;
+        public static final double kFF = 0.0;
+
+    }
+
+    public static final class IntakeConstants {
+        
+        public static final int intakeID = 0;
+
+        public static final double INTAKE_PROTRUSION = Units.inchesToMeters(17.5);
+    }
+
 }
