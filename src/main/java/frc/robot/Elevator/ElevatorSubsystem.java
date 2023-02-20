@@ -10,6 +10,24 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ElevatorConstants;
 
+/*
+ * ⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
+ * ⣿⣿⣿⣿⣿⣿⣿⣿⣿⠀⠀⠀⠠⣤⠀⠀⢀⡀⠀⠀⠀⣿⣿⣿⣿⣿⣿⣿⣿⣿
+ * ⣿⣿⣿⣿⣿⣿⣿⣿⣿⣀⣀⣀⣀⣁⣀⣀⣉⣁⣀⣀⣀⣿⣿⣿⣿⣿⣿⣿⣿⣿
+ * ⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
+ * ⣿⣿⣿⣿⣿⣿⠀⠀⠀⠀⠀⠀⠀⠀⢸⡇⠀⠀⠀⠀⠀⠀⠀⠀⣿⣿⣿⣿⣿⣿
+ * ⣿⣿⣿⣿⣿⣿⠀⠀⠀⠀⠀⠀⠀⠀⢸⡇⠀⠀⠀⠀⠀⠀⠀⠀⣿⣿⣿⣿⣿⣿
+ * ⣿⣿⣿⣿⣿⣿⠀⠀⠀⠀⠀⠀⠀⠀⢸⡇⠀⠀⠀⠀⠀⠀⠀⠀⣿⣿⣿⣿⣿⣿
+ * ⣿⣿⣿⣿⣿⣿⠀⠀⠀⠀⠀⠀⠀⠀⢸⡇⠀⠀⠀⠀⠀⠀⠀⠀⣿⣿⣿⣿⣿⣿
+ * ⣿⣿⣿⣿⣿⣿⠀⠀⠀⠀⠀⠀⠀⠀⢸⡇⠀⠀⠀⠀⠀⠀⠀⠀⣿⣿⠉⠉⢹⣿
+ * ⣿⣿⣿⣿⣿⣿⠀⠀⠀⠀⠀⠀⠀⠀⢸⡇⠀⠀⠀⠀⠀⠀⠀⠀⣿⣿⠺⠿⢸⣿
+ * ⣿⣿⣿⣿⣿⣿⠀⠀⠀⠀⠀⠀⠀⠀⢸⡇⠀⠀⠀⠀⠀⠀⠀⠀⣿⣿⣤⣤⣼⣿
+ * ⣿⣿⣿⣿⣿⣿⠀⠀⠀⠀⠀⠀⠀⠀⢸⡇⠀⠀⠀⠀⠀⠀⠀⠀⣿⣿⣿⣿⣿⣿
+ * ⣿⣿⣿⣿⣿⣿⠀⠀⠀⠀⠀⠀⠀⠀⢸⡇⠀⠀⠀⠀⠀⠀⠀⠀⣿⣿⣿⣿⣿⣿
+ * ⣿⣿⣿⣿⣿⣿⠀⠀⠀⠀⠀⠀⠀⠀⢸⡇⠀⠀⠀⠀⠀⠀⠀⠀⣿⣿⣿⣿⣿⣿
+ * ⣿⣿⣿⣿⣿⣿⣶⣶⣶⣶⣶⣶⣶⣶⣾⣷⣶⣶⣶⣶⣶⣶⣶⣶⣿⣿⣿⣿⣿⣿ 
+ */
+
 public class ElevatorSubsystem extends SubsystemBase {
     
     private final CANSparkMax left;
@@ -30,9 +48,9 @@ public class ElevatorSubsystem extends SubsystemBase {
         PlayerStation;
     }
 
-    public ElevatorSubsystem(int leftID, int rightID, int limitSwitchID, boolean inStaringPos) {
-        left = new CANSparkMax(leftID, MotorType.kBrushless);
-        right = new CANSparkMax(rightID, MotorType.kBrushless);
+    public ElevatorSubsystem(boolean inStaringPos) {
+        left = new CANSparkMax(ElevatorConstants.leftID, MotorType.kBrushless);
+        right = new CANSparkMax(ElevatorConstants.rightID, MotorType.kBrushless);
 
         left.restoreFactoryDefaults();
         right.restoreFactoryDefaults();
@@ -53,7 +71,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         leftPID.setFF(ElevatorConstants.kFF);
 
 
-        bottomSwitch = new DigitalInput(limitSwitchID);
+        bottomSwitch = new DigitalInput(ElevatorConstants.bottomSwitchID);
 
         if (inStaringPos && bottomSwitch.get()) {
             leftEncoder.setPosition(-0.05);

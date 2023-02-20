@@ -7,34 +7,34 @@ public class Constants {
     public static final class DriveConstants {
         public static final int frontLeftTurnID = 3;
         public static final int frontLeftDriveID = 4;
-        public static final int frontLeftCancoderID = 6;
-        public static final double frontLeftOffset = 0.590;
+        public static final int frontLeftCancoderID = 0;
+        public static final double frontLeftOffset = 0.556+0.25;
 
         public static final int frontRightTurnID = 5;
         public static final int frontRightDriveID = 6;
-        public static final int frontRightCancoderID = 0;
-        public static final double frontRightOffset = 0.084;
+        public static final int frontRightCancoderID = 1;
+        public static final double frontRightOffset = 0.655-0.25;
 
         public static final int backLeftTurnID = 7;
         public static final int backLeftDriveID = 8;
         public static final int backLeftCancoderID = 2;
-        public static final double backLeftOffset = 0.504;
+        public static final double backLeftOffset = 0.263+0.25;
 
         public static final int backRightTurnID = 1;
         public static final int backRightDriveID = 2;
-        public static final int backRightCancoderID = 4;
-        public static final double backRightOffset = 0.009;
+        public static final int backRightCancoderID = 3;
+        public static final double backRightOffset = 0.285+0.25;
 
         //m/s
-        public static final double MAX_LINEAR_VELOCITY = Units.feetToMeters(14);
+        public static final double MAX_LINEAR_VELOCITY = Units.feetToMeters(16);
         //rad/s
         public static final double MAX_TURN_VELOCITY = 11;
     }
     
     public static class ModuleConstants {
 
-        public static final double STEER_RATIO = 12.8;
-        public static final double DRIVE_RATIO = 8.16;
+        public static final double STEER_RATIO = 150.0/7.0;
+        public static final double DRIVE_RATIO = 6.12;
 
         public static final double WHEEL_CIRCUMPHRENCE = Units.inchesToMeters(4 * Math.PI);
 
@@ -58,18 +58,28 @@ public class Constants {
 
         // Camera angle offset
         public static final double cameraOffset = 0.0;
+
+        // POSE Estimations
+        public static final int POSE_ESTIMATIONS = 30;
+
+        // MAX POSE time kept millis
+        public static final double TIME_KEPT = 1500;
     }
 
     public static final class ElevatorConstants {
         
         public static final int leftID = 0;
         public static final int rightID = 0;
+        
+        public static final int bottomSwitchID = 0;
 
-        public static final double GEARBOX_RATIO = 3;
+        public static final double GEARBOX_RATIO = 11.25;
 
         public static final double SPOOL_RADIUS = Units.inchesToMeters(1.5);
 
         public static final double MAX_HEIGHT = Units.inchesToMeters(65);
+
+        public static final double TOWER_ANGLE_OFFSET = Units.degreesToRadians(10);
 
         public static final double kP = 0.0;
         public static final double kI = 0.0;
@@ -78,16 +88,23 @@ public class Constants {
 
     }
 
-    public static final class WristConstants {
+    public static final class ArmConstants {
 
-        public static final int writstID = 0;
+        public static final int armId = 0;
 
         public static final double GEARBOX_RATIO = 25;
 
-        // Wrist MAX angle limit
-        public static final double UPPER_LIMIT = 45;
-        // Wrist MIN angle limit
-        public static final double LOWER_LIMIT = -45;
+        /**
+         * Meters
+         */
+        public static final double ARM_LENGTH = 1;
+
+        // Arm MAX angle limit
+        public static final double UPPER_LIMIT = Units.degreesToRadians(45);
+        // Arm Starting angle
+        public static final double STARTING_ANGLE = 0.0;
+        // Arm MIN angle limit
+        public static final double LOWER_LIMIT = Units.degreesToRadians(-45);
 
         public static final double kP = 0.0;
         public static final double kI = 0.0;

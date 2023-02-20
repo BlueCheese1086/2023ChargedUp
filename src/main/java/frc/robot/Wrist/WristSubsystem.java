@@ -1,4 +1,4 @@
-package frc.robot.Wrist;
+/*package frc.robot.Wrist;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
@@ -33,3 +33,4 @@ public class WristSubsystem extends SubsystemBase {
     }
 
 }
+*/

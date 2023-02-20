@@ -3,11 +3,19 @@ package frc.robot.Sensors;
 import java.util.ArrayList;
 
 import org.photonvision.PhotonCamera;
+import org.photonvision.SimVisionSystem;
+import org.photonvision.SimVisionTarget;
 import org.photonvision.common.hardware.VisionLEDMode;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
+import frc.robot.Robot;
+import frc.robot.Constants.VisionConstants;
 import frc.robot.Sensors.Vision.Target;
 
 public class Camera extends PhotonCamera {
@@ -17,10 +25,13 @@ public class Camera extends PhotonCamera {
 
     private final ArrayList<Target> targets = new ArrayList<>();
 
+    private final SimVisionSystem simCam;
+
     public Camera(String name) {
         super(name);
         trans = new Translation2d();
         this.pair = null;
+        simCam = null;
     }
 
     /**
@@ -31,6 +42,14 @@ public class Camera extends PhotonCamera {
         super(name);
         this.trans = trans;
         this.pair = null;
+        simCam = new SimVisionSystem(
+            name, 
+            55,
+            new Transform3d(new Translation3d(this.trans.getX(), this.trans.getY(), VisionConstants.cameraHeight), new Rotation3d()),
+            10,
+            960,
+            480,
+            0);
     }
 
     /**
@@ -42,14 +61,19 @@ public class Camera extends PhotonCamera {
         super(name);
         this.trans = trans;
         this.pair = pair;
+
+        simCam = new SimVisionSystem(
+            name, 
+            55,
+            new Transform3d(new Translation3d(this.trans.getX(), this.trans.getY(), VisionConstants.cameraHeight), new Rotation3d()),
+            10,
+            960,
+            480,
+            0);
     }
 
-    public void periodic() {
-        if (this.targets.size() > 0) {
-            super.setLED(VisionLEDMode.kOn);
-        } else {
-            super.setLED(VisionLEDMode.kOff);
-        }
+    public void periodic(Pose2d p) {
+        if (simCam != null) simCam.processFrame(p);
     }
 
     /* Setters */
@@ -66,6 +90,10 @@ public class Camera extends PhotonCamera {
 
     public void add(Target t) {
         this.targets.add(t);
+    }
+
+    public void addSim(SimVisionTarget t) {
+        simCam.addSimVisionTarget(t);
     }
 
     public void clear() {

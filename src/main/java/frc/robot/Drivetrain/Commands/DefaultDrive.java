@@ -29,11 +29,23 @@ public class DefaultDrive extends CommandBase {
 
     @Override
     public void execute() {
-        drive.drive(ChassisSpeeds.fromFieldRelativeSpeeds(
+        ChassisSpeeds speeds = ChassisSpeeds.fromFieldRelativeSpeeds(
             y_trans.getAsDouble()*-DriveConstants.MAX_LINEAR_VELOCITY, 
             x_trans.getAsDouble()*DriveConstants.MAX_LINEAR_VELOCITY, 
-            rot.getAsDouble()*DriveConstants.MAX_LINEAR_VELOCITY,
-            drive.getRobotAngle()));
+            rot.getAsDouble()*DriveConstants.MAX_TURN_VELOCITY,
+            drive.getRobotAngle());
+            if (speeds.omegaRadiansPerSecond == 0 && speeds.vxMetersPerSecond == 0 && speeds.vyMetersPerSecond == 0) {
+                drive.setX(false);
+                drive.drive(speeds);
+            } else {
+                drive.drive(speeds);
+            }
+        
+        // drive.drive(new ChassisSpeeds(
+        //     y_trans.getAsDouble()*DriveConstants.MAX_LINEAR_VELOCITY, 
+        //     x_trans.getAsDouble()*DriveConstants.MAX_LINEAR_VELOCITY, 
+        //     rot.getAsDouble()*DriveConstants.MAX_TURN_VELOCITY
+        // ));
     }
 
     @Override
