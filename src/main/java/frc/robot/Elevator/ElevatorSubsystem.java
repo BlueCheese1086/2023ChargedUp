@@ -8,6 +8,7 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Robot;
 import frc.robot.Constants.ElevatorConstants;
 
 /*
@@ -55,14 +56,15 @@ public class ElevatorSubsystem extends SubsystemBase {
         left.restoreFactoryDefaults();
         right.restoreFactoryDefaults();
 
-        right.setInverted(true);
-        right.follow(left);
+        // right.setInverted(true);
+        right.follow(left, true);
 
         leftEncoder = left.getEncoder();
         //Motor position to elevator height (meters)
         leftEncoder.setPositionConversionFactor(ElevatorConstants.SPOOL_RADIUS*2*Math.PI/ElevatorConstants.GEARBOX_RATIO);
         //Motor velocity m/s
         leftEncoder.setVelocityConversionFactor(ElevatorConstants.SPOOL_RADIUS*2*Math.PI/ElevatorConstants.GEARBOX_RATIO/60);
+        leftEncoder.setPosition(1);
 
         leftPID = left.getPIDController();
         leftPID.setP(ElevatorConstants.kP);
@@ -88,6 +90,10 @@ public class ElevatorSubsystem extends SubsystemBase {
      * @param height Height in meters
      */
     public void setDesiredHeight(double height) {
+        if (Robot.isSimulation()) {
+            leftEncoder.setPosition(height);
+            return;
+        }
         leftPID.setReference(height, ControlType.kPosition);
     }
 

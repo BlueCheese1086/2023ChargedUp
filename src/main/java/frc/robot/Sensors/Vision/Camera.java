@@ -1,55 +1,44 @@
-package frc.robot.Sensors;
+package frc.robot.Sensors.Vision;
 
 import java.util.ArrayList;
 
 import org.photonvision.PhotonCamera;
 import org.photonvision.SimVisionSystem;
 import org.photonvision.SimVisionTarget;
-import org.photonvision.common.hardware.VisionLEDMode;
+import org.photonvision.targeting.PhotonTrackedTarget;
 
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import frc.robot.Robot;
-import frc.robot.Constants.VisionConstants;
-import frc.robot.Sensors.Vision.Target;
+import frc.robot.Sensors.Field.PositionManager;
+import frc.robot.Sensors.Vision.Vision.Target;
 
 public class Camera extends PhotonCamera {
 
-    private final Translation2d trans;
+    private final Transform3d trans;
     private Camera pair;
 
     private final ArrayList<Target> targets = new ArrayList<>();
 
     private final SimVisionSystem simCam;
 
-    public Camera(String name) {
-        super(name);
-        trans = new Translation2d();
-        this.pair = null;
-        simCam = null;
-    }
-
     /**
      * @param name Photon camera name
      * @param trans Camera position relative to the center
      */
-    public Camera(String name, Translation2d trans) {
+    public Camera(String name, Transform3d trans) {
         super(name);
         this.trans = trans;
         this.pair = null;
         simCam = new SimVisionSystem(
             name, 
-            55,
-            new Transform3d(new Translation3d(this.trans.getX(), this.trans.getY(), VisionConstants.cameraHeight), new Rotation3d()),
+            70,
+            new Transform3d(new Translation3d(this.trans.getX(), this.trans.getY(), this.trans.getZ()), new Rotation3d()),
             10,
-            960,
-            480,
-            0);
+            1280,
+            720,
+            10);
     }
 
     /**
@@ -57,23 +46,27 @@ public class Camera extends PhotonCamera {
      * @param trans Camera position relative to the center
      * @param pair Stereo camera pair object
      */
-    public Camera(String name, Translation2d trans, Camera pair) {
+    public Camera(String name, Transform3d trans, Camera pair) {
         super(name);
         this.trans = trans;
         this.pair = pair;
 
         simCam = new SimVisionSystem(
             name, 
-            55,
-            new Transform3d(new Translation3d(this.trans.getX(), this.trans.getY(), VisionConstants.cameraHeight), new Rotation3d()),
+            70,
+            new Transform3d(new Translation3d(this.trans.getX(), this.trans.getY(), this.trans.getZ()), new Rotation3d()),
             10,
-            960,
-            480,
-            0);
+            1280,
+            720,
+            10);
     }
 
-    public void periodic(Pose2d p) {
-        if (simCam != null) simCam.processFrame(p);
+    public void periodic() {
+        if (simCam != null && Robot.isSimulation()) simCam.processFrame(PositionManager.getInstance().getRobotPose());
+        targets.clear();
+        for (PhotonTrackedTarget t : this.getLatestResult().getTargets()) {
+            targets.add(new Target(t, this));
+        }
     }
 
     /* Setters */
@@ -102,8 +95,8 @@ public class Camera extends PhotonCamera {
 
     /* Getters */
     
-    public Transform2d getTransform2d() {
-        return new Transform2d(trans, new Rotation2d());
+    public Transform3d getTransform3d() {
+        return trans;
     }
 
     public Camera getCameraPair() {
@@ -111,7 +104,7 @@ public class Camera extends PhotonCamera {
     }
 
     public double getPairDistance() {
-        return trans.getDistance(pair.trans);
+        return trans.getTranslation().getDistance(pair.getTransform3d().getTranslation());
     }
 
     public ArrayList<Target> getTargets() {

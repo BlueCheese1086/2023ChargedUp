@@ -1,6 +1,5 @@
 package frc.robot.Drivetrain;
 
-import com.ctre.phoenix.sensors.PigeonIMU;
 import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
@@ -17,10 +16,8 @@ import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -28,17 +25,14 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ModuleConstants;
-import frc.robot.Sensors.Vision;
-import frc.robot.Sensors.Vision.State;
+import frc.robot.Sensors.Field.PositionManager;
+import frc.robot.Sensors.Gyro.Gyro;
+import frc.robot.Sensors.Vision.VisionManager;
 import frc.robot.Auto.SystemsCheck.SubChecker;
 import frc.robot.Auto.SystemsCheck.SystemsCheck;
 
 public class DrivetrainSubsystem extends SubsystemBase implements SubChecker {
 
-    /* GYRO */
-    //private final AHRS gyro;
-    private final PigeonIMU pigeon = new PigeonIMU(2);//new Pigeon2(2);
-    
     /* MODULES */
     private final SwerveModule frontLeft = new SwerveModule(
         "Front Left",
@@ -53,23 +47,21 @@ public class DrivetrainSubsystem extends SubsystemBase implements SubChecker {
         DriveConstants.frontRightTurnID,
         DriveConstants.frontRightCancoderID,
         DriveConstants.frontRightOffset
-    );
-
+    );;
     private final SwerveModule backLeft = new SwerveModule(
         "Back Left",
         DriveConstants.backLeftDriveID,
         DriveConstants.backLeftTurnID,
         DriveConstants.backLeftCancoderID,
         DriveConstants.backLeftOffset
-    );
-
+    );;
     private final SwerveModule backRight = new SwerveModule(
         "Back Right",
         DriveConstants.backRightDriveID,
         DriveConstants.backRightTurnID,
         DriveConstants.backRightCancoderID,
         DriveConstants.backRightOffset
-    );
+    );;
 
     /* MODULE MANAGEMENT */
     private final SwerveModule[] modules;
@@ -86,18 +78,10 @@ public class DrivetrainSubsystem extends SubsystemBase implements SubChecker {
 
     private double start = System.currentTimeMillis();
 
-    private final PowerDistribution pdh = new PowerDistribution();
-
     public DrivetrainSubsystem() {        
         modules = new SwerveModule[]{frontLeft, frontRight, backLeft, backRight};
         speeds = new ChassisSpeeds(0.0, 0.0, 0.0);
         
-        kinematics = new SwerveDriveKinematics(
-            new Translation2d(ModuleConstants.kModuleToCenter, ModuleConstants.kModuleToCenter),
-            new Translation2d(ModuleConstants.kModuleToCenter, -ModuleConstants.kModuleToCenter),
-            new Translation2d(-ModuleConstants.kModuleToCenter, ModuleConstants.kModuleToCenter),
-            new Translation2d(-ModuleConstants.kModuleToCenter, -ModuleConstants.kModuleToCenter));
-
         for (SwerveModule s : modules) {
             s.initEncoder();
         }
@@ -109,23 +93,20 @@ public class DrivetrainSubsystem extends SubsystemBase implements SubChecker {
             new SwerveModulePosition()
         };
 
-
-        /* GYRO INIT */
-        pigeon.configFactoryDefault();
-        pigeon.setYaw(180);
+        kinematics = new SwerveDriveKinematics(
+            new Translation2d(ModuleConstants.kModuleToCenter, ModuleConstants.kModuleToCenter),
+            new Translation2d(ModuleConstants.kModuleToCenter, -ModuleConstants.kModuleToCenter),
+            new Translation2d(-ModuleConstants.kModuleToCenter, ModuleConstants.kModuleToCenter),
+            new Translation2d(-ModuleConstants.kModuleToCenter, -ModuleConstants.kModuleToCenter));
 
         /* ODOMETRY */
         // odometry = new SwerveDriveOdometry(kinematics, getRobotAngle(), modulePositions);
         odometry = new SwerveDriveOdometry(kinematics, new Rotation2d(), modulePositions);
 
         /* TELEMETRY */
-        Shuffleboard.getTab("Field").add(field);
-        Vision.setField(field);
-
-        Shuffleboard.getTab("Field").addNumber("Distance", () -> Vision.getState().distance);
+        // Shuffleboard.getTab("Field").add(field);
             
         Shuffleboard.getTab("Field").addNumber("Gyro", () -> getRobotAngle().getDegrees());
-        Shuffleboard.getTab("Field").addNumber("Raw Gyro", ()->pigeon.getYaw());
     }
 
     /*******************
@@ -139,23 +120,22 @@ public class DrivetrainSubsystem extends SubsystemBase implements SubChecker {
             modulePositions[i1] = new SwerveModulePosition(modules[i1].getDistance(), modules[i1].getTurnAngle());
         }
 
-        State state = Vision.getState();
-
-        //Pose2d position = Vision.estimatePosition(getRobotAngle());
-        Pose2d position = Vision.getEstimatedPosition();
-
-        if (state.hasTarget && !position.equals(new Pose2d()) && !isMoving(speeds, 0.1, 0.1)) {
-            //Vision.estimatePosition(getRobotAngle()).relativeTo(odometry.getPoseMeters());
-            //resetModulePositions();
-            resetOdo(position);
-            //odometry.resetPosition(getRobotAngle(), modulePositions, position);
+        if (Robot.isReal() && !isMoving(0.1, 0.1)) {
+            resetOdo(VisionManager.getInstance().getEstimatedPose());
         } else {
             odometry.update(getRobotAngle(), modulePositions);
         }
-        // odometry.update(getRobotAngle(), modulePositions);
-        field.setRobotPose(odometry.getPoseMeters());
 
-        SmartDashboard.putString("Pose", Vision.estimatePosition(getRobotAngle()).toString());
+        if (Robot.isSimulation()) {
+            Pose2d t = VisionManager.getInstance().getEstimatedPose();
+            PositionManager.getInstance().getObject("Estimated Pose").setPose(
+                t.getX(),
+                t.getY(),
+                Gyro.getInstance().getAngle()
+            );
+        }
+        PositionManager.getInstance().setRobotPose(odometry.getPoseMeters());
+
     }
 
     /**
@@ -195,12 +175,12 @@ public class DrivetrainSubsystem extends SubsystemBase implements SubChecker {
         double elapsed = System.currentTimeMillis() - start;
         this.speeds = sp;
         states = kinematics.toSwerveModuleStates(speeds, new Translation2d(0.0, 0.0));
-        for (int i = 0; i < modules.length; i++) {
+        for (int i = 0; i < 4; i++) {
             modules[i].setState(states[i]);
-            // modules[i].setState(new SwerveModuleState(0.0, Rotation2d.fromDegrees(0)));
+            //modules[i].setState(new SwerveModuleState(0.0, Rotation2d.fromDegrees(0)));
         }
         if (Robot.isSimulation()) {
-            pigeon.setYaw(pigeon.getYaw()+elapsed/1000*Units.radiansToDegrees(sp.omegaRadiansPerSecond));
+            Gyro.getInstance().setAngle(Gyro.getInstance().getAngle().getDegrees()+180+elapsed/1000*Units.radiansToDegrees(sp.omegaRadiansPerSecond));
         }
         start = System.currentTimeMillis();
     }
@@ -238,14 +218,6 @@ public class DrivetrainSubsystem extends SubsystemBase implements SubChecker {
     }
 
     /**
-     * Gets the gyro object
-     * @return The gyro object
-     */
-    public PigeonIMU getGyro() {
-        return pigeon;
-    }
-
-    /**
      * Gets the name of the Subsystem
      */
     public String getName() {
@@ -265,9 +237,7 @@ public class DrivetrainSubsystem extends SubsystemBase implements SubChecker {
      * @return The Rotation2d of the robot
      */
     public Rotation2d getRobotAngle() {
-        return Rotation2d.fromDegrees(
-            ((pigeon.getYaw()%360.0)+360.0)%360.0 - 180.0
-        );
+        return Gyro.getInstance().getAngle();
     }
 
     /**
@@ -278,6 +248,11 @@ public class DrivetrainSubsystem extends SubsystemBase implements SubChecker {
         return new SwerveModuleState[]{frontLeft.getState(), frontRight.getState(), backLeft.getState(), backRight.getState()};
     }
 
+    // public void initGyro() {
+    //     for (int i = 0; i < 100; i++) {System.out.println(i);}
+    //     pigeon.setYaw(Vision.estimateGyro().getDegrees()+180);
+    // }
+
     /**
      * Determines wether or not the bot is moving
      * @param sp The current chassis speeds
@@ -285,29 +260,26 @@ public class DrivetrainSubsystem extends SubsystemBase implements SubChecker {
      * @param turnThreshold The threshold to determine rotation
      * @return Is the bot moving
      */
-    private boolean isMoving(ChassisSpeeds sp, double moveThreshold, double turnThreshold) {
+    private boolean isMoving(double moveThreshold, double turnThreshold) {
+        ChassisSpeeds sp = speeds;
         return sp.vxMetersPerSecond > moveThreshold || sp.vyMetersPerSecond > moveThreshold || sp.omegaRadiansPerSecond > turnThreshold;
     }
 
-    /**
-     * Sets the gyro angle to 0
-     * Points straight away from blue alliance
-     */
-    public void resetGyro() {
-        pigeon.setYaw(180);
-    }
+    // /**
+    //  * DO NOT USE - NOT NECESSARY
+    //  * Resets distance traveled for all swerve modules
+    //  * Used when reseting odometry
+    //  */
+    // private void resetModulePositions() {
+    //     for (SwerveModule s : modules) {
+    //         s.resetDistance();
+    //     }
+    // }
 
     /**
-     * DO NOT USE - NOT NECESSARY
-     * Resets distance traveled for all swerve modules
-     * Used when reseting odometry
+     * Resets odometry
+     * @param p The position you want odometry to be at
      */
-    private void resetModulePositions() {
-        for (SwerveModule s : modules) {
-            s.resetDistance();
-        }
-    }
-
     private void resetOdo(Pose2d p) {
         //resetModulePositions();
         odometry.resetPosition(getRobotAngle(), modulePositions, p);

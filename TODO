@@ -1,0 +1,52 @@
+// Ctrl + Shift + C - Create Checkbox
+// Ctrl + Shift + Enter - Toggle Checkbox
+
+// INVERSE KINEMATICS
+* [X] ~~*Get Basics Working*~~ [2023-02-24]
+* [ ] Create Heatmap With No Go Zones
+* [ ] Use Pathing To Avoid No Go Zones
+* [ ] Create Controlling Scheme
+
+
+// ELEVATOR
+* [X] ~~*Manage Elevator State*~~ [2023-02-24]
+* [ ] Tune PID
+* [ ] Auto Systems Check
+* [ ] Find Current Starting Pos
+
+// ARM
+* [X] ~~*Manage Arm State*~~ [2023-02-24]
+* [ ] Tune PID
+* [ ] Auto Systems Check
+* [ ] Manage All 3 Encoders
+* [ ] Find Current Starting Pos
+
+// Wrist
+* [X] ~~*Write Subsystem Class*~~ [2023-02-24]
+* [ ] Tune PID
+* [ ] Auto Systems Check
+* [ ] Find Starting Pos
+
+// Intake
+* [ ] Write Subsystem Class
+* [ ] Manage Cone Intaking
+* [ ] Auto Systems Check
+* [ ] Create Controlling Scheme
+
+// Drivetrain
+* [ ] Line Up To Scoring Pos Automatically
+* [ ] Assist Driver When Picking/Placing
+* [X] ~~*Fast AF*~~ [2023-02-24]
+
+// Autonomous
+* [ ] Use Starting Pos To Make A Generated Path To The Start Of The Auto Path
+
+// Automation
+* [ ] Manage Placed Game Pieces
+
+// Pre Match - Pits
+* [ ] Auto Systems Check - Including Vision
+
+// Pre Match - Field
+* [ ] Get Gyro Pos From Visions
+* [ ] Use LEDS To Alert Correct Positioning

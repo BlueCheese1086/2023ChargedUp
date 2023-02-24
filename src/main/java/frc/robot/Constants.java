@@ -68,8 +68,8 @@ public class Constants {
 
     public static final class ElevatorConstants {
         
-        public static final int leftID = 0;
-        public static final int rightID = 0;
+        public static final int leftID = 11;
+        public static final int rightID = 12;
         
         public static final int bottomSwitchID = 0;
 
@@ -79,7 +79,7 @@ public class Constants {
 
         public static final double MAX_HEIGHT = Units.inchesToMeters(65);
 
-        public static final double TOWER_ANGLE_OFFSET = Units.degreesToRadians(10);
+        public static final double TOWER_ANGLE_OFFSET = Units.degreesToRadians(90-72);
 
         public static final double kP = 0.0;
         public static final double kI = 0.0;
@@ -90,7 +90,7 @@ public class Constants {
 
     public static final class ArmConstants {
 
-        public static final int armId = 0;
+        public static final int armId = 13;
 
         public static final double GEARBOX_RATIO = 25;
 
@@ -118,6 +118,11 @@ public class Constants {
         public static final int intakeID = 0;
 
         public static final double INTAKE_PROTRUSION = Units.inchesToMeters(17.5);
+    }
+
+    public static class GyroConstants {
+        public static final int GYRO_ID = 2;
+
     }
 
 }

@@ -7,12 +7,9 @@ import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
-import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.AnalogEncoder;
-import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -35,8 +32,8 @@ public class SwerveModule extends SubsystemBase {
     private final SparkMaxPIDController turnPID;
     private final SparkMaxPIDController drivePID;
 
-    private final SlewRateLimiter turnSlewRateLimiter = new SlewRateLimiter(1);
-    private final SlewRateLimiter driveSlewRateLimiter = new SlewRateLimiter(2.0, -Double.MAX_VALUE, 0.0);
+    // private final SlewRateLimiter turnSlewRateLimiter = new SlewRateLimiter(1);
+    // private final SlewRateLimiter driveSlewRateLimiter = new SlewRateLimiter(2.0, -Double.MAX_VALUE, 0.0);
 
     private final double offset;
     private double startTime = System.currentTimeMillis();

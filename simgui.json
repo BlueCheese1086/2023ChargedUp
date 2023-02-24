@@ -1,0 +1,42 @@
+{
+  "NTProvider": {
+    "types": {
+      "/FMSInfo": "FMSInfo",
+      "/Shuffleboard/Field/Field": "Field2d",
+      "/Shuffleboard/Field/Mech": "Mechanism2d",
+      "/SmartDashboard/leftcam Sim Field": "Field2d",
+      "/SmartDashboard/rightcam Sim Field": "Field2d"
+    },
+    "windows": {
+      "/Shuffleboard/Field/Field": {
+        "window": {
+          "visible": true
+        }
+      },
+      "/Shuffleboard/Field/Mech": {
+        "window": {
+          "visible": true
+        }
+      }
+    }
+  },
+  "NetworkTables": {
+    "transitory": {
+      "Shuffleboard": {
+        "Field": {
+          "Mech": {
+            "arm": {
+              "open": true
+            },
+            "elevator": {
+              "open": true
+            },
+            "open": true
+          },
+          "open": true
+        },
+        "open": true
+      }
+    }
+  }
+}

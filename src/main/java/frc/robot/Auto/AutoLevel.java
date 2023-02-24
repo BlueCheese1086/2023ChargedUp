@@ -7,6 +7,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Drivetrain.DrivetrainSubsystem;
+import frc.robot.Sensors.Gyro.Gyro;
 
 public class AutoLevel extends CommandBase {
 
@@ -16,7 +17,7 @@ public class AutoLevel extends CommandBase {
 
     public AutoLevel(DrivetrainSubsystem d) {
         this.d = d;
-        this.gyro = d.getGyro();
+        this.gyro = Gyro.getInstance().getGyro();
         addRequirements(d);
     }
 
