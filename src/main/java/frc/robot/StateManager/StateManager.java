@@ -97,4 +97,11 @@ public class StateManager extends SubsystemBase {
 		};
 	}
 
+	public boolean isValid(double x, double y) {
+		double[] ua = inverseIt(x, y);
+		if (1/Math.tan(ua[1])*(0-1/Math.sin(ua[1])*Math.cos(ua[1]+ELEVATOR_ANGLE)) <= 2/*TODO: MAKE BUMPER LENGTH*/) return false;
+		if (ua[1] > ArmConstants.RANGE - ELEVATOR_ANGLE || ua[1] < ArmConstants.RANGE + ELEVATOR_ANGLE) return false;
+		return true;
+	}
+
 }

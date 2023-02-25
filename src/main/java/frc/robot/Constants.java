@@ -99,12 +99,10 @@ public class Constants {
          */
         public static final double ARM_LENGTH = 1;
 
-        // Arm MAX angle limit
-        public static final double UPPER_LIMIT = Units.degreesToRadians(45);
         // Arm Starting angle
         public static final double STARTING_ANGLE = 0.0;
-        // Arm MIN angle limit
-        public static final double LOWER_LIMIT = Units.degreesToRadians(-45);
+        // Arm Range
+        public static final double RANGE = Units.degreesToRadians(150);
 
         public static final double kP = 0.0;
         public static final double kI = 0.0;

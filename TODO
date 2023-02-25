@@ -5,13 +5,14 @@
 * [X] ~~*Get Basics Working*~~ [2023-02-24]
 * [ ] Create Heatmap With No Go Zones
 * [ ] Use Pathing To Avoid No Go Zones
+* [ ] Detect Intersections (Adding Arm Limits)
 * [ ] Create Controlling Scheme
 
 
 // ELEVATOR
 * [X] ~~*Manage Elevator State*~~ [2023-02-24]
 * [ ] Tune PID
-* [ ] Auto Systems Check
+* [X] ~~*Auto Systems Check*~~ [2023-02-24]
 * [ ] Find Current Starting Pos
 
 // ARM
@@ -34,7 +35,6 @@
 * [ ] Create Controlling Scheme
 
 // Drivetrain
-* [ ] Line Up To Scoring Pos Automatically
 * [ ] Assist Driver When Picking/Placing
 * [X] ~~*Fast AF*~~ [2023-02-24]
 
@@ -43,6 +43,7 @@
 
 // Automation
 * [ ] Manage Placed Game Pieces
+* [ ] LEDs alert human player what to place
 
 // Pre Match - Pits
 * [ ] Auto Systems Check - Including Vision
@@ -50,3 +51,7 @@
 // Pre Match - Field
 * [ ] Get Gyro Pos From Visions
 * [ ] Use LEDS To Alert Correct Positioning
+
+// Vision
+* [ ] Get gyro from april tags
+* [X] ~~*Process multiple targets*~~ [2023-02-25]

@@ -2,6 +2,11 @@ package frc.robot.StateManager.Commands;
 
 import java.util.function.DoubleSupplier;
 
+import com.pathplanner.lib.PathConstraints;
+import com.pathplanner.lib.PathPlanner;
+import com.pathplanner.lib.PathPlannerTrajectory;
+
+import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Arm.ArmSubsystem;
 import frc.robot.Elevator.ElevatorSubsystem;
@@ -22,7 +27,7 @@ public class LinearFollow extends CommandBase {
     }
 
     public void execute() {
-        double[] ua = StateManager.getInstance().inverseIt(d.getAsDouble()*2, Math.pow(Math.log10(10*d.getAsDouble()+1), 1));
+        double[] ua = StateManager.getInstance().inverseIt(d.getAsDouble()*2.5, 1);
         e.setDesiredHeight(ua[0]);
         a.setAngle(ua[1]);
     }
