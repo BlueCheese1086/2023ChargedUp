@@ -13,25 +13,24 @@
 * [X] ~~*Manage Elevator State*~~ [2023-02-24]
 * [ ] Tune PID
 * [X] ~~*Auto Systems Check*~~ [2023-02-24]
-* [ ] Find Current Starting Pos
+* [X] ~~*Find Current Starting Pos*~~ [2023-02-26]
 
 // ARM
 * [X] ~~*Manage Arm State*~~ [2023-02-24]
 * [ ] Tune PID
-* [ ] Auto Systems Check
-* [ ] Manage All 3 Encoders
-* [ ] Find Current Starting Pos
+* [X] ~~*Auto Systems Check*~~ [2023-02-26]
+* [X] ~~*Find Current Starting Pos*~~ [2023-02-26]
 
 // Wrist
 * [X] ~~*Write Subsystem Class*~~ [2023-02-24]
 * [ ] Tune PID
-* [ ] Auto Systems Check
-* [ ] Find Starting Pos
+* [X] ~~*Auto Systems Check*~~ [2023-02-26]
+* [X] ~~*Find Starting Pos*~~ [2023-02-26]
 
 // Intake
-* [ ] Write Subsystem Class
+* [X] ~~*Write Subsystem Class*~~ [2023-02-26]
 * [ ] Manage Cone Intaking
-* [ ] Auto Systems Check
+* [X] ~~*Auto Systems Check*~~ [2023-02-26]
 * [ ] Create Controlling Scheme
 
 // Drivetrain
@@ -39,7 +38,7 @@
 * [X] ~~*Fast AF*~~ [2023-02-24]
 
 // Autonomous
-* [ ] Use Starting Pos To Make A Generated Path To The Start Of The Auto Path
+* [X] ~~*Use Starting Pos To Make A Generated Path To The Start Of The Auto Path*~~ [2023-02-26]
 
 // Automation
 * [ ] Manage Placed Game Pieces
@@ -49,9 +48,9 @@
 * [ ] Auto Systems Check - Including Vision
 
 // Pre Match - Field
-* [ ] Get Gyro Pos From Visions
+* [X] ~~*Get Gyro Pos From Visions*~~ [2023-02-26]
 * [ ] Use LEDS To Alert Correct Positioning
 
 // Vision
-* [ ] Get gyro from april tags
+* [X] ~~*Get gyro from april tags*~~ [2023-02-26]
 * [X] ~~*Process multiple targets*~~ [2023-02-25]

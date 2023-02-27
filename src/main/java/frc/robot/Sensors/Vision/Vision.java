@@ -105,8 +105,8 @@ public class Vision extends SubsystemBase {
         SmartDashboard.putNumber("Theta2", theta2);
         SmartDashboard.putNumber("Phi", Units.radiansToDegrees(phi));
 
-        double A = Units.degreesToRadians(90 - theta1) + phi;
-        double B = Units.degreesToRadians(90 + theta2) - phi;
+        double A = Math.PI/2 - theta1 + phi;
+        double B = Math.PI/2 + theta2 - phi;
         // double C = Units.degreesToRadians(180 - A - B);
 
         double AB = bestTarget.leftCam.getPairDistance();
@@ -146,6 +146,32 @@ public class Vision extends SubsystemBase {
         return finalPose;
     }
 
+    public Rotation2d estimateGyroPose() {
+        for (Camera c : cameras) {
+            if (c.getCameraPair() == null) continue;
+            if (c.getTargets().size() < 2 || c.getCameraPair().getTargets().size() < 2) continue;
+            Target c1t1 = c.getTargets().get(0);
+            Target c1t2 = c.getTargets().get(1);
+            AprilTag t1 = c1t1.tag;
+            AprilTag t2 = c1t2.tag;
+            double[] c1pos = new double[]{
+                (t2.pose.getX()*Math.tan(c1t2.xOffset)-t1.pose.getX()*Math.tan(c1t1.xOffset)+t1.pose.getY()-t2.pose.getY())/(Math.tan(c1t2.xOffset)-Math.tan(c1t1.xOffset)),
+                ((t2.pose.getX()*Math.tan(c1t2.xOffset)-t1.pose.getX()*Math.tan(c1t1.xOffset)+t1.pose.getY()-t2.pose.getY())/(Math.tan(c1t2.xOffset)-Math.tan(c1t1.xOffset)-t2.pose.getX()))*Math.tan(c1t2.xOffset)+t2.pose.getY()
+            };
+
+            Target c2t1 = c.getTargets().get(0);
+            Target c2t2 = c.getTargets().get(1);
+            t1 = c2t1.tag;
+            t2 = c2t2.tag;
+            double[] c2pos = new double[]{
+                (t1.pose.getX()*Math.tan(c2t1.xOffset)-t2.pose.getX()*Math.tan(c2t2.xOffset)-t1.pose.getY()+t2.pose.getY())/(Math.tan(c2t1.xOffset)-Math.tan(c2t2.xOffset)),
+                ((t1.pose.getX()*Math.tan(c2t1.xOffset)-t2.pose.getX()*Math.tan(c2t2.xOffset)-t1.pose.getY()+t2.pose.getY())/(Math.tan(c2t1.xOffset)-Math.tan(c2t2.xOffset))-t1.pose.getX())*Math.tan(c1t1.xOffset)+t1.pose.getY()
+            };
+            return new Rotation2d((c1pos[1]-c2pos[1])/(c1pos[0]-c2pos[0]));
+        }
+        return new Rotation2d();
+    }
+
     public Pose2d estimateSingleTargetPose(Target t, Rotation2d gyro) {
         return new Pose2d();
     }
@@ -161,7 +187,7 @@ public class Vision extends SubsystemBase {
             this.rightTarget = rightTarget;
             this.leftCam = this.leftTarget.parentCamera;
             this.rightCam = this.rightTarget.parentCamera;
-            if (leftTarget.distance > rightTarget.distance) {
+            if (leftTarget.distance < rightTarget.distance) {
                 closestTarget = this.leftTarget;
             } else {
                 closestTarget = this.rightTarget;
@@ -185,8 +211,8 @@ public class Vision extends SubsystemBase {
 
 
         public Target(PhotonTrackedTarget t, Camera c) {
-            xOffset = t.getYaw();
-            yOffset = t.getPitch();
+            xOffset = Units.degreesToRadians(t.getYaw());
+            yOffset = Units.degreesToRadians(t.getPitch());
             area = t.getArea();
 
             tag = FieldElements.aprilTags.get(t.getFiducialId());

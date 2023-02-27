@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.Arm.ArmSubsystem;
 import frc.robot.Drivetrain.DrivetrainSubsystem;
 import frc.robot.Drivetrain.Commands.DefaultDrive;
@@ -44,6 +45,7 @@ public class RobotContainer {
 	}
 
 	private void configureBindings() {
+		new JoystickButton(driver, 1).onTrue(drivetrain.getFollowCommand("Circle"));
 	}
 
 	public double filter(double d) {

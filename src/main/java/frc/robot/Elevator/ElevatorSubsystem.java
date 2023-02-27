@@ -7,8 +7,12 @@ import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
+import frc.robot.Auto.SystemsCheck.SubChecker;
+import frc.robot.Auto.SystemsCheck.SystemsCheck;
 import frc.robot.Constants.ElevatorConstants;
 
 /*
@@ -29,7 +33,7 @@ import frc.robot.Constants.ElevatorConstants;
  * ⣿⣿⣿⣿⣿⣿⣶⣶⣶⣶⣶⣶⣶⣶⣾⣷⣶⣶⣶⣶⣶⣶⣶⣶⣿⣿⣿⣿⣿⣿ 
  */
 
-public class ElevatorSubsystem extends SubsystemBase {
+public class ElevatorSubsystem extends SubsystemBase implements SubChecker {
     
     private final CANSparkMax left;
     private final CANSparkMax right;
@@ -61,9 +65,9 @@ public class ElevatorSubsystem extends SubsystemBase {
 
         leftEncoder = left.getEncoder();
         //Motor position to elevator height (meters)
-        leftEncoder.setPositionConversionFactor(ElevatorConstants.SPOOL_RADIUS*2*Math.PI/ElevatorConstants.GEARBOX_RATIO);
+        leftEncoder.setPositionConversionFactor(ElevatorConstants.SPOOL_DIAMETER*Math.PI/ElevatorConstants.GEARBOX_RATIO);
         //Motor velocity m/s
-        leftEncoder.setVelocityConversionFactor(ElevatorConstants.SPOOL_RADIUS*2*Math.PI/ElevatorConstants.GEARBOX_RATIO/60);
+        leftEncoder.setVelocityConversionFactor(ElevatorConstants.SPOOL_DIAMETER*Math.PI/ElevatorConstants.GEARBOX_RATIO/60);
         leftEncoder.setPosition(1);
 
         leftPID = left.getPIDController();
@@ -128,6 +132,22 @@ public class ElevatorSubsystem extends SubsystemBase {
     public ElevatorState getCurrentState() {
         return this.currentState;
     }
+
+    public Command check(boolean safe) {
+        if (!safe) {
+          return new InstantCommand();
+        }
+        return new InstantCommand(() -> {
+          double time = System.currentTimeMillis();
+          boolean working = false;
+          setDesiredHeight(0.1);
+          while (System.currentTimeMillis() - time < 2000) {}
+          if (leftEncoder.getPosition() > 0.05) {
+            working = true;
+          }
+          SystemsCheck.setSystemStatus(this, working);
+        }, this);
+      }
 
 
 }

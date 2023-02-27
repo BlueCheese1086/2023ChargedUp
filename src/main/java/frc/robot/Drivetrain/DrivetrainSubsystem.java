@@ -3,6 +3,7 @@ package frc.robot.Drivetrain;
 import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
+import com.pathplanner.lib.PathPoint;
 import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 import com.revrobotics.CANSparkMax;
 
@@ -172,6 +173,7 @@ public class DrivetrainSubsystem extends SubsystemBase implements SubChecker {
      * @param sp The desired ChassisSpeeds
      */
     public void drive(ChassisSpeeds sp) {
+        System.out.println(sp.toString());
         double elapsed = System.currentTimeMillis() - start;
         this.speeds = sp;
         states = kinematics.toSwerveModuleStates(speeds, new Translation2d(0.0, 0.0));
@@ -191,18 +193,28 @@ public class DrivetrainSubsystem extends SubsystemBase implements SubChecker {
      * @return The created path
      */
     public Command getFollowCommand(String p) {
+        // System.out.println("RAN");
         field.getObject("Trajectory").setTrajectory(
             PathPlanner.loadPath(p, new PathConstraints(1, 1)));
-        PathPlannerTrajectory traj = PathPlanner.loadPath(p, new PathConstraints(1, 1));
+        PathPlannerTrajectory traj = PathPlanner.loadPath(p, new PathConstraints(2, 3));
+        
         Command s = new SequentialCommandGroup(
             new InstantCommand(() -> {
-                Pose2d init = traj.getInitialPose();
-                resetOdo(new Pose2d(
-                    init.getX(),
-                    init.getY(),
-                    getRobotAngle()
-                ));
+                // Pose2d i = new Pose2d(traj.getInitialHolonomicPose().getTranslation(), getRobotAngle());
+
+                //resetOdo(traj.getInitialPose());
             }),
+            // new PPSwerveControllerCommand(
+            //     PathPlanner.generatePath(new PathConstraints(1, 1), 
+            //         new PathPoint(odometry.getPoseMeters().getTranslation(), getRobotAngle(), getRobotAngle()),
+            //         new PathPoint(traj.getInitialHolonomicPose().getTranslation(), getRobotAngle(), traj.getInitialHolonomicPose().getRotation())),
+            //     this::getPose,
+            //     this.kinematics, 
+            //     new PIDController(1, 0, 0), 
+            //     new PIDController(1, 0, 0), 
+            //     new PIDController(1, 0, 0), 
+            //     this::setStates, 
+            //     this),
             new PPSwerveControllerCommand(
                 traj,
                 this::getPose,
@@ -229,7 +241,8 @@ public class DrivetrainSubsystem extends SubsystemBase implements SubChecker {
      * @return The current Pose2d of the robot
      */
     public Pose2d getPose() {
-        return odometry.getPoseMeters();
+        return new Pose2d(odometry.getPoseMeters().getX(), odometry.getPoseMeters().getY(), getRobotAngle());
+        // return odometry.getPoseMeters();
     }
 
     /**
@@ -302,10 +315,10 @@ public class DrivetrainSubsystem extends SubsystemBase implements SubChecker {
      */
     private void setStates(SwerveModuleState[] s) {
         drive(kinematics.toChassisSpeeds(s));
-        /*for (int i = 0; i < 4; i++) {
-            states[i] = s[i];
-            modules[i].setState(states[i]);
-        }*/
+        // for (int i = 0; i < 4; i++) {
+        //     states[i] = s[i];
+        //     modules[i].setState(states[i]);
+        // }
     }
 
     /**

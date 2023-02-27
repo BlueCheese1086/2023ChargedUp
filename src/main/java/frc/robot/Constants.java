@@ -75,7 +75,7 @@ public class Constants {
 
         public static final double GEARBOX_RATIO = 11.25;
 
-        public static final double SPOOL_RADIUS = Units.inchesToMeters(1.5);
+        public static final double SPOOL_DIAMETER = Units.inchesToMeters(2.5);
 
         public static final double MAX_HEIGHT = Units.inchesToMeters(65);
 
@@ -109,17 +109,35 @@ public class Constants {
         public static final double kD = 0.0;
         public static final double kFF = 0.0;
 
+        public static final double ENC_OFFSET = 0.0;
+
     }
 
     public static final class IntakeConstants {
         
-        public static final int intakeID = 0;
+        public static final int ID = 0;
 
         public static final double INTAKE_PROTRUSION = Units.inchesToMeters(17.5);
     }
 
     public static class GyroConstants {
         public static final int GYRO_ID = 2;
+
+    }
+
+    public static class WristConstants {
+
+        public static final int LEFT_ID = 0;
+        public static final int RIGHT_ID = 0;
+
+        public static final double kP = 0.0;
+        public static final double kI = 0.0;
+        public static final double kD = 0.0;
+        public static final double kFF = 0.0;
+
+        public static final double GEARBOX_RATIO = 0;
+
+        public static final double ENC_OFFSET = 0.0;
 
     }
 

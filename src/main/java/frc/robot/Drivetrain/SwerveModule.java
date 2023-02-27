@@ -231,9 +231,9 @@ public class SwerveModule extends SubsystemBase {
      */
     public void setState(SwerveModuleState in) {
 
-        state = new SwerveModuleState(in.speedMetersPerSecond, in.angle);
+        // state = new SwerveModuleState(in.speedMetersPerSecond, in.angle);
 
-        state = SwerveModuleState.optimize(state, Rotation2d.fromDegrees(turnEnc.getPosition()%360));
+        state = SwerveModuleState.optimize(in, getTurnAngle());
 
         // drivePID.setReference(state.speedMetersPerSecond, ControlType.kVelocity);
 
