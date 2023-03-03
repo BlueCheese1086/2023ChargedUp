@@ -1,5 +1,7 @@
 package frc.robot.Drivetrain;
 
+import javax.swing.text.Position;
+
 import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
@@ -17,6 +19,8 @@ import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -79,7 +83,7 @@ public class DrivetrainSubsystem extends SubsystemBase implements SubChecker {
 
     private double start = System.currentTimeMillis();
 
-    public DrivetrainSubsystem() {        
+    public DrivetrainSubsystem() {  
         modules = new SwerveModule[]{frontLeft, frontRight, backLeft, backRight};
         speeds = new ChassisSpeeds(0.0, 0.0, 0.0);
         
@@ -108,6 +112,7 @@ public class DrivetrainSubsystem extends SubsystemBase implements SubChecker {
         // Shuffleboard.getTab("Field").add(field);
             
         Shuffleboard.getTab("Field").addNumber("Gyro", () -> getRobotAngle().getDegrees());
+        Shuffleboard.getTab("Field").addNumber("Raw Gyro", () -> Gyro.getInstance().getGyro().getYaw());
     }
 
     /*******************
@@ -115,6 +120,7 @@ public class DrivetrainSubsystem extends SubsystemBase implements SubChecker {
      *******************/
     @Override
     public void periodic() {
+        // System.out.println(getPose().toString());
         //SmartDashboard.putNumber("Gyro", pigeon.getYaw());
 
         for (int i1 = 0; i1 < modules.length; i1++) {
@@ -173,7 +179,8 @@ public class DrivetrainSubsystem extends SubsystemBase implements SubChecker {
      * @param sp The desired ChassisSpeeds
      */
     public void drive(ChassisSpeeds sp) {
-        System.out.println(sp.toString());
+        // System.out.println(sp.toString());
+        // System.out.println(getRobotAngle().toString());
         double elapsed = System.currentTimeMillis() - start;
         this.speeds = sp;
         states = kinematics.toSwerveModuleStates(speeds, new Translation2d(0.0, 0.0));
@@ -193,28 +200,41 @@ public class DrivetrainSubsystem extends SubsystemBase implements SubChecker {
      * @return The created path
      */
     public Command getFollowCommand(String p) {
-        // System.out.println("RAN");
-        field.getObject("Trajectory").setTrajectory(
-            PathPlanner.loadPath(p, new PathConstraints(1, 1)));
+        // field.getObject("Trajectory").setTrajectory(
+        //     PathPlanner.loadPath(p, new PathConstraints(1, 1)));
         PathPlannerTrajectory traj = PathPlanner.loadPath(p, new PathConstraints(2, 3));
+        // PathPlannerTrajectory.transformTrajectoryForAlliance(traj, Alliance.Red);
+        System.out.println(traj.getInitialPose());
+        System.out.println(traj.getInitialHolonomicPose());
+        System.out.println(getPose());
+        System.out.println(Math.atan(
+            (getPose().getY()-traj.getInitialPose().getY())/
+            (getPose().getX()-traj.getInitialPose().getX())
+        ));
         
         Command s = new SequentialCommandGroup(
-            new InstantCommand(() -> {
-                // Pose2d i = new Pose2d(traj.getInitialHolonomicPose().getTranslation(), getRobotAngle());
+            // new InstantCommand(() -> {
+            //     Pose2d i = traj.getInitialHolonomicPose();
+            //     // Gyro.getInstance().setAngle(i.getRotation().getDegrees()+180);
 
-                //resetOdo(traj.getInitialPose());
-            }),
-            // new PPSwerveControllerCommand(
-            //     PathPlanner.generatePath(new PathConstraints(1, 1), 
-            //         new PathPoint(odometry.getPoseMeters().getTranslation(), getRobotAngle(), getRobotAngle()),
-            //         new PathPoint(traj.getInitialHolonomicPose().getTranslation(), getRobotAngle(), traj.getInitialHolonomicPose().getRotation())),
-            //     this::getPose,
-            //     this.kinematics, 
-            //     new PIDController(1, 0, 0), 
-            //     new PIDController(1, 0, 0), 
-            //     new PIDController(1, 0, 0), 
-            //     this::setStates, 
-            //     this),
+            //     resetOdo(traj.getInitialHolonomicPose());
+            // }),
+            new PPSwerveControllerCommand(
+                PathPlanner.generatePath(new PathConstraints(2, 3), 
+                    new PathPoint(PositionManager.getInstance().getRobotPose().getTranslation(), new Rotation2d(
+                        Math.atan(
+                            (getPose().getY()-traj.getInitialPose().getY())/
+                            (getPose().getX()-traj.getInitialPose().getX())
+                        )
+                    ), 0),
+                    new PathPoint(traj.getInitialHolonomicPose().getTranslation(), new Rotation2d(), traj.getInitialHolonomicPose().getRotation(), 0.0)),
+                this::getPose,
+                this.kinematics, 
+                new PIDController(1, 0, 0), 
+                new PIDController(1, 0, 0), 
+                new PIDController(1, 0, 0), 
+                this::setStates, 
+                this),
             new PPSwerveControllerCommand(
                 traj,
                 this::getPose,
@@ -241,8 +261,8 @@ public class DrivetrainSubsystem extends SubsystemBase implements SubChecker {
      * @return The current Pose2d of the robot
      */
     public Pose2d getPose() {
-        return new Pose2d(odometry.getPoseMeters().getX(), odometry.getPoseMeters().getY(), getRobotAngle());
-        // return odometry.getPoseMeters();
+        // return new Pose2d(odometry.getPoseMeters().getX(), odometry.getPoseMeters().getY(), getRobotAngle());
+        return PositionManager.getInstance().getRobotPose();
     }
 
     /**
@@ -299,21 +319,12 @@ public class DrivetrainSubsystem extends SubsystemBase implements SubChecker {
     }
 
     /**
-     * Sets the individual state of a swerve module
-     * @param s The desired state
-     * @param i Index of the swerve module
-     * [frontLeft, frontRight, backLeft, backRight]
-     */
-    public void setModuleState(SwerveModuleState s, int i) {
-        modules[i].setState(s);
-    }
-
-    /**
      * Sets the raw states of the swerve modules
      * Used for pathing
      * @param s States to set
      */
     private void setStates(SwerveModuleState[] s) {
+        // System.out.println(kinematics.toChassisSpeeds(s).toString());
         drive(kinematics.toChassisSpeeds(s));
         // for (int i = 0; i < 4; i++) {
         //     states[i] = s[i];

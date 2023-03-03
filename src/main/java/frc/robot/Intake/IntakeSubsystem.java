@@ -1,8 +1,10 @@
 package frc.robot.Intake;
 
+import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import com.revrobotics.SparkMaxAbsoluteEncoder.Type;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -16,10 +18,20 @@ public class IntakeSubsystem extends SubsystemBase implements SubChecker {
 	CANSparkMax intake;
 	RelativeEncoder intakeEncoder;
 
+	private static IntakeSubsystem instance;
+
+	public static IntakeSubsystem getInstance() {
+		if (instance == null) {
+			instance = new IntakeSubsystem();
+		}
+		return instance;
+	}
+
 	/** Creates a new Intake. */
 	public IntakeSubsystem() {
 		intake = new CANSparkMax(Constants.IntakeConstants.ID, MotorType.kBrushless);
 		intakeEncoder = intake.getEncoder();
+		instance = this;
 	}
 
 	public void in() {
@@ -36,6 +48,10 @@ public class IntakeSubsystem extends SubsystemBase implements SubChecker {
 
 	public void intake(double speed) {
 		intake.set(speed);
+	}
+
+	public AbsoluteEncoder getWristEncoder() {
+		return intake.getAbsoluteEncoder(Type.kDutyCycle);
 	}
 
 	public Command check(boolean safe) {

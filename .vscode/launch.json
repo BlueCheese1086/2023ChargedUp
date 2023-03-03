@@ -4,18 +4,31 @@
   // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
   "version": "0.2.0",
   "configurations": [
-
+    {
+      "type": "java",
+      "name": "Launch TestPathfinding",
+      "request": "launch",
+      "mainClass": "BlueCheeseUtils.TestPathfinding",
+      "projectName": "2023ChargedUp"
+    },
+    {
+      "type": "java",
+      "name": "Launch BuildData",
+      "request": "launch",
+      "mainClass": "BlueCheeseUtils.BuildData",
+      "projectName": "2023ChargedUp"
+    },
     {
       "type": "wpilib",
       "name": "WPILib Desktop Debug",
       "request": "launch",
-      "desktop": true,
+      "desktop": true
     },
     {
       "type": "wpilib",
       "name": "WPILib roboRIO Debug",
       "request": "launch",
-      "desktop": false,
+      "desktop": false
     }
   ]
 }

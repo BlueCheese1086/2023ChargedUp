@@ -1,10 +1,12 @@
 package frc.robot.Elevator;
 
+import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import com.revrobotics.SparkMaxAbsoluteEncoder.Type;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -39,6 +41,7 @@ public class ElevatorSubsystem extends SubsystemBase implements SubChecker {
     private final CANSparkMax right;
 
     private final RelativeEncoder leftEncoder;
+    private final AbsoluteEncoder absoluteEncoder;
     private final SparkMaxPIDController leftPID;
 
     private final DigitalInput bottomSwitch;
@@ -64,11 +67,12 @@ public class ElevatorSubsystem extends SubsystemBase implements SubChecker {
         right.follow(left, true);
 
         leftEncoder = left.getEncoder();
+        absoluteEncoder = left.getAbsoluteEncoder(Type.kDutyCycle);
         //Motor position to elevator height (meters)
         leftEncoder.setPositionConversionFactor(ElevatorConstants.SPOOL_DIAMETER*Math.PI/ElevatorConstants.GEARBOX_RATIO);
         //Motor velocity m/s
         leftEncoder.setVelocityConversionFactor(ElevatorConstants.SPOOL_DIAMETER*Math.PI/ElevatorConstants.GEARBOX_RATIO/60);
-        leftEncoder.setPosition(1);
+        leftEncoder.setPosition(ElevatorConstants.MINIMUM_STARTING_HEIGHT + absoluteEncoder.getPosition()*ElevatorConstants.SPOOL_DIAMETER*Math.PI);
 
         leftPID = left.getPIDController();
         leftPID.setP(ElevatorConstants.kP);
@@ -79,9 +83,9 @@ public class ElevatorSubsystem extends SubsystemBase implements SubChecker {
 
         bottomSwitch = new DigitalInput(ElevatorConstants.bottomSwitchID);
 
-        if (inStaringPos && bottomSwitch.get()) {
-            leftEncoder.setPosition(-0.05);
-        }
+        // if (inStaringPos && bottomSwitch.get()) {
+        //     leftEncoder.setPosition(-0.05);
+        // }
     }
 
     @Override

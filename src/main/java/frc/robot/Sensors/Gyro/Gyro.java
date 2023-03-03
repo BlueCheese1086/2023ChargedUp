@@ -3,8 +3,6 @@ package frc.robot.Sensors.Gyro;
 import com.ctre.phoenix.sensors.PigeonIMU;
 
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import frc.robot.Constants.GyroConstants;
 
 public class Gyro {
@@ -23,7 +21,8 @@ public class Gyro {
     public Gyro(int id) {
         pigeon = new PigeonIMU(id);
         pigeon.configFactoryDefault();
-        pigeon.setYaw(DriverStation.getAlliance() == Alliance.Blue ? 180 : 0);
+        // pigeon.setYaw(DriverStation.getAlliance() == Alliance.Blue ? 0 : 0);
+        pigeon.setYaw(180);
     }
 
     /**

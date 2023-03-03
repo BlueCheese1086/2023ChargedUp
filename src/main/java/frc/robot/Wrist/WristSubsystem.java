@@ -15,6 +15,7 @@ import frc.robot.Constants;
 import frc.robot.Auto.SystemsCheck.SubChecker;
 import frc.robot.Auto.SystemsCheck.SystemsCheck;
 import frc.robot.Constants.WristConstants;
+import frc.robot.Intake.IntakeSubsystem;
 
 public class WristSubsystem extends SubsystemBase implements SubChecker {
 
@@ -46,7 +47,7 @@ public class WristSubsystem extends SubsystemBase implements SubChecker {
 		leftPID.setFF(Constants.WristConstants.kFF);
 
 		leftEncoder = left.getEncoder();
-		absoluteEncoder = left.getAbsoluteEncoder(Type.kDutyCycle);
+		absoluteEncoder = IntakeSubsystem.getInstance().getWristEncoder();
 		absoluteEncoder.setZeroOffset(WristConstants.ENC_OFFSET);
 
 		// double startPosition = absoluteEncoder.getPosition() * 2 * Math.PI;
@@ -58,12 +59,12 @@ public class WristSubsystem extends SubsystemBase implements SubChecker {
 		state = new WristState(leftEncoder.getPosition(), 0);
 	}
 
-	public void setPosition(double angle) {
+	public void setAngle(double angle) {
 		leftPID.setReference(angle, ControlType.kPosition);
 	}
 
 	public void reset() {
-		setPosition(0);
+		setAngle(0);
 	}
 
 	public void setVelocity(double angularSpeed) {
@@ -75,6 +76,10 @@ public class WristSubsystem extends SubsystemBase implements SubChecker {
 		state = new WristState(leftEncoder.getPosition(), leftEncoder.getVelocity());
 	}
 
+	public WristState getCurrentState() {
+		return state;
+	}
+
 	public Command check(boolean safe) {
 		if (!safe) {
 			return new InstantCommand();
@@ -82,7 +87,7 @@ public class WristSubsystem extends SubsystemBase implements SubChecker {
 		return new InstantCommand(() -> {
 			double time = System.currentTimeMillis();
 			boolean working = false;
-			setPosition(Math.PI / 6.0);
+			setAngle(Math.PI / 6.0);
 			while (System.currentTimeMillis() - time < 2000) {
 			}
 			if (leftEncoder.getPosition() > Math.PI / 12.0) {

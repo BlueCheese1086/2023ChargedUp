@@ -68,8 +68,8 @@ public class Constants {
 
     public static final class ElevatorConstants {
         
-        public static final int leftID = 11;
-        public static final int rightID = 12;
+        public static final int leftID = 12;
+        public static final int rightID = 11;
         
         public static final int bottomSwitchID = 0;
 
@@ -81,6 +81,8 @@ public class Constants {
 
         public static final double TOWER_ANGLE_OFFSET = Units.degreesToRadians(90-72);
 
+        public static final double MINIMUM_STARTING_HEIGHT = (int)(Units.inchesToMeters(25)/(SPOOL_DIAMETER*Math.PI))*(double)SPOOL_DIAMETER*Math.PI;
+
         public static final double kP = 0.0;
         public static final double kI = 0.0;
         public static final double kD = 0.0;
@@ -90,14 +92,14 @@ public class Constants {
 
     public static final class ArmConstants {
 
-        public static final int armId = 13;
+        public static final int armId = 23;
 
         public static final double GEARBOX_RATIO = 25;
 
         /**
          * Meters
          */
-        public static final double ARM_LENGTH = 1;
+        public static final double ARM_LENGTH = Units.inchesToMeters(24);
 
         // Arm Starting angle
         public static final double STARTING_ANGLE = 0.0;
@@ -115,9 +117,9 @@ public class Constants {
 
     public static final class IntakeConstants {
         
-        public static final int ID = 0;
+        public static final int ID = 31;
 
-        public static final double INTAKE_PROTRUSION = Units.inchesToMeters(17.5);
+        public static final double INTAKE_LENGTH = Units.inchesToMeters(17.5);
     }
 
     public static class GyroConstants {
@@ -127,8 +129,8 @@ public class Constants {
 
     public static class WristConstants {
 
-        public static final int LEFT_ID = 0;
-        public static final int RIGHT_ID = 0;
+        public static final int LEFT_ID = 22;
+        public static final int RIGHT_ID = 21;
 
         public static final double kP = 0.0;
         public static final double kI = 0.0;

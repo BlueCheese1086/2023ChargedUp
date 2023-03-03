@@ -5,13 +5,16 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.FieldObject2d;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-public class PositionManager {
+public class PositionManager extends SubsystemBase {
 
     private static PositionManager instance;
 
     private Field2d field;
     private Pose2d position;
+    
+    private Location l = Location.allianceScoring;
 
     public static PositionManager getInstance() {
         if (instance == null) {
@@ -24,6 +27,11 @@ public class PositionManager {
         field = new Field2d();
         position = new Pose2d();
         Shuffleboard.getTab("Field").add("Field", field);
+    }
+
+    @Override
+    public void periodic() {
+        
     }
     
     public Field2d getField() {
@@ -57,5 +65,20 @@ public class PositionManager {
         }
         return closest;
     }
+
+    public Location getLocation() {
+        return l;
+    }
+
+    public enum Location {
+        alliancePickup,
+        enemyPickup,
+        allianceScoring,
+        enemyScoring,
+        field,
+        charger;
+    }
+
+
 
 }

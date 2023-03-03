@@ -4,6 +4,7 @@
       "/FMSInfo": "FMSInfo",
       "/Shuffleboard/Field/Field": "Field2d",
       "/Shuffleboard/Field/Mech": "Mechanism2d",
+      "/Shuffleboard/Field/Mech1": "Mechanism2d",
       "/SmartDashboard/leftcam Sim Field": "Field2d",
       "/SmartDashboard/rightcam Sim Field": "Field2d"
     },
@@ -13,7 +14,7 @@
           "visible": true
         }
       },
-      "/Shuffleboard/Field/Mech": {
+      "/Shuffleboard/Field/Mech1": {
         "window": {
           "visible": true
         }
@@ -23,6 +24,9 @@
   "NetworkTables": {
     "transitory": {
       "Shuffleboard": {
+        "Drivetrain": {
+          "open": true
+        },
         "Field": {
           "Mech": {
             "arm": {
@@ -32,8 +36,7 @@
               "open": true
             },
             "open": true
-          },
-          "open": true
+          }
         },
         "open": true
       }
