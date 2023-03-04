@@ -5,6 +5,7 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMax.ControlType;
+import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj2.command.Command;
@@ -49,6 +50,8 @@ public class ArmSubsystem extends SubsystemBase implements SubChecker {
         arm = new CANSparkMax(ArmConstants.armId, MotorType.kBrushless);
 
         arm.restoreFactoryDefaults();
+
+        arm.setIdleMode(IdleMode.kBrake);
 
         neoEncoder = arm.getEncoder();
         // throughBoreEncoder = arm.getAlternateEncoder(8192);

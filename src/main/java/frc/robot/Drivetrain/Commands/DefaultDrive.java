@@ -29,23 +29,23 @@ public class DefaultDrive extends CommandBase {
 
     @Override
     public void execute() {
-        ChassisSpeeds speeds = ChassisSpeeds.fromFieldRelativeSpeeds(
-            x_trans.getAsDouble()*DriveConstants.MAX_LINEAR_VELOCITY, 
-            y_trans.getAsDouble()*DriveConstants.MAX_LINEAR_VELOCITY, 
-            rot.getAsDouble()*DriveConstants.MAX_TURN_VELOCITY,
-            drive.getRobotAngle());
-            if (speeds.omegaRadiansPerSecond == 0 && speeds.vxMetersPerSecond == 0 && speeds.vyMetersPerSecond == 0) {
-                drive.setX(false);
-                drive.drive(speeds);
-            } else {
-                drive.drive(speeds);
-            }
-        
-        // drive.drive(new ChassisSpeeds(
-        //     y_trans.getAsDouble()*DriveConstants.MAX_LINEAR_VELOCITY, 
+        // ChassisSpeeds speeds = ChassisSpeeds.fromFieldRelativeSpeeds(
         //     x_trans.getAsDouble()*DriveConstants.MAX_LINEAR_VELOCITY, 
-        //     rot.getAsDouble()*DriveConstants.MAX_TURN_VELOCITY
-        // ));
+        //     y_trans.getAsDouble()*DriveConstants.MAX_LINEAR_VELOCITY, 
+        //     rot.getAsDouble()*DriveConstants.MAX_TURN_VELOCITY,
+        //     drive.getRobotAngle());
+        //     if (speeds.omegaRadiansPerSecond == 0 && speeds.vxMetersPerSecond == 0 && speeds.vyMetersPerSecond == 0) {
+        //         drive.setX(false);
+        //         drive.drive(speeds);
+        //     } else {
+        //         drive.drive(speeds);
+        //     }
+        
+        drive.drive(new ChassisSpeeds(
+            y_trans.getAsDouble()*DriveConstants.MAX_LINEAR_VELOCITY, 
+            x_trans.getAsDouble()*DriveConstants.MAX_LINEAR_VELOCITY, 
+            rot.getAsDouble()*DriveConstants.MAX_TURN_VELOCITY
+        ));
     }
 
     @Override

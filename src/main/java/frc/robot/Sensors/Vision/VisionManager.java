@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Map;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Sensors.Field.FieldElements;
 import frc.robot.Sensors.Field.PositionManager;
@@ -52,6 +53,10 @@ public class VisionManager extends SubsystemBase {
             y += e.getKey()*e.getValue().getY();
         }
         return new Pose2d(x, y, Gyro.getInstance().getAngle());
+    }
+
+    public Rotation2d getEstimatedGyro() {
+        return vision.estimateGyroPose();
     }
 
 }

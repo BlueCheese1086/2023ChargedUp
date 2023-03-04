@@ -5,8 +5,8 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMax.ControlType;
+import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-import com.revrobotics.SparkMaxAbsoluteEncoder.Type;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -36,6 +36,9 @@ public class WristSubsystem extends SubsystemBase implements SubChecker {
 
 		left.restoreFactoryDefaults();
 		right.restoreFactoryDefaults();
+
+		left.setIdleMode(IdleMode.kBrake);
+		right.setIdleMode(IdleMode.kBrake);
 
 		right.follow(left, false);
 

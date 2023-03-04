@@ -7,6 +7,7 @@ package frc.robot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -15,6 +16,8 @@ import frc.robot.Arm.ArmSubsystem;
 import frc.robot.Drivetrain.DrivetrainSubsystem;
 import frc.robot.Drivetrain.Commands.DefaultDrive;
 import frc.robot.Elevator.ElevatorSubsystem;
+import frc.robot.Elevator.Commands.RawControl;
+import frc.robot.Sensors.Commands.BeforeField;
 import frc.robot.Sensors.Vision.VisionManager;
 import frc.robot.StateManager.StateManager;
 import frc.robot.StateManager.Commands.ElevatorArmControl;
@@ -24,7 +27,7 @@ import frc.robot.Wrist.WristSubsystem;
 
 public class RobotContainer {
 
-	// DrivetrainSubsystem drivetrain = new DrivetrainSubsystem();
+	DrivetrainSubsystem drivetrain = new DrivetrainSubsystem();
 	ElevatorSubsystem elevator = new ElevatorSubsystem(false);
 	ArmSubsystem arm = new ArmSubsystem(true);
 	WristSubsystem wrist = new WristSubsystem();
@@ -32,28 +35,32 @@ public class RobotContainer {
 
 	XboxController driver = new XboxController(0);
 
+	SendableChooser<Command> auto = new SendableChooser<>();
+
 	public RobotContainer() {
 
 		VisionManager.getInstance();
 
 		// new StateManager(elevator, arm);
 
-		// drivetrain.setDefaultCommand(
-		// 	new DefaultDrive(drivetrain,
-		// 		() -> filter(driver.getRawAxis(0)), 
-		// 		() -> filter(-driver.getRawAxis(1)), 
-		// 		() -> filter(-new Joystick(1).getRawAxis(0))
-		// ));
+		drivetrain.setDefaultCommand(
+			new DefaultDrive(drivetrain,
+				() -> filter(driver.getRawAxis(0)), 
+				() -> filter(-driver.getRawAxis(1)), 
+				() -> filter(-driver.getRawAxis(4))
+		));
 
-		stateManager.setDefaultCommand(new ElevatorArmControl(stateManager, arm, elevator, wrist, null));
+		// stateManager.setDefaultCommand(new ElevatorArmControl(stateManager, arm, elevator, wrist, null));
 
-		elevator.setDefaultCommand(new LinearFollow(elevator, arm, () -> -new Joystick(1).getRawAxis(1)));
+		elevator.setDefaultCommand(new RawControl(elevator, () -> driver.getRightTriggerAxis() - driver.getLeftTriggerAxis()));
 
 		configureBindings();
 	}
 
 	private void configureBindings() {
-		// new JoystickButton(driver, 1).onTrue(drivetrain.getFollowCommand("PANAMA"));
+		new JoystickButton(driver, 1).onTrue(new InstantCommand(() -> {
+			drivetrain.getFollowCommand("2 Piece + Pick").schedule();
+		}));
 
 		new JoystickButton(driver, Button.kA.value).onTrue(new InstantCommand(() -> {
 			stateManager.setPosition(Positions.stowed);
@@ -79,5 +86,11 @@ public class RobotContainer {
 
 	public Command getAutonomousCommand() {
 		return Commands.print("No autonomous command configured");
+	}
+
+	public Command getBeforeField() {
+		Command c = new BeforeField();
+		c.ignoringDisable(true);
+		return c;
 	}
 }

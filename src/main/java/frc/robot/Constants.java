@@ -7,23 +7,23 @@ public class Constants {
     public static final class DriveConstants {
         public static final int frontLeftTurnID = 3;
         public static final int frontLeftDriveID = 4;
-        public static final int frontLeftCancoderID = 0;
-        public static final double frontLeftOffset = 0.556+0.25;
+        public static final int frontLeftCancoderID = 3;//3
+        public static final double frontLeftOffset = 0.563;//0.556+0.25;
 
-        public static final int frontRightTurnID = 5;
-        public static final int frontRightDriveID = 6;
-        public static final int frontRightCancoderID = 1;
-        public static final double frontRightOffset = 0.655-0.25;
+        public static final int frontRightTurnID = 6;
+        public static final int frontRightDriveID = 5;
+        public static final int frontRightCancoderID = 2; //2
+        public static final double frontRightOffset = 0.909;//0.655-0.25;
 
-        public static final int backLeftTurnID = 7;
-        public static final int backLeftDriveID = 8;
-        public static final int backLeftCancoderID = 2;
-        public static final double backLeftOffset = 0.263+0.25;
+        public static final int backLeftTurnID = 8;
+        public static final int backLeftDriveID = 7;
+        public static final int backLeftCancoderID = 1; //1
+        public static final double backLeftOffset = 0.013;//0.263+0.25;
 
         public static final int backRightTurnID = 1;
         public static final int backRightDriveID = 2;
-        public static final int backRightCancoderID = 3;
-        public static final double backRightOffset = 0.285+0.25;
+        public static final int backRightCancoderID = 0; //0
+        public static final double backRightOffset = 0.033;//0.285+0.25;
 
         //m/s
         public static final double MAX_LINEAR_VELOCITY = Units.feetToMeters(16);
@@ -46,7 +46,7 @@ public class Constants {
         public static final double driveD = 0.0;
         public static final double driveFF = 1.96;
 
-        public static final double turnP = .01;
+        public static final double turnP = 0.01;
         public static final double turnI = 0.0;
         public static final double turnD = 0.005;
 
@@ -83,8 +83,8 @@ public class Constants {
 
         public static final double MINIMUM_STARTING_HEIGHT = (int)(Units.inchesToMeters(25)/(SPOOL_DIAMETER*Math.PI))*(double)SPOOL_DIAMETER*Math.PI;
 
-        public static final double kP = 0.0;
-        public static final double kI = 0.0;
+        public static final double kP = 0.5;
+        public static final double kI = 0.01;
         public static final double kD = 0.0;
         public static final double kFF = 0.0;
 

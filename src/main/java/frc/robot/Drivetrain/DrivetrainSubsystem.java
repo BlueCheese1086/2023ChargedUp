@@ -1,7 +1,5 @@
 package frc.robot.Drivetrain;
 
-import javax.swing.text.Position;
-
 import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
@@ -19,8 +17,6 @@ import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -140,6 +136,12 @@ public class DrivetrainSubsystem extends SubsystemBase implements SubChecker {
                 t.getY(),
                 Gyro.getInstance().getAngle()
             );
+
+            PositionManager.getInstance().getObject("Rotation").setPose(new Pose2d(
+                t.getX(),
+                t.getY(),
+                VisionManager.getInstance().getEstimatedGyro()
+            ));
         }
         PositionManager.getInstance().setRobotPose(odometry.getPoseMeters());
 
@@ -184,6 +186,7 @@ public class DrivetrainSubsystem extends SubsystemBase implements SubChecker {
         double elapsed = System.currentTimeMillis() - start;
         this.speeds = sp;
         states = kinematics.toSwerveModuleStates(speeds, new Translation2d(0.0, 0.0));
+        // modules[0].setState(states[0]);
         for (int i = 0; i < 4; i++) {
             modules[i].setState(states[i]);
             //modules[i].setState(new SwerveModuleState(0.0, Rotation2d.fromDegrees(0)));
@@ -226,8 +229,8 @@ public class DrivetrainSubsystem extends SubsystemBase implements SubChecker {
                             (getPose().getY()-traj.getInitialPose().getY())/
                             (getPose().getX()-traj.getInitialPose().getX())
                         )
-                    ), 0),
-                    new PathPoint(traj.getInitialHolonomicPose().getTranslation(), new Rotation2d(), traj.getInitialHolonomicPose().getRotation(), 0.0)),
+                    ).plus(new Rotation2d(Math.PI)), 0),
+                    new PathPoint(traj.getInitialHolonomicPose().getTranslation(), traj.getInitialPose().getRotation().plus(new Rotation2d(Math.PI)), traj.getInitialHolonomicPose().getRotation(), 0.0)),
                 this::getPose,
                 this.kinematics, 
                 new PIDController(1, 0, 0), 

@@ -89,8 +89,8 @@ public class SwerveModule extends SubsystemBase {
         drivePID.setD(ModuleConstants.driveD);
         drivePID.setFF(ModuleConstants.driveFF);
 
-        turnEnc.setVelocityConversionFactor(360 / ModuleConstants.STEER_RATIO / 60);
-        turnEnc.setPositionConversionFactor(360 / ModuleConstants.STEER_RATIO);
+        turnEnc.setVelocityConversionFactor(360.0 / ModuleConstants.STEER_RATIO / 60);
+        turnEnc.setPositionConversionFactor(360.0 / ModuleConstants.STEER_RATIO);
         driveEnc.setVelocityConversionFactor(ModuleConstants.WHEEL_CIRCUMPHRENCE / ModuleConstants.DRIVE_RATIO / 60);
         driveEnc.setPositionConversionFactor(ModuleConstants.WHEEL_CIRCUMPHRENCE / ModuleConstants.DRIVE_RATIO);
 
@@ -127,8 +127,9 @@ public class SwerveModule extends SubsystemBase {
     public void periodic() {
         double elapsed = System.currentTimeMillis() - startTime;
         SmartDashboard.putNumber("Elapsed Time", elapsed);
-        if (Robot.isSimulation())
+        if (Robot.isSimulation()) {
             driveEnc.setPosition(driveEnc.getPosition() + elapsed / 1000 * state.speedMetersPerSecond);
+        }
         startTime = System.currentTimeMillis();
     }
 
@@ -242,7 +243,8 @@ public class SwerveModule extends SubsystemBase {
     public void setState(SwerveModuleState in) {
 
         state = in;
-        state = SwerveModuleState.optimize(in, getTurnAngle());
+        // state = SwerveModuleState.optimize(in, getTurnAngle());
+
 
         // drivePID.setReference(state.speedMetersPerSecond, ControlType.kVelocity);
 
