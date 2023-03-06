@@ -7,7 +7,10 @@ import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import com.revrobotics.SparkMaxAbsoluteEncoder.Type;
 
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -39,7 +42,6 @@ public class ArmSubsystem extends SubsystemBase implements SubChecker {
     public CANSparkMax arm;
 
     public RelativeEncoder neoEncoder;
-    public RelativeEncoder throughBoreEncoder;
     public AbsoluteEncoder absoluteEncoder;
 
     public SparkMaxPIDController controller;
@@ -51,15 +53,15 @@ public class ArmSubsystem extends SubsystemBase implements SubChecker {
 
         arm.restoreFactoryDefaults();
 
-        arm.setIdleMode(IdleMode.kBrake);
+        arm.setIdleMode(IdleMode.kCoast);
 
         neoEncoder = arm.getEncoder();
-        // throughBoreEncoder = arm.getAlternateEncoder(8192);
-        absoluteEncoder = arm.getAbsoluteEncoder(com.revrobotics.SparkMaxAbsoluteEncoder.Type.kDutyCycle);
-        absoluteEncoder.setZeroOffset(ArmConstants.ENC_OFFSET);
+        absoluteEncoder = arm.getAbsoluteEncoder(Type.kDutyCycle);
+        absoluteEncoder.setPositionConversionFactor(2*Math.PI/*/ArmConstants.GEARBOX_RATIO*/);
+        absoluteEncoder.setZeroOffset(5.24);
 
-        neoEncoder.setPositionConversionFactor(2*Math.PI / ArmConstants.GEARBOX_RATIO);
-        if (inStartingPos) neoEncoder.setPosition(absoluteEncoder.getPosition()-absoluteEncoder.getZeroOffset());
+        // neoEncoder.setPositionConversionFactor(2*Math.PI / ArmConstants.GEARBOX_RATIO);
+        // neoEncoder.setPosition((absoluteEncoder.getPosition()/*-absoluteEncoder.getZeroOffset()*/)*(2*Math.PI / ArmConstants.GEARBOX_RATIO));
 
         controller = arm.getPIDController();
 
@@ -67,13 +69,25 @@ public class ArmSubsystem extends SubsystemBase implements SubChecker {
         controller.setI(ArmConstants.kI);
         controller.setD(ArmConstants.kD);
         controller.setFF(ArmConstants.kFF);
+        controller.setFeedbackDevice(absoluteEncoder);
 
-        currentState = new ArmState(0, 0);
+        currentState = new ArmState(0, 0, 0);
+		Shuffleboard.getTab("Debug").add("PID", debugController);
     }
     
-    @Override
-    public void periodic() {
-        currentState = new ArmState(neoEncoder.getPosition(), neoEncoder.getVelocity());
+    PIDController debugController = new PIDController(ArmConstants.kP, ArmConstants.kI, ArmConstants.kD);
+	PIDController lastController = debugController;
+	@Override
+	public void periodic() {
+		if (!debugController.equals(lastController)) {
+			controller.setP(debugController.getP());
+			controller.setI(debugController.getI());
+			controller.setD(debugController.getD());
+		}
+        lastController = debugController;
+        // System.out.println(neoEncoder.getPosition());
+        // controller.setReference(0, null)
+        currentState = new ArmState(absoluteEncoder.getPosition(), neoEncoder.getVelocity(), absoluteEncoder.getPosition());//-absoluteEncoder.getZeroOffset());
     }
 
     public ArmState getCurrentState() {

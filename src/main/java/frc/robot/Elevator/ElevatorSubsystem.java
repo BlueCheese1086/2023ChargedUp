@@ -9,7 +9,6 @@ import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.SparkMaxAbsoluteEncoder.Type;
 
-import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -45,9 +44,7 @@ public class ElevatorSubsystem extends SubsystemBase implements SubChecker {
     private final AbsoluteEncoder absoluteEncoder;
     private final SparkMaxPIDController leftPID;
 
-    private final DigitalInput bottomSwitch;
-
-    private ElevatorState currentState = new ElevatorState(0, 0);
+    private ElevatorState currentState = new ElevatorState(0, 0, 0);
 
     public enum ElevatorPosition {
         Stowed,
@@ -57,7 +54,7 @@ public class ElevatorSubsystem extends SubsystemBase implements SubChecker {
         PlayerStation;
     }
 
-    public ElevatorSubsystem(boolean inStaringPos) {
+    public ElevatorSubsystem(boolean inStartingPos) {
         left = new CANSparkMax(ElevatorConstants.leftID, MotorType.kBrushless);
         right = new CANSparkMax(ElevatorConstants.rightID, MotorType.kBrushless);
 
@@ -72,11 +69,13 @@ public class ElevatorSubsystem extends SubsystemBase implements SubChecker {
 
         leftEncoder = left.getEncoder();
         absoluteEncoder = left.getAbsoluteEncoder(Type.kDutyCycle);
+        absoluteEncoder.setZeroOffset(ElevatorConstants.ABS_OFFSET);
+        absoluteEncoder.setInverted(true);
         //Motor position to elevator height (meters)
         leftEncoder.setPositionConversionFactor(ElevatorConstants.SPOOL_DIAMETER*Math.PI/ElevatorConstants.GEARBOX_RATIO);
         //Motor velocity m/s
         leftEncoder.setVelocityConversionFactor(ElevatorConstants.SPOOL_DIAMETER*Math.PI/ElevatorConstants.GEARBOX_RATIO/60);
-        leftEncoder.setPosition(ElevatorConstants.MINIMUM_STARTING_HEIGHT + absoluteEncoder.getPosition()*ElevatorConstants.SPOOL_DIAMETER*Math.PI);
+        leftEncoder.setPosition(ElevatorConstants.MINIMUM_STARTING_HEIGHT + (absoluteEncoder.getPosition()-absoluteEncoder.getZeroOffset())*ElevatorConstants.SPOOL_DIAMETER*Math.PI);
 
         leftPID = left.getPIDController();
         leftPID.setP(ElevatorConstants.kP);
@@ -85,8 +84,6 @@ public class ElevatorSubsystem extends SubsystemBase implements SubChecker {
         leftPID.setFF(ElevatorConstants.kFF);
 
 
-        bottomSwitch = new DigitalInput(ElevatorConstants.bottomSwitchID);
-
         // if (inStaringPos && bottomSwitch.get()) {
         //     leftEncoder.setPosition(-0.05);
         // }
@@ -94,7 +91,7 @@ public class ElevatorSubsystem extends SubsystemBase implements SubChecker {
 
     @Override
     public void periodic() {
-        currentState = new ElevatorState(leftEncoder.getPosition(), leftEncoder.getVelocity());
+        currentState = new ElevatorState(leftEncoder.getPosition(), leftEncoder.getVelocity(), absoluteEncoder.getPosition());
     }
 
     /**
@@ -157,5 +154,8 @@ public class ElevatorSubsystem extends SubsystemBase implements SubChecker {
         }, this);
       }
 
+      public void set(double d) {
+        left.set(d);
+      }
 
 }

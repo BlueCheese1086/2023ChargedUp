@@ -8,6 +8,10 @@ import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -27,7 +31,7 @@ public class WristSubsystem extends SubsystemBase implements SubChecker {
 
 	RelativeEncoder leftEncoder;
 
-	AbsoluteEncoder absoluteEncoder;
+	// AbsoluteEncoder absoluteEncoder;
 
 	/** Creates a new Wrist. */
 	public WristSubsystem() {
@@ -40,26 +44,29 @@ public class WristSubsystem extends SubsystemBase implements SubChecker {
 		left.setIdleMode(IdleMode.kBrake);
 		right.setIdleMode(IdleMode.kBrake);
 
+		left.setInverted(false);
+		right.setInverted(false);
 		right.follow(left, false);
 
 		leftPID = left.getPIDController();
 
+		leftEncoder = left.getEncoder();
+		// absoluteEncoder = IntakeSubsystem.getInstance().getWristEncoder();
+		// absoluteEncoder.setZeroOffset(WristConstants.ENC_OFFSET);
+
+		// leftPID.setFeedbackDevice(absoluteEncoder);
 		leftPID.setP(Constants.WristConstants.kP);
 		leftPID.setI(Constants.WristConstants.kI);
 		leftPID.setD(Constants.WristConstants.kD);
 		leftPID.setFF(Constants.WristConstants.kFF);
-
-		leftEncoder = left.getEncoder();
-		absoluteEncoder = IntakeSubsystem.getInstance().getWristEncoder();
-		absoluteEncoder.setZeroOffset(WristConstants.ENC_OFFSET);
-
 		// double startPosition = absoluteEncoder.getPosition() * 2 * Math.PI;
 
 		leftEncoder.setPositionConversionFactor(2 * Math.PI / Constants.WristConstants.GEARBOX_RATIO);
 		leftEncoder.setVelocityConversionFactor(2 * Math.PI / Constants.WristConstants.GEARBOX_RATIO / 60);
-		leftEncoder.setPosition(absoluteEncoder.getPosition()-absoluteEncoder.getZeroOffset());
+		leftEncoder.setPosition(Units.degreesToRadians(72));
+		// leftEncoder.setPosition(absoluteEncoder.getPosition()-absoluteEncoder.getZeroOffset());
 
-		state = new WristState(leftEncoder.getPosition(), 0);
+		state = new WristState(0, 0);
 	}
 
 	public void setAngle(double angle) {

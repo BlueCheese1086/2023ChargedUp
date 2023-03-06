@@ -20,7 +20,8 @@ public class RawControl extends CommandBase {
 
     @Override
     public void execute() {
-        e.setDesiredHeight(e.getCurrentState().height+(.1*d.getAsDouble()));
+        //e.setDesiredHeight(e.getCurrentState().height+(.1*d.getAsDouble()));
+        e.set(d.getAsDouble()*0.1);
     }
 
 

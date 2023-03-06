@@ -6,12 +6,14 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Arm.ArmSubsystem;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Elevator.ElevatorSubsystem;
+import frc.robot.Sensors.Gyro.Gyro;
 import frc.robot.Wrist.WristSubsystem;
 
 /**
@@ -51,7 +53,6 @@ public class StateManager extends SubsystemBase {
 
 	private Positions desiredPosition = Positions.stowed;
 	private Positions currentPosition = Positions.stowed;
-	private boolean transition = false;
 
 	private Mechanism2d totalMech = new Mechanism2d(2, 2);
 	MechanismRoot2d root = totalMech.getRoot("elevator", 0, 0);
@@ -71,8 +72,10 @@ public class StateManager extends SubsystemBase {
 		this.wrist = w;
         Shuffleboard.getTab("Field").add("Mech1", totalMech);
 
-		Shuffleboard.getTab("State").addDouble("Elevator", () -> elevator.getCurrentState().height);
-		Shuffleboard.getTab("State").addDouble("Arm", () -> arm.getCurrentState().angle);
+		Shuffleboard.getTab("State").addDouble("Elevator Height", () -> Units.metersToInches(elevator.getCurrentState().height));
+		Shuffleboard.getTab("State").addDouble("Arm Abs", () -> arm.getCurrentState().abs);
+		// Shuffleboard.getTab("State").addDouble("Elevator Starting (in)", () -> Units.metersToInches(ElevatorConstants.MINIMUM_STARTING_HEIGHT));
+		Shuffleboard.getTab("State").addDouble("Arm", () -> Units.radiansToDegrees(arm.getCurrentState().angle));
 		Shuffleboard.getTab("State").addDouble("Wrist", () -> wrist.getCurrentState().angle);
 	}
 
@@ -84,18 +87,30 @@ public class StateManager extends SubsystemBase {
 		evLigament.setLength(currentHeight);
 		armLigament.setAngle(new Rotation2d(currentAngle-Units.degreesToRadians(evLigament.getAngle())));
 	
+
+        Rotation2d yaw = Gyro.getInstance().getAngle();
+        Rotation2d pitch = Rotation2d.fromDegrees(Gyro.getInstance().getGyro().getPitch());
+        Rotation2d roll = Rotation2d.fromDegrees(Gyro.getInstance().getGyro().getRoll());
+
+        // Radians
+        double rollZ = (Math.pow(yaw.getCos(), 2)*pitch.getRadians() + Math.pow(yaw.getSin(), 2)*roll.getRadians());
+        double pitchZ = Math.pow(yaw.getCos(), 2)*roll.getRadians() + Math.pow(yaw.getSin(), 2)*pitch.getRadians();
+
+        SmartDashboard.putNumber("Yaw", yaw.getRadians());
+        SmartDashboard.putNumber("Pitch Z", pitchZ);
+        SmartDashboard.putNumber("Roll Z", rollZ);
 		
 	}
 
 	public void setPosition(Positions p) {
 		desiredPosition = p;
-		if (currentPosition == Positions.stowed && p != Positions.stowed) {
-			currentPosition = Positions.transition.goingIn(false);
-			return;
-		} else if (currentPosition != Positions.stowed && p == Positions.stowed) {
-			currentPosition = Positions.transition.goingIn(true);
-			return;
-		}
+		// if (currentPosition == Positions.stowed && p != Positions.stowed) {
+		// 	currentPosition = Positions.transition.goingIn(false);
+		// 	return;
+		// } else if (currentPosition != Positions.stowed && p == Positions.stowed) {
+		// 	currentPosition = Positions.transition.goingIn(true);
+		// 	return;
+		// }
 		currentPosition = p;
 	}
 	
@@ -128,13 +143,13 @@ public class StateManager extends SubsystemBase {
         public double[] getValue() {
             switch (this) {
                 case stowed:
-                    return new double[]{0.8, -1.5, 1};
+                    return new double[]{0.8, -1.5+Math.PI*2, 1};
                 case transition:
-                    return new double[]{0.75, -1.3, 1};
+                    return new double[]{0.75, -1.3+Math.PI*2, 1};
                 case ground:
-                    return new double[]{0.51, -1.15, -100};
+                    return new double[]{0.51, -1.15+Math.PI*2, -100};
                 case mid:
-                    return new double[]{1.02, -1.05, -100};
+                    return new double[]{1.02, -1.05+Math.PI*2, -100};
                 case high:
                     return new double[]{0.69, 0.23, -100};
                 case player:

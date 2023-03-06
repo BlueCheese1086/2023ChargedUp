@@ -23,21 +23,23 @@ public class AutoLevel extends CommandBase {
 
     @Override
     public void execute() {
-        Rotation2d yaw = d.getRobotAngle();
-        Rotation2d pitch = Rotation2d.fromDegrees(gyro.getPitch());
-        Rotation2d roll = Rotation2d.fromDegrees(gyro.getRoll());
+        Rotation2d yaw = Gyro.getInstance().getAngle();
+        Rotation2d pitch = Rotation2d.fromDegrees(Gyro.getInstance().getGyro().getPitch());
+        Rotation2d roll = Rotation2d.fromDegrees(Gyro.getInstance().getGyro().getRoll());
 
         // Radians
-        double pitchZ = (Math.pow(yaw.getCos(), 2)*pitch.getRadians() + Math.pow(yaw.getSin(), 2)*roll.getRadians());
-        // double rollZ = Math.pow(yaw.getCos(), 2)*roll.getRadians() + Math.pow(yaw.getSin(), 2)*pitch.getRadians();
+        double rollZ = (Math.pow(yaw.getCos(), 2)*pitch.getRadians() + Math.pow(yaw.getSin(), 2)*roll.getRadians());
+        double pitchZ = Math.pow(yaw.getCos(), 2)*roll.getRadians() + Math.pow(yaw.getSin(), 2)*pitch.getRadians();
 
         SmartDashboard.putNumber("Yaw", yaw.getRadians());
         SmartDashboard.putNumber("Pitch Z", pitchZ);
-        SmartDashboard.putNumber("Roll Z", pitchZ);
+        SmartDashboard.putNumber("Roll Z", rollZ);
+
+        if (Math.abs(pitchZ) < 0.1) pitchZ = 0.0;
 
 
         d.drive(
-            ChassisSpeeds.fromFieldRelativeSpeeds(-pitchZ, 0.0, 0.0, d.getRobotAngle())
+            ChassisSpeeds.fromFieldRelativeSpeeds(pitchZ, 0.0, 0.0, d.getRobotAngle())
         );
 
     }

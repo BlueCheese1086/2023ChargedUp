@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
+import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ModuleConstants;
 
 public class SwerveModule extends SubsystemBase {
@@ -69,7 +70,7 @@ public class SwerveModule extends SubsystemBase {
         drive.setInverted(false);
 
         turn.setIdleMode(IdleMode.kBrake);
-        drive.setIdleMode(IdleMode.kBrake);
+        drive.setIdleMode(IdleMode.kCoast);
 
         turnEnc = turn.getEncoder();
         driveEnc = drive.getEncoder();
@@ -203,7 +204,7 @@ public class SwerveModule extends SubsystemBase {
      */
     public Rotation2d getTurnAngle() {
 
-        return Rotation2d.fromDegrees((turnEnc.getPosition() % 360 + 360) % 360 - 180);
+        return Rotation2d.fromDegrees((turnEnc.getPosition() % 360 + 360) % 360);
 
     }
 
@@ -213,7 +214,7 @@ public class SwerveModule extends SubsystemBase {
     public void initEncoder() {
         if (Robot.isSimulation())
             return;
-        turnEnc.setPosition(getCanCoderAngle().getDegrees() - 180);
+        turnEnc.setPosition(getCanCoderAngle().getDegrees());
     }
 
     /**
@@ -243,19 +244,10 @@ public class SwerveModule extends SubsystemBase {
     public void setState(SwerveModuleState in) {
 
         state = in;
-        // state = SwerveModuleState.optimize(in, getTurnAngle());
+        state = SwerveModuleState.optimize(in, getTurnAngle());
 
+        drive.set(state.speedMetersPerSecond / DriveConstants.MAX_LINEAR_VELOCITY);
 
-        // drivePID.setReference(state.speedMetersPerSecond, ControlType.kVelocity);
-
-        // drive.set(driveSlewRateLimiter.calculate(state.speedMetersPerSecond/4.0));
-        drive.set(state.speedMetersPerSecond / 4.0);
-
-        // turnPID.setReference((turnEnc.getPosition() + delta % 360),
-        // ControlType.kPosition);
-        // turnPID.setReference(
-        // calculateAdjustedAngle(state.angle.getDegrees(),
-        // getTurnAngle().getDegrees()), ControlType.kPosition);
         if (Robot.isReal()) {
             turnPID.setReference(
                     state.angle.getDegrees(), ControlType.kPosition);

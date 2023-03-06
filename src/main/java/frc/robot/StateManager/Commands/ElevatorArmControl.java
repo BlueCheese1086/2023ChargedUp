@@ -2,6 +2,7 @@ package frc.robot.StateManager.Commands;
 
 import java.util.function.IntSupplier;
 
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Arm.ArmSubsystem;
 import frc.robot.Elevator.ElevatorSubsystem;
@@ -43,15 +44,16 @@ public class ElevatorArmControl extends CommandBase {
         };
 
         double[] vals = current.getValue();
-        e.setDesiredHeight(vals[0]);
+        // e.setDesiredHeight(vals[0]);
         a.setAngle(vals[1]);
-        if (vals[2] != -100) {
-            w.setAngle(vals[2]);
-        }
+        // w.setAngle(Units.degreesToRadians(72));
+        // if (vals[2] != -100) {
+        //     w.setAngle(vals[2]);
+        // }
 
-        if (current != desired && current.isHere(vals)) {
-            v.setPosition(desired);
-        }
+        // if (current != desired && current.isHere(vals)) {
+        //     v.setPosition(desired);
+        // }
 
     }
 
