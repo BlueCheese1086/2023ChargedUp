@@ -2,6 +2,7 @@
   "NTProvider": {
     "types": {
       "/FMSInfo": "FMSInfo",
+      "/Shuffleboard/Debug/ARM": "PIDController",
       "/Shuffleboard/Field/Field": "Field2d",
       "/Shuffleboard/Field/Mech": "Mechanism2d",
       "/Shuffleboard/Field/Mech1": "Mechanism2d",
@@ -22,9 +23,15 @@
     }
   },
   "NetworkTables": {
+    "Retained Values": {
+      "open": false
+    },
     "transitory": {
       "Shuffleboard": {
-        "Drivetrain": {
+        "Debug": {
+          "ARM": {
+            "open": true
+          },
           "open": true
         },
         "Field": {

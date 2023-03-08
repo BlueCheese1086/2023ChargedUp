@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Drivetrain.DrivetrainSubsystem;
+import frc.robot.Sensors.Gyro.Gyro;
 
 public class AssistedDrive extends CommandBase {
     
@@ -20,6 +21,8 @@ public class AssistedDrive extends CommandBase {
     private final DrivetrainSubsystem drive;
 
     private final Rotation2d offset;
+
+    private final Gyro gyro = Gyro.getInstance();
 
     public AssistedDrive(DrivetrainSubsystem d, DoubleSupplier x, DoubleSupplier y, DoubleSupplier r) {
         x_trans = x;
@@ -39,7 +42,9 @@ public class AssistedDrive extends CommandBase {
             y_trans.getAsDouble()*-DriveConstants.MAX_LINEAR_VELOCITY, 
             x_trans.getAsDouble()*DriveConstants.MAX_LINEAR_VELOCITY, 
             rot.getAsDouble()*DriveConstants.MAX_TURN_VELOCITY,
-            drive.getRobotAngle().plus(offset));
+            gyro.getAngle().plus(offset));
+        
+        drive.drive(speeds);
         
         // drive.drive(new ChassisSpeeds(
         //     y_trans.getAsDouble()*DriveConstants.MAX_LINEAR_VELOCITY, 

@@ -1,5 +1,6 @@
 package frc.robot.Auto;
 
+import com.ctre.phoenix.sensors.Pigeon2;
 import com.ctre.phoenix.sensors.PigeonIMU;
 
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -13,7 +14,7 @@ public class AutoLevel extends CommandBase {
 
     private final DrivetrainSubsystem d;
 
-    private final PigeonIMU gyro;
+    private final Pigeon2 gyro;
 
     public AutoLevel(DrivetrainSubsystem d) {
         this.d = d;
@@ -23,7 +24,7 @@ public class AutoLevel extends CommandBase {
 
     @Override
     public void execute() {
-        Rotation2d yaw = d.getRobotAngle();
+        Rotation2d yaw = Rotation2d.fromDegrees(gyro.getYaw());
         Rotation2d pitch = Rotation2d.fromDegrees(gyro.getPitch());
         Rotation2d roll = Rotation2d.fromDegrees(gyro.getRoll());
 
@@ -37,7 +38,7 @@ public class AutoLevel extends CommandBase {
 
 
         d.drive(
-            ChassisSpeeds.fromFieldRelativeSpeeds(-pitchZ, 0.0, 0.0, d.getRobotAngle())
+            ChassisSpeeds.fromFieldRelativeSpeeds(-pitchZ, 0.0, 0.0, yaw)
         );
 
     }

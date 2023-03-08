@@ -3,6 +3,7 @@ package frc.robot.Arm;
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
+import com.revrobotics.SparkMaxAbsoluteEncoder;
 import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMax.IdleMode;
@@ -15,51 +16,33 @@ import frc.robot.Robot;
 import frc.robot.Auto.SystemsCheck.SubChecker;
 import frc.robot.Auto.SystemsCheck.SystemsCheck;
 import frc.robot.Constants.ArmConstants;
+import frc.robot.Util.DebugPID;
 
-/*
- * ⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠛⠛⠻⢿⣿⣿⣿⣿
- * ⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠏⠀⠀⠀⠀⠀⢹⣿⣿⣿
- * ⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠋⠀⠀⠀⠀⠀⠀⢸⣿⣿⣿
- * ⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡟⠁⠀⠀⠀⠀⠀⠀⣰⣿⣿⣿⣿
- * ⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠏⠀⠀⠀⠀⠀⠀⢀⣴⣿⣿⣿⣿⣿
- * ⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠏⠀⠀⠀⠀⠀⢀⣤⣾⣿⣿⣿⣿⣿⣿
- * ⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠏⠀⠀⠀⢀⣠⣶⣿⣿⣿⣿⣿⣿⣿⣿⣿
- * ⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠃⠀⠀⠀⠀⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
- * ⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠟⠀⠀⠀⠀⢀⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
- * ⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠏⠀⠀⠀⣠⣶⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
- * ⣿⣿⣿⣿⣿⣿⣿⣿⡿⠃⠀⢀⣤⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
- * ⣿⣿⣿⣿⣿⡿⠛⠁⠀⠀⠀⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
- * ⣿⣿⣿⣿⠉⠀⠀⠀⢀⣀⠀⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
- * ⣿⣿⣿⣧⠖⢀⠄⢠⣾⣿⣀⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
- * ⣿⣿⣿⣿⣶⣿⣴⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
- */
 
 public class ArmSubsystem extends SubsystemBase implements SubChecker {
 
     public CANSparkMax arm;
 
-    public RelativeEncoder neoEncoder;
-    public RelativeEncoder throughBoreEncoder;
-    public AbsoluteEncoder absoluteEncoder;
+    public RelativeEncoder relEncoder;
+    public SparkMaxAbsoluteEncoder absoluteEncoder;
 
     public SparkMaxPIDController controller;
 
-    public ArmState currentState;
+    public ArmState state;
 
-    public ArmSubsystem(boolean inStartingPos) {
+    public ArmSubsystem() {
         arm = new CANSparkMax(ArmConstants.armId, MotorType.kBrushless);
 
         arm.restoreFactoryDefaults();
 
         arm.setIdleMode(IdleMode.kBrake);
 
-        neoEncoder = arm.getEncoder();
+        relEncoder = arm.getEncoder();
         // throughBoreEncoder = arm.getAlternateEncoder(8192);
         absoluteEncoder = arm.getAbsoluteEncoder(com.revrobotics.SparkMaxAbsoluteEncoder.Type.kDutyCycle);
         absoluteEncoder.setZeroOffset(ArmConstants.ENC_OFFSET);
 
-        neoEncoder.setPositionConversionFactor(2*Math.PI / ArmConstants.GEARBOX_RATIO);
-        if (inStartingPos) neoEncoder.setPosition(absoluteEncoder.getPosition()-absoluteEncoder.getZeroOffset());
+        relEncoder.setPositionConversionFactor(2*Math.PI / ArmConstants.GEARBOX_RATIO);
 
         controller = arm.getPIDController();
 
@@ -68,21 +51,23 @@ public class ArmSubsystem extends SubsystemBase implements SubChecker {
         controller.setD(ArmConstants.kD);
         controller.setFF(ArmConstants.kFF);
 
-        currentState = new ArmState(0, 0);
+        state = new ArmState(0, 0);
+
+        new DebugPID(controller, "ARM");
     }
     
     @Override
     public void periodic() {
-        currentState = new ArmState(neoEncoder.getPosition(), neoEncoder.getVelocity());
+        state = new ArmState(relEncoder.getPosition(), relEncoder.getVelocity());
     }
 
     public ArmState getCurrentState() {
-        return this.currentState;
+        return this.state;
     }
 
     public void setAngle(double a) {
         if (Robot.isSimulation()) {
-            neoEncoder.setPosition(a);
+            relEncoder.setPosition(a);
             return;
         }
         controller.setReference(a, ControlType.kPosition);
@@ -99,7 +84,7 @@ public class ArmSubsystem extends SubsystemBase implements SubChecker {
             boolean works = false;
             setAngle(0.2);
             while (System.currentTimeMillis() - start < 2000) {}
-            if (neoEncoder.getPosition() > 0.05) {
+            if (relEncoder.getPosition() > 0.05) {
                 works = true;
             }
             SystemsCheck.setSystemStatus(this, works);

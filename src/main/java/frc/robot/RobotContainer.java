@@ -30,11 +30,11 @@ import frc.robot.Wrist.WristSubsystem;
 
 public class RobotContainer {
 
-	DrivetrainSubsystem drivetrain = new DrivetrainSubsystem();
-	// ElevatorSubsystem elevator = new ElevatorSubsystem(false);
-	// ArmSubsystem arm = new ArmSubsystem(false);
-	// WristSubsystem wrist = new WristSubsystem();
-	// StateManager stateManager = new StateManager(elevator, arm, wrist);
+	private final DrivetrainSubsystem drivetrain;
+	// private final ElevatorSubsystem elevator;
+	// private final ArmSubsystem arm;
+	// private final WristSubsystem wrist;
+	// private final StateManager stateManager;
 
 	XboxController driver = new XboxController(0);
 
@@ -43,8 +43,13 @@ public class RobotContainer {
 	public RobotContainer() {
 
 		VisionManager.getInstance();
-
 		Gyro.getInstance();
+
+		drivetrain = new DrivetrainSubsystem();
+		// elevator = new ElevatorSubsystem();
+		// arm = new ArmSubsystem();
+		// wrist = new WristSubsystem();
+		// stateManager = new StateManager(elevator, arm, wrist);
 
 		// new StateManager(elevator, arm);
 

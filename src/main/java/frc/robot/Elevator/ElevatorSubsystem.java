@@ -57,7 +57,7 @@ public class ElevatorSubsystem extends SubsystemBase implements SubChecker {
         PlayerStation;
     }
 
-    public ElevatorSubsystem(boolean inStaringPos) {
+    public ElevatorSubsystem() {
         left = new CANSparkMax(ElevatorConstants.leftID, MotorType.kBrushless);
         right = new CANSparkMax(ElevatorConstants.rightID, MotorType.kBrushless);
 

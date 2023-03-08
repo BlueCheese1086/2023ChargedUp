@@ -3,10 +3,13 @@ package frc.robot.Wrist;
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
+import com.revrobotics.SparkMaxAbsoluteEncoder;
 import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMax.ControlType;
+import com.revrobotics.CANSparkMax.ExternalFollower;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import com.revrobotics.SparkMaxAbsoluteEncoder.Type;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -15,19 +18,16 @@ import frc.robot.Constants;
 import frc.robot.Auto.SystemsCheck.SubChecker;
 import frc.robot.Auto.SystemsCheck.SystemsCheck;
 import frc.robot.Constants.WristConstants;
-import frc.robot.Intake.IntakeSubsystem;
 
 public class WristSubsystem extends SubsystemBase implements SubChecker {
 
-	WristState state;
+	private WristState state;
 
-	CANSparkMax left, right;
+	private CANSparkMax left, right;
+	private SparkMaxPIDController controller;
 
-	SparkMaxPIDController leftPID;
-
-	RelativeEncoder leftEncoder;
-
-	AbsoluteEncoder absoluteEncoder;
+	private RelativeEncoder relEncoder;
+	private SparkMaxAbsoluteEncoder absoluteEncoder;
 
 	/** Creates a new Wrist. */
 	public WristSubsystem() {
@@ -40,30 +40,31 @@ public class WristSubsystem extends SubsystemBase implements SubChecker {
 		left.setIdleMode(IdleMode.kBrake);
 		right.setIdleMode(IdleMode.kBrake);
 
+		left.follow(ExternalFollower.kFollowerDisabled, 0);
 		right.follow(left, false);
 
-		leftPID = left.getPIDController();
+		controller = left.getPIDController();
 
-		leftPID.setP(Constants.WristConstants.kP);
-		leftPID.setI(Constants.WristConstants.kI);
-		leftPID.setD(Constants.WristConstants.kD);
-		leftPID.setFF(Constants.WristConstants.kFF);
+		controller.setP(Constants.WristConstants.kP);
+		controller.setI(Constants.WristConstants.kI);
+		controller.setD(Constants.WristConstants.kD);
+		controller.setFF(Constants.WristConstants.kFF);
 
-		leftEncoder = left.getEncoder();
-		absoluteEncoder = IntakeSubsystem.getInstance().getWristEncoder();
+		relEncoder = left.getEncoder();
+		absoluteEncoder = left.getAbsoluteEncoder(Type.kDutyCycle);
 		absoluteEncoder.setZeroOffset(WristConstants.ENC_OFFSET);
 
 		// double startPosition = absoluteEncoder.getPosition() * 2 * Math.PI;
 
-		leftEncoder.setPositionConversionFactor(2 * Math.PI / Constants.WristConstants.GEARBOX_RATIO);
-		leftEncoder.setVelocityConversionFactor(2 * Math.PI / Constants.WristConstants.GEARBOX_RATIO / 60);
-		leftEncoder.setPosition(absoluteEncoder.getPosition()-absoluteEncoder.getZeroOffset());
+		relEncoder.setPositionConversionFactor(2 * Math.PI / Constants.WristConstants.GEARBOX_RATIO);
+		relEncoder.setVelocityConversionFactor(2 * Math.PI / Constants.WristConstants.GEARBOX_RATIO / 60);
+		relEncoder.setPosition(absoluteEncoder.getPosition());
 
-		state = new WristState(leftEncoder.getPosition(), 0);
+		state = new WristState(relEncoder.getPosition(), 0);
 	}
 
 	public void setAngle(double angle) {
-		leftPID.setReference(angle, ControlType.kPosition);
+		controller.setReference(angle, ControlType.kPosition);
 	}
 
 	public void reset() {
@@ -71,12 +72,12 @@ public class WristSubsystem extends SubsystemBase implements SubChecker {
 	}
 
 	public void setVelocity(double angularSpeed) {
-		leftPID.setReference(angularSpeed, ControlType.kVelocity);
+		controller.setReference(angularSpeed, ControlType.kVelocity);
 	}
 
 	@Override
 	public void periodic() {
-		state = new WristState(leftEncoder.getPosition(), leftEncoder.getVelocity());
+		state = new WristState(relEncoder.getPosition(), relEncoder.getVelocity());
 	}
 
 	public WristState getCurrentState() {
@@ -93,7 +94,7 @@ public class WristSubsystem extends SubsystemBase implements SubChecker {
 			setAngle(Math.PI / 6.0);
 			while (System.currentTimeMillis() - time < 2000) {
 			}
-			if (leftEncoder.getPosition() > Math.PI / 12.0) {
+			if (relEncoder.getPosition() > Math.PI / 12.0) {
 				working = true;
 			}
 			SystemsCheck.setSystemStatus(this, working);
