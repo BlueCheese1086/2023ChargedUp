@@ -70,7 +70,7 @@ public class SwerveModule extends SubsystemBase {
         drive.setInverted(false);
 
         turn.setIdleMode(IdleMode.kBrake);
-        drive.setIdleMode(IdleMode.kCoast);
+        drive.setIdleMode(IdleMode.kBrake);
 
         turnEnc = turn.getEncoder();
         driveEnc = drive.getEncoder();

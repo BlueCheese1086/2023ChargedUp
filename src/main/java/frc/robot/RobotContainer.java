@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import edu.wpi.first.wpilibj2.command.button.POVButton;
 import frc.robot.Arm.ArmSubsystem;
 import frc.robot.Auto.AutoLevel;
 import frc.robot.Drivetrain.DrivetrainSubsystem;
@@ -82,6 +83,10 @@ public class RobotContainer {
 		// new JoystickButton(driver, Button.kX.value).onTrue(new InstantCommand(() -> {
 		// 	stateManager.setPosition(Positions.player);
 		// }));
+
+		new POVButton(driver, 180).onTrue(new InstantCommand(() -> {
+			Gyro.getInstance().setAngle(180);
+		}));
 
 	}
 

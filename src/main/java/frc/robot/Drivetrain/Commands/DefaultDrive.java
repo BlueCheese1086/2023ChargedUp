@@ -38,12 +38,13 @@ public class DefaultDrive extends CommandBase {
             rot.getAsDouble()*DriveConstants.MAX_TURN_VELOCITY,
             drive.getRobotAngle().rotateBy(new Rotation2d(DriverStation.getAlliance() == Alliance.Red ? 0.0 : 0.0)));
             // System.out.println(speeds);
-            if (speeds.omegaRadiansPerSecond == 0 && speeds.vxMetersPerSecond == 0 && speeds.vyMetersPerSecond == 0) {
-                drive.setX(true);
-                // drive.drive(speeds);
-            } else {
-                drive.drive(speeds);
-            }
+            // if (speeds.omegaRadiansPerSecond == 0 && speeds.vxMetersPerSecond == 0 && speeds.vyMetersPerSecond == 0) {
+            //     drive.setX(false);
+            //     drive.drive(speeds);
+            // } else {
+            //     drive.drive(speeds);
+            // }
+            drive.drive(speeds);
         
         // drive.drive(new ChassisSpeeds(
         //     y_trans.getAsDouble()*DriveConstants.MAX_LINEAR_VELOCITY, 

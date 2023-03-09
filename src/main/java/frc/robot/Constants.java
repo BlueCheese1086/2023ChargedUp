@@ -48,7 +48,7 @@ public class Constants {
 
         public static final double turnP = 0.01;
         public static final double turnI = 0.0;
-        public static final double turnD = 0.005;
+        public static final double turnD = 0.01;//5;
 
     }
 
