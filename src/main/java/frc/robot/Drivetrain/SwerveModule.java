@@ -1,5 +1,7 @@
 package frc.robot.Drivetrain;
 
+import java.util.Map;
+
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
@@ -10,10 +12,9 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.AnalogEncoder;
-import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
@@ -96,29 +97,37 @@ public class SwerveModule extends SubsystemBase {
 
         Shuffleboard.getTab("Drivetrain").addNumber(name, () -> turnEnc.getPosition());
 
-        final ShuffleboardLayout layout = Shuffleboard.getTab("Drivetrain").getLayout(name, BuiltInLayouts.kList)
-                .withSize(2, 3);
+        // final ShuffleboardLayout layout = Shuffleboard.getTab("Drivetrain").getLayout(name, BuiltInLayouts.kList)
+        //         .withSize(2, 3);
+
+        final ShuffleboardTab layout = Shuffleboard.getTab(name);
 
         layout.addNumber("Target Angle", () -> state.angle.getDegrees())
-                .withPosition(0, 0)
-                .withSize(2, 1)
-                .withWidget(BuiltInWidgets.kTextView);
+                // .withPosition(0, 0)
+                // .withSize(2, 1)
+                .withWidget(BuiltInWidgets.kGyro).withProperties(Map.ofEntries(
+                    Map.entry("Starting angle", 0.0)
+                ));
         layout.addNumber("Current Angle", () -> getCanCoderAngle().getDegrees())
-                .withPosition(0, 1)
-                .withSize(2, 1)
-                .withWidget(BuiltInWidgets.kTextView);
+                // .withPosition(0, 1)
+                // .withSize(2, 1)
+                .withWidget(BuiltInWidgets.kGyro).withProperties(Map.ofEntries(
+                    Map.entry("Starting angle", 0.0)
+                ));
         layout.addNumber("Velocity", () -> state.speedMetersPerSecond)
-                .withPosition(0, 2)
-                .withSize(2, 1)
+                // .withPosition(0, 2)
+                // .withSize(2, 1)
                 .withWidget(BuiltInWidgets.kTextView);
         layout.addNumber("CanCoder", () -> cancoder.getAbsolutePosition())
-                .withPosition(0, 2)
-                .withSize(2, 1)
+                // .withPosition(0, 2)
+                // .withSize(2, 1)
                 .withWidget(BuiltInWidgets.kTextView);
         layout.addNumber("ENC Angle", () -> getTurnAngle().getDegrees())
-                .withPosition(0, 1)
-                .withSize(2, 1)
-                .withWidget(BuiltInWidgets.kTextView);
+                // .withPosition(0, 1)
+                // .withSize(2, 1)
+                .withWidget(BuiltInWidgets.kGyro).withProperties(Map.ofEntries(
+                    Map.entry("Starting angle", 0.0)
+                ));
 
         Shuffleboard.getTab("Pids").addNumber(name, () -> getCanCoderAngle().getDegrees());
     }

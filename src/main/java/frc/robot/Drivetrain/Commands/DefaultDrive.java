@@ -39,19 +39,12 @@ public class DefaultDrive extends CommandBase {
             x_trans.getAsDouble()*DriveConstants.MAX_LINEAR_VELOCITY, 
             y_trans.getAsDouble()*DriveConstants.MAX_LINEAR_VELOCITY, 
             rot.getAsDouble()*DriveConstants.MAX_TURN_VELOCITY,
-            gyro.getAngle().plus(new Rotation2d(DriverStation.getAlliance() == Alliance.Red ? 0.0 : Math.PI)));
-            // if (speeds.omegaRadiansPerSecond == 0 && speeds.vxMetersPerSecond == 0 && speeds.vyMetersPerSecond == 0) {
-            //     drive.frictionBrake();
-            // } else {
-            //     drive.drive(speeds);
-            // }
-            drive.drive(speeds);
+            gyro.getAngle().plus(new Rotation2d(DriverStation.getAlliance() == Alliance.Red ? 0.0 : Math.PI))
+        );
         
-        // drive.drive(new ChassisSpeeds(
-        //     y_trans.getAsDouble()*DriveConstants.MAX_LINEAR_VELOCITY, 
-        //     x_trans.getAsDouble()*DriveConstants.MAX_LINEAR_VELOCITY, 
-        //     rot.getAsDouble()*DriveConstants.MAX_TURN_VELOCITY
-        // ));
+        
+
+        drive.drive(speeds);
     }
 
     @Override

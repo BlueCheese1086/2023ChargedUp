@@ -9,7 +9,6 @@ import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.SparkMaxAbsoluteEncoder.Type;
 
-import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -45,7 +44,6 @@ public class ElevatorSubsystem extends SubsystemBase implements SubChecker {
     private final AbsoluteEncoder absoluteEncoder;
     private final SparkMaxPIDController leftPID;
 
-    private final DigitalInput bottomSwitch;
 
     private ElevatorState currentState = new ElevatorState(0, 0);
 
@@ -83,9 +81,6 @@ public class ElevatorSubsystem extends SubsystemBase implements SubChecker {
         leftPID.setI(ElevatorConstants.kI);
         leftPID.setD(ElevatorConstants.kD);
         leftPID.setFF(ElevatorConstants.kFF);
-
-
-        bottomSwitch = new DigitalInput(ElevatorConstants.bottomSwitchID);
 
         // if (inStaringPos && bottomSwitch.get()) {
         //     leftEncoder.setPosition(-0.05);

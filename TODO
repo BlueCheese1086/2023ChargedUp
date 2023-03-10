@@ -2,7 +2,6 @@
 // Ctrl + Shift + Enter - Toggle Checkbox
 
 // INVERSE KINEMATICS
-* [X] ~~*Get Basics Working*~~ [2023-02-24]
 * [ ] Create Heatmap With No Go Zones
 * [ ] Use Pathing To Avoid No Go Zones
 * [ ] Detect Intersections (Adding Arm Limits)
@@ -10,35 +9,23 @@
 
 
 // ELEVATOR
-* [X] ~~*Manage Elevator State*~~ [2023-02-24]
 * [ ] Tune PID
-* [X] ~~*Auto Systems Check*~~ [2023-02-24]
-* [X] ~~*Find Current Starting Pos*~~ [2023-02-26]
 
 // ARM
-* [X] ~~*Manage Arm State*~~ [2023-02-24]
 * [ ] Tune PID
-* [X] ~~*Auto Systems Check*~~ [2023-02-26]
-* [X] ~~*Find Current Starting Pos*~~ [2023-02-26]
 
 // Wrist
-* [X] ~~*Write Subsystem Class*~~ [2023-02-24]
 * [ ] Tune PID
-* [X] ~~*Auto Systems Check*~~ [2023-02-26]
-* [X] ~~*Find Starting Pos*~~ [2023-02-26]
 
 // Intake
-* [X] ~~*Write Subsystem Class*~~ [2023-02-26]
 * [ ] Manage Cone Intaking
-* [X] ~~*Auto Systems Check*~~ [2023-02-26]
-* [ ] Create Controlling Scheme
 
 // Drivetrain
 * [ ] Assist Driver When Picking/Placing
-* [X] ~~*Fast AF*~~ [2023-02-24]
 
 // Autonomous
-* [X] ~~*Use Starting Pos To Make A Generated Path To The Start Of The Auto Path*~~ [2023-02-26]
+* [ ] Create autonomous routines
+* [ ] Integrate robot control into auto
 
 // Automation
 * [ ] Manage Placed Game Pieces
@@ -48,9 +35,6 @@
 * [ ] Auto Systems Check - Including Vision
 
 // Pre Match - Field
-* [X] ~~*Get Gyro Pos From Visions*~~ [2023-02-26]
 * [ ] Use LEDS To Alert Correct Positioning
 
 // Vision
-* [X] ~~*Get gyro from april tags*~~ [2023-02-26]
-* [X] ~~*Process multiple targets*~~ [2023-02-25]

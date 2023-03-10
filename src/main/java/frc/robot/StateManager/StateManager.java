@@ -51,7 +51,6 @@ public class StateManager extends SubsystemBase {
 
 	private Positions desiredPosition = Positions.stowed;
 	private Positions currentPosition = Positions.stowed;
-	private boolean transition = false;
 
 	private Mechanism2d totalMech = new Mechanism2d(2, 2);
 	MechanismRoot2d root = totalMech.getRoot("elevator", 0, 0);
