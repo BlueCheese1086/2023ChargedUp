@@ -21,9 +21,11 @@ import frc.robot.Drivetrain.Commands.DefaultDrive;
 import frc.robot.Elevator.ElevatorSubsystem;
 import frc.robot.Elevator.Commands.RawControl;
 import frc.robot.Sensors.Commands.BeforeField;
+import frc.robot.Sensors.Field.PositionManager;
 import frc.robot.Sensors.Gyro.Gyro;
 import frc.robot.Sensors.Vision.VisionManager;
 import frc.robot.StateManager.StateManager;
+import frc.robot.StateManager.Commands.AutoEE;
 import frc.robot.StateManager.Commands.ElevatorArmControl;
 import frc.robot.StateManager.StateManager.Positions;
 import frc.robot.Wrist.WristSubsystem;
@@ -31,10 +33,10 @@ import frc.robot.Wrist.WristSubsystem;
 public class RobotContainer {
 
 	private final DrivetrainSubsystem drivetrain;
-	// private final ElevatorSubsystem elevator;
-	// private final ArmSubsystem arm;
-	// private final WristSubsystem wrist;
-	// private final StateManager stateManager;
+	private final ElevatorSubsystem elevator;
+	private final ArmSubsystem arm;
+	private final WristSubsystem wrist;
+	private final StateManager stateManager;
 
 	XboxController driver = new XboxController(0);
 
@@ -44,14 +46,13 @@ public class RobotContainer {
 
 		VisionManager.getInstance();
 		Gyro.getInstance();
+		PositionManager.getInstance();
 
 		drivetrain = new DrivetrainSubsystem();
-		// elevator = new ElevatorSubsystem();
-		// arm = new ArmSubsystem();
-		// wrist = new WristSubsystem();
-		// stateManager = new StateManager(elevator, arm, wrist);
-
-		// new StateManager(elevator, arm);
+		elevator = new ElevatorSubsystem();
+		arm = new ArmSubsystem();
+		wrist = new WristSubsystem();
+		stateManager = new StateManager(elevator, arm, wrist);
 
 		drivetrain.setDefaultCommand(
 			new DefaultDrive(drivetrain,
@@ -61,6 +62,8 @@ public class RobotContainer {
 		));	
 
 		// stateManager.setDefaultCommand(new ElevatorArmControl(stateManager, arm, elevator, wrist, null));
+
+		stateManager.setDefaultCommand(new AutoEE(stateManager, () -> driver.getBButton(), () -> 0));
 
 		// elevator.setDefaultCommand(new RawControl(elevator, () -> driver.getRightTriggerAxis() - driver.getLeftTriggerAxis()));
 
@@ -72,21 +75,21 @@ public class RobotContainer {
 		// 	drivetrain.getFollowCommand("2 Piece + Pick").schedule();
 		// }));
 
-		// new JoystickButton(driver, Button.kA.value).onTrue(new InstantCommand(() -> {
-		// 	stateManager.setPosition(Positions.stowed);
-		// }));
-		// new JoystickButton(driver, Button.kRightBumper.value).onTrue(new InstantCommand(() -> {
-		// 	stateManager.setPosition(Positions.ground);
-		// }));
-		// new JoystickButton(driver, Button.kB.value).onTrue(new InstantCommand(() -> {
-		// 	stateManager.setPosition(Positions.mid);
-		// }));
-		// new JoystickButton(driver, Button.kY.value).onTrue(new InstantCommand(() -> {
-		// 	stateManager.setPosition(Positions.high);
-		// }));
-		// new JoystickButton(driver, Button.kX.value).onTrue(new InstantCommand(() -> {
-		// 	stateManager.setPosition(Positions.player);
-		// }));
+		new JoystickButton(driver, Button.kA.value).onTrue(new InstantCommand(() -> {
+			stateManager.setPosition(Positions.stowed);
+		}));
+		new JoystickButton(driver, Button.kRightBumper.value).onTrue(new InstantCommand(() -> {
+			stateManager.setPosition(Positions.ground);
+		}));
+		new JoystickButton(driver, Button.kB.value).onTrue(new InstantCommand(() -> {
+			stateManager.setPosition(Positions.mid);
+		}));
+		new JoystickButton(driver, Button.kY.value).onTrue(new InstantCommand(() -> {
+			stateManager.setPosition(Positions.high);
+		}));
+		new JoystickButton(driver, Button.kX.value).onTrue(new InstantCommand(() -> {
+			stateManager.setPosition(Positions.player);
+		}));
 
 	}
 

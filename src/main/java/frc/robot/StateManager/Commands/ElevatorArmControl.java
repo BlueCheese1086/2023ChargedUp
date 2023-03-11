@@ -36,12 +36,6 @@ public class ElevatorArmControl extends CommandBase {
         Positions current = v.getCurrentPosition();
         Positions desired = v.getDesiredPosition();
 
-        double[] positions = new double[] {
-                e.getCurrentState().height,
-                a.getCurrentState().angle,
-                w.getCurrentState().angle
-        };
-
         double[] vals = current.getValue();
         e.setDesiredHeight(vals[0]);
         a.setAngle(vals[1]);

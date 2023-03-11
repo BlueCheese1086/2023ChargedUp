@@ -4,6 +4,7 @@
       "/FMSInfo": "FMSInfo",
       "/Shuffleboard/Debug/ARM": "PIDController",
       "/Shuffleboard/Field/Field": "Field2d",
+      "/Shuffleboard/Field/Location": "String Chooser",
       "/Shuffleboard/Field/Mech": "Mechanism2d",
       "/Shuffleboard/Field/Mech1": "Mechanism2d",
       "/SmartDashboard/leftcam Sim Field": "Field2d",
@@ -22,7 +23,12 @@
           "visible": true
         }
       },
-      "/Shuffleboard/Field/Mech1": {
+      "/Shuffleboard/Field/Location": {
+        "window": {
+          "visible": true
+        }
+      },
+      "/Shuffleboard/Field/Mech": {
         "window": {
           "visible": true
         }

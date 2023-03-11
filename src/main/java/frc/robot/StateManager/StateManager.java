@@ -68,7 +68,7 @@ public class StateManager extends SubsystemBase {
 		this.elevator = elevator;
 		this.arm = arm;
 		this.wrist = w;
-        Shuffleboard.getTab("Field").add("Mech1", totalMech);
+        Shuffleboard.getTab("Field").add("Mech", totalMech);
 
 		Shuffleboard.getTab("State").addDouble("Elevator", () -> elevator.getCurrentState().height);
 		Shuffleboard.getTab("State").addDouble("Arm", () -> arm.getCurrentState().angle);
@@ -98,6 +98,22 @@ public class StateManager extends SubsystemBase {
 		currentPosition = p;
 	}
 	
+	public void executePosition() {
+		Positions current = this.getCurrentPosition();
+        Positions desired = this.getDesiredPosition();
+
+        double[] vals = current.getValue();
+        elevator.setDesiredHeight(vals[0]);
+        arm.setAngle(vals[1]);
+        if (vals[2] != -100) {
+            wrist.setAngle(vals[2]);
+        }
+
+        if (current != desired && current.isHere(vals)) {
+            this.setPosition(desired);
+        }
+	}
+
 	public Positions getCurrentPosition() {
 		return currentPosition;
 	}
