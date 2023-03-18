@@ -1,5 +1,6 @@
 package frc.robot.Arm;
 
+import com.pathplanner.lib.auto.SwerveAutoBuilder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxAbsoluteEncoder;
@@ -37,7 +38,6 @@ public class ArmSubsystem extends SubsystemBase implements SubChecker {
         arm.setIdleMode(IdleMode.kBrake);
 
         relEncoder = arm.getEncoder();
-        // throughBoreEncoder = arm.getAlternateEncoder(8192);
         absoluteEncoder = arm.getAbsoluteEncoder(com.revrobotics.SparkMaxAbsoluteEncoder.Type.kDutyCycle);
         absoluteEncoder.setZeroOffset(ArmConstants.ENC_OFFSET);
 

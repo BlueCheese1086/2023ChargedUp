@@ -143,4 +143,12 @@ public class Constants {
 
     }
 
+    public static class LEDConstants {
+
+        public static final int PORT = 0;
+
+        public static final int COUNT = 255;
+
+    }
+
 }

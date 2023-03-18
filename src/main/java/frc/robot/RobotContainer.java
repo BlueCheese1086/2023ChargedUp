@@ -21,6 +21,7 @@ import frc.robot.Drivetrain.Commands.DefaultDrive;
 import frc.robot.Elevator.ElevatorSubsystem;
 import frc.robot.Elevator.Commands.RawControl;
 import frc.robot.Sensors.Commands.BeforeField;
+import frc.robot.Sensors.Feedback.VisualFeedback;
 import frc.robot.Sensors.Field.PositionManager;
 import frc.robot.Sensors.Gyro.Gyro;
 import frc.robot.Sensors.Vision.VisionManager;
@@ -37,6 +38,7 @@ public class RobotContainer {
 	private final ArmSubsystem arm;
 	private final WristSubsystem wrist;
 	private final StateManager stateManager;
+	private final VisualFeedback leds;
 
 	XboxController driver = new XboxController(0);
 
@@ -53,6 +55,7 @@ public class RobotContainer {
 		arm = new ArmSubsystem();
 		wrist = new WristSubsystem();
 		stateManager = new StateManager(elevator, arm, wrist);
+		leds = new VisualFeedback();
 
 		drivetrain.setDefaultCommand(
 			new DefaultDrive(drivetrain,
