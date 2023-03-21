@@ -16,6 +16,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -145,11 +146,16 @@ public class DrivetrainSubsystem extends SubsystemBase implements SubChecker {
      * 
      * @param sp The desired ChassisSpeeds
      */
+    private double start = System.currentTimeMillis();
     public void drive(ChassisSpeeds sp) {
         this.speeds = sp;
         states = kinematics.toSwerveModuleStates(speeds, new Translation2d(0.0, 0.0));
         for (int i = 0; i < 4; i++) {
             modules[i].setState(states[i]);
+        }
+        if (Robot.isSimulation()) {
+            gyro.setAngle(gyro.getAngle().getDegrees() + 180 - Units.radiansToDegrees(sp.omegaRadiansPerSecond)*(System.currentTimeMillis()-start)/1000);
+            start = System.currentTimeMillis();
         }
     }
 

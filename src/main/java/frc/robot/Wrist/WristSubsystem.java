@@ -10,13 +10,18 @@ import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.SparkMaxAbsoluteEncoder.Type;
 
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.Arm.ArmState;
 import frc.robot.Auto.SystemsCheck.SubChecker;
 import frc.robot.Auto.SystemsCheck.SystemsCheck;
 import frc.robot.Constants.WristConstants;
+import frc.robot.Sensors.Field.PositionManager;
+import frc.robot.StateManager.StateManager;
+import frc.robot.Util.SparkMaxPIDTuner;
 
 public class WristSubsystem extends SubsystemBase implements SubChecker {
 
@@ -24,6 +29,8 @@ public class WristSubsystem extends SubsystemBase implements SubChecker {
 
 	private CANSparkMax left, right;
 	private SparkMaxPIDController controller;
+
+	// private SparkMaxPIDTuner tuner;
 
 	private RelativeEncoder relEncoder;
 	private SparkMaxAbsoluteEncoder absoluteEncoder;
@@ -39,7 +46,7 @@ public class WristSubsystem extends SubsystemBase implements SubChecker {
 		left.setIdleMode(IdleMode.kBrake);
 		right.setIdleMode(IdleMode.kBrake);
 
-		left.follow(ExternalFollower.kFollowerDisabled, 0);
+		// left.follow(ExternalFollower.kFollowerDisabled, 0);
 		right.follow(left, false);
 
 		controller = left.getPIDController();
@@ -49,9 +56,12 @@ public class WristSubsystem extends SubsystemBase implements SubChecker {
 		controller.setD(Constants.WristConstants.kD);
 		controller.setFF(Constants.WristConstants.kFF);
 
+		// tuner = new SparkMaxPIDTuner(left, 0.1, 0);
+
 		relEncoder = left.getEncoder();
 		absoluteEncoder = left.getAbsoluteEncoder(Type.kDutyCycle);
 		absoluteEncoder.setZeroOffset(WristConstants.ENC_OFFSET);
+		absoluteEncoder.setPositionConversionFactor(2 * Math.PI / WristConstants.GEARBOX_RATIO);
 
 		// double startPosition = absoluteEncoder.getPosition() * 2 * Math.PI;
 
@@ -60,10 +70,15 @@ public class WristSubsystem extends SubsystemBase implements SubChecker {
 		relEncoder.setPosition(absoluteEncoder.getPosition());
 
 		state = new WristState(relEncoder.getPosition(), 0);
+
+		Shuffleboard.getTab("Wrist").addNumber("Encoder", () -> absoluteEncoder.getPosition());
+		// tuner.startTuning(1);
 	}
 
 	public void setAngle(double angle) {
-		controller.setReference(angle, ControlType.kPosition);
+		// tuner.startTuning(controller.getP());
+		// tuner.update(angle * 2 * Math.PI, absoluteEncoder.getPosition());
+		controller.setReference(angle * 2 * Math.PI - StateManager.getInstance().getArmState().angle, ControlType.kPosition);
 	}
 
 	public void reset() {

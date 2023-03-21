@@ -111,7 +111,7 @@ public class Constants {
         public static final double kD = 0.0;
         public static final double kFF = 0.0;
 
-        public static final double ENC_OFFSET = 0.0;
+        public static final double ENC_OFFSET = 0.55;
 
     }
 
@@ -132,7 +132,7 @@ public class Constants {
         public static final int LEFT_ID = 22;
         public static final int RIGHT_ID = 21;
 
-        public static final double kP = 0.0;
+        public static final double kP = 1.0;
         public static final double kI = 0.0;
         public static final double kD = 0.0;
         public static final double kFF = 0.0;
@@ -149,6 +149,12 @@ public class Constants {
 
         public static final int COUNT = 255;
 
+    }
+
+    public static class FieldConstants {
+
+        public static final double SCORING_DISTANCE_Y = Units.inchesToMeters(22);
+        public static final double SCORING_DISTANCE_X = Units.inchesToMeters(17);
     }
 
 }

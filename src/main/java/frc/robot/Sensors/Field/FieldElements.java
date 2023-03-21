@@ -49,25 +49,25 @@ public class FieldElements {
         Map.entry(8, tags[7])
     );
 
-    public static final Map<Integer, Pose2d> scoringStations = Map.ofEntries(
-        Map.entry(1, new Pose2d(Units.inchesToMeters(596.6), Units.inchesToMeters(20.5), new Rotation2d())),
-        Map.entry(2, new Pose2d(Units.inchesToMeters(596.6), Units.inchesToMeters(42.4), new Rotation2d())),
-        Map.entry(3, new Pose2d(Units.inchesToMeters(596.6), Units.inchesToMeters(64.4), new Rotation2d())),
-        Map.entry(4, new Pose2d(Units.inchesToMeters(596.6), Units.inchesToMeters(86.4), new Rotation2d())),
-        Map.entry(5, new Pose2d(Units.inchesToMeters(596.6), Units.inchesToMeters(108.4), new Rotation2d())),
-        Map.entry(6, new Pose2d(Units.inchesToMeters(596.6), Units.inchesToMeters(130.4), new Rotation2d())),
-        Map.entry(7, new Pose2d(Units.inchesToMeters(596.6), Units.inchesToMeters(152.4), new Rotation2d())),
-        Map.entry(8, new Pose2d(Units.inchesToMeters(596.6), Units.inchesToMeters(174.4), new Rotation2d())),
-        Map.entry(9, new Pose2d(Units.inchesToMeters(596.6), Units.inchesToMeters(196.4), new Rotation2d())),
-        Map.entry(10, new Pose2d(Units.inchesToMeters(53.8), Units.inchesToMeters(196.4), new Rotation2d())),
-        Map.entry(11, new Pose2d(Units.inchesToMeters(53.8), Units.inchesToMeters(174.4), new Rotation2d())),
-        Map.entry(12, new Pose2d(Units.inchesToMeters(53.8), Units.inchesToMeters(152.4), new Rotation2d())),
-        Map.entry(13, new Pose2d(Units.inchesToMeters(53.8), Units.inchesToMeters(130.4), new Rotation2d())),
-        Map.entry(14, new Pose2d(Units.inchesToMeters(53.8), Units.inchesToMeters(108.4), new Rotation2d())),
-        Map.entry(15, new Pose2d(Units.inchesToMeters(53.8), Units.inchesToMeters(86.4), new Rotation2d())),
-        Map.entry(16, new Pose2d(Units.inchesToMeters(53.8), Units.inchesToMeters(64.4), new Rotation2d())),
-        Map.entry(17, new Pose2d(Units.inchesToMeters(53.8), Units.inchesToMeters(42.4), new Rotation2d())),
-        Map.entry(18, new Pose2d(Units.inchesToMeters(53.8), Units.inchesToMeters(20.5), new Rotation2d()))
+    public static final Map<Integer, Pose2d> hybridStations = Map.ofEntries(
+        Map.entry(1, new Pose2d(Units.inchesToMeters(602.5), Units.inchesToMeters(20.5), new Rotation2d(Math.PI))),
+        Map.entry(2, new Pose2d(Units.inchesToMeters(602.5), Units.inchesToMeters(42.4), new Rotation2d(Math.PI))),
+        Map.entry(3, new Pose2d(Units.inchesToMeters(602.5), Units.inchesToMeters(64.4), new Rotation2d(Math.PI))),
+        Map.entry(4, new Pose2d(Units.inchesToMeters(602.5), Units.inchesToMeters(86.4), new Rotation2d(Math.PI))),
+        Map.entry(5, new Pose2d(Units.inchesToMeters(602.5), Units.inchesToMeters(108.4), new Rotation2d(Math.PI))),
+        Map.entry(6, new Pose2d(Units.inchesToMeters(602.5), Units.inchesToMeters(130.4), new Rotation2d(Math.PI))),
+        Map.entry(7, new Pose2d(Units.inchesToMeters(602.5), Units.inchesToMeters(152.4), new Rotation2d(Math.PI))),
+        Map.entry(8, new Pose2d(Units.inchesToMeters(602.5), Units.inchesToMeters(174.4), new Rotation2d(Math.PI))),
+        Map.entry(9, new Pose2d(Units.inchesToMeters(602.5), Units.inchesToMeters(196.4), new Rotation2d(Math.PI))),
+        Map.entry(10, new Pose2d(Units.inchesToMeters(48.3), Units.inchesToMeters(196.4), new Rotation2d())),
+        Map.entry(11, new Pose2d(Units.inchesToMeters(48.3), Units.inchesToMeters(174.4), new Rotation2d())),
+        Map.entry(12, new Pose2d(Units.inchesToMeters(48.3), Units.inchesToMeters(152.4), new Rotation2d())),
+        Map.entry(13, new Pose2d(Units.inchesToMeters(48.3), Units.inchesToMeters(130.4), new Rotation2d())),
+        Map.entry(14, new Pose2d(Units.inchesToMeters(48.3), Units.inchesToMeters(108.4), new Rotation2d())),
+        Map.entry(15, new Pose2d(Units.inchesToMeters(48.3), Units.inchesToMeters(86.4), new Rotation2d())),
+        Map.entry(16, new Pose2d(Units.inchesToMeters(48.3), Units.inchesToMeters(64.4), new Rotation2d())),
+        Map.entry(17, new Pose2d(Units.inchesToMeters(48.3), Units.inchesToMeters(42.4), new Rotation2d())),
+        Map.entry(18, new Pose2d(Units.inchesToMeters(48.3), Units.inchesToMeters(20.5), new Rotation2d()))
     );
 
     

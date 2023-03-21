@@ -1,6 +1,5 @@
 package frc.robot.Arm;
 
-import com.pathplanner.lib.auto.SwerveAutoBuilder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxAbsoluteEncoder;
@@ -8,6 +7,7 @@ import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import com.revrobotics.SparkMaxAbsoluteEncoder.Type;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -38,8 +38,11 @@ public class ArmSubsystem extends SubsystemBase implements SubChecker {
         arm.setIdleMode(IdleMode.kBrake);
 
         relEncoder = arm.getEncoder();
-        absoluteEncoder = arm.getAbsoluteEncoder(com.revrobotics.SparkMaxAbsoluteEncoder.Type.kDutyCycle);
+        absoluteEncoder = arm.getAbsoluteEncoder(Type.kDutyCycle);
         absoluteEncoder.setZeroOffset(ArmConstants.ENC_OFFSET);
+        absoluteEncoder.setPositionConversionFactor(2 * Math.PI / ArmConstants.GEARBOX_RATIO);
+
+        relEncoder.setPosition(absoluteEncoder.getPosition());
 
         relEncoder.setPositionConversionFactor(2*Math.PI / ArmConstants.GEARBOX_RATIO);
 
@@ -50,14 +53,16 @@ public class ArmSubsystem extends SubsystemBase implements SubChecker {
         controller.setD(ArmConstants.kD);
         controller.setFF(ArmConstants.kFF);
 
+        // controller.setFeedbackDevice(absoluteEncoder);
+
         state = new ArmState(0, 0);
 
-        new DebugPID(controller, "ARM");
+        // new DebugPID(controller, "ARM");
     }
     
     @Override
     public void periodic() {
-        state = new ArmState(relEncoder.getPosition(), relEncoder.getVelocity());
+        state = new ArmState(absoluteEncoder.getPosition(), relEncoder.getVelocity());
     }
 
     public ArmState getCurrentState() {
@@ -69,7 +74,7 @@ public class ArmSubsystem extends SubsystemBase implements SubChecker {
             relEncoder.setPosition(a);
             return;
         }
-        controller.setReference(a, ControlType.kPosition);
+        controller.setReference(a * Math.PI * 2, ControlType.kPosition);
     }
 
     public void reset() {

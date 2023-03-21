@@ -8,10 +8,13 @@ import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Arm.ArmState;
 import frc.robot.Arm.ArmSubsystem;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.ElevatorConstants;
+import frc.robot.Elevator.ElevatorState;
 import frc.robot.Elevator.ElevatorSubsystem;
+import frc.robot.Wrist.WristState;
 import frc.robot.Wrist.WristSubsystem;
 
 /**
@@ -82,8 +85,19 @@ public class StateManager extends SubsystemBase {
 		
 		evLigament.setLength(currentHeight);
 		armLigament.setAngle(new Rotation2d(currentAngle-Units.degreesToRadians(evLigament.getAngle())));
-	
 		
+	}
+
+	public ArmState getArmState() {
+		return arm.getCurrentState();
+	}
+
+	public WristState getWristState() {
+		return wrist.getCurrentState();
+	}
+
+	public ElevatorState getElevatorState() {
+		return elevator.getCurrentState();
 	}
 
 	public void setPosition(Positions p) {

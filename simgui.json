@@ -41,14 +41,10 @@
     },
     "transitory": {
       "Shuffleboard": {
-        "Back Right": {
-          "open": true
-        },
         "Debug": {
           "ARM": {
             "open": true
-          },
-          "open": true
+          }
         },
         "Field": {
           "Mech": {
@@ -59,7 +55,8 @@
               "open": true
             },
             "open": true
-          }
+          },
+          "open": true
         },
         "open": true
       }

@@ -45,8 +45,6 @@ public class AutoEE extends CommandBase {
             allowedPositions.add(Positions.player);
         }
 
-        System.out.println(pManager.getCurrentLocation());
-        
         if (allowedPositions.size() == 0) {
             state.setPosition(Positions.stowed);
         } else {

@@ -1,8 +1,5 @@
 package frc.robot.Sensors.Feedback;
 
-// import java.util.function.;;
-import java.util.function.Supplier;
-
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -28,7 +25,6 @@ public class VisualFeedback extends SubsystemBase {
 
 	@Override
 	public void periodic() {
-		// This method will be called once per scheduler run
 		mode.execute();
 	}
 
