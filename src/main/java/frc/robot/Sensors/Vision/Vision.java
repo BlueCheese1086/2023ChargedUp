@@ -23,14 +23,14 @@ public class Vision extends SubsystemBase {
     // private final NetworkTable camera;
 
     private final Camera frontFollowRight = new Camera(
-            "rightcam",
+            "frontright",
             new Transform3d(new Translation3d(
-                    Units.inchesToMeters(14), Units.inchesToMeters(-11.9375), Units.inchesToMeters(2.125)),
+                    Units.inchesToMeters(0), Units.inchesToMeters(-6.5), Units.inchesToMeters(16)),
                     new Rotation3d(0, 0, 0)));
     private final Camera frontPrimLeft = new Camera(
-            "leftcam",
+            "frontleft",
             new Transform3d(new Translation3d(
-                    Units.inchesToMeters(14), Units.inchesToMeters(13.9375), Units.inchesToMeters(4.875)),
+                    Units.inchesToMeters(0), Units.inchesToMeters(6.5), Units.inchesToMeters(16)),
                     new Rotation3d(0, 0, 0)));
 
     private Camera[] cameras = new Camera[] {

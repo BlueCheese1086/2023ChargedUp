@@ -1,6 +1,7 @@
 package frc.robot.Util;
 
 import com.revrobotics.SparkMaxPIDController;
+import com.revrobotics.CANSparkMax.ControlType;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.shuffleboard.ComplexWidget;
@@ -34,6 +35,7 @@ public class DebugPID extends SubsystemBase {
             controller.setP(debug.getP());
             controller.setI(debug.getI());
             controller.setD(debug.getD());
+            // controller.setReference(debug.getSetpoint(), ControlType.kPosition);
         }
         lastDebug.setP(debug.getP());
         lastDebug.setI(debug.getI());

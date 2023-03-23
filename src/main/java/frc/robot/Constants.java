@@ -7,23 +7,23 @@ public class Constants {
     public static final class DriveConstants {
         public static final int frontLeftTurnID = 3;
         public static final int frontLeftDriveID = 4;
-        public static final int frontLeftCancoderID = 3;//3
-        public static final double frontLeftOffset = 0.563;//0.556+0.25;
+        public static final int frontLeftCancoderID = 3;
+        public static final double frontLeftOffset = 0.059;
 
         public static final int frontRightTurnID = 6;
         public static final int frontRightDriveID = 5;
-        public static final int frontRightCancoderID = 2; //2
-        public static final double frontRightOffset = 0.909;//0.655-0.25;
+        public static final int frontRightCancoderID = 2;
+        public static final double frontRightOffset = 0.404;
 
         public static final int backLeftTurnID = 8;
         public static final int backLeftDriveID = 7;
-        public static final int backLeftCancoderID = 1; //1
-        public static final double backLeftOffset = 0.013;//0.263+0.25;
+        public static final int backLeftCancoderID = 1;
+        public static final double backLeftOffset = 0.514;
 
         public static final int backRightTurnID = 1;
         public static final int backRightDriveID = 2;
-        public static final int backRightCancoderID = 0; //0
-        public static final double backRightOffset = 0.033;//0.285+0.25;
+        public static final int backRightCancoderID = 0;
+        public static final double backRightOffset = 0.532;
 
         //m/s
         public static final double MAX_LINEAR_VELOCITY = Units.feetToMeters(16);
@@ -46,7 +46,7 @@ public class Constants {
         public static final double driveD = 0.0;
         public static final double driveFF = 1.96;
 
-        public static final double turnP = 0.01;
+        public static final double turnP = 0.05;
         public static final double turnI = 0.0;
         public static final double turnD = 0.005;
 
@@ -94,7 +94,7 @@ public class Constants {
 
         public static final int armId = 23;
 
-        public static final double GEARBOX_RATIO = 25;
+        public static final double GEARBOX_RATIO = -140.95;
 
         /**
          * Meters
@@ -106,12 +106,15 @@ public class Constants {
         // Arm Range
         public static final double RANGE = Units.degreesToRadians(150);
 
+        public static final double UPPER_RANGE = RANGE/2.0 - ElevatorConstants.TOWER_ANGLE_OFFSET;
+        public static final double LOWER_RANGE = -RANGE/2.0 - ElevatorConstants.TOWER_ANGLE_OFFSET;
+
         public static final double kP = 1.0;
         public static final double kI = 0.0;
         public static final double kD = 0.0;
         public static final double kFF = 0.0;
 
-        public static final double ENC_OFFSET = 0.55;
+        public static final double ENC_OFFSET = 3.1;
 
     }
 
@@ -119,7 +122,9 @@ public class Constants {
         
         public static final int ID = 31;
 
-        public static final double INTAKE_LENGTH = Units.inchesToMeters(17.5);
+        // INTAKE IS REALLY 14 INCHES
+        // THIS IS TO MAKE MY LIFE EASIER WITH INVERSE KIN
+        public static final double INTAKE_LENGTH = Units.inchesToMeters(18);
     }
 
     public static class GyroConstants {
@@ -155,6 +160,8 @@ public class Constants {
 
         public static final double SCORING_DISTANCE_Y = Units.inchesToMeters(22);
         public static final double SCORING_DISTANCE_X = Units.inchesToMeters(17);
+        public static final double SCORING_DISTANCE_Z = Units.inchesToMeters(12);
+        
     }
 
 }

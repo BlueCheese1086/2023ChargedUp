@@ -1,18 +1,37 @@
 {
+  "HALProvider": {
+    "Other Devices": {
+      "window": {
+        "visible": false
+      }
+    }
+  },
   "NTProvider": {
     "types": {
       "/FMSInfo": "FMSInfo",
       "/Shuffleboard/Debug/ARM": "PIDController",
+      "/Shuffleboard/Debug/Back Leftturn": "PIDController",
+      "/Shuffleboard/Debug/Back Rightturn": "PIDController",
+      "/Shuffleboard/Debug/Front Leftturn": "PIDController",
+      "/Shuffleboard/Debug/Front Rightturn": "PIDController",
+      "/Shuffleboard/Debug/Wrist": "PIDController",
       "/Shuffleboard/Field/Field": "Field2d",
       "/Shuffleboard/Field/Location": "String Chooser",
       "/Shuffleboard/Field/Mech": "Mechanism2d",
       "/Shuffleboard/Field/Mech1": "Mechanism2d",
+      "/SmartDashboard/frontleft Sim Field": "Field2d",
+      "/SmartDashboard/frontright Sim Field": "Field2d",
       "/SmartDashboard/leftcam Sim Field": "Field2d",
       "/SmartDashboard/rightcam Sim Field": "Field2d"
     },
     "windows": {
       "/Shuffleboard/Field/Field": {
+        "bottom": 544,
         "height": 8.013679504394531,
+        "image": "C:\\Users\\bluec\\OneDrive\\Desktop\\2023Field\\2023-field.png",
+        "left": 46,
+        "right": 1088,
+        "top": 36,
         "width": 16.541748046875,
         "window": {
           "visible": true
@@ -50,9 +69,10 @@
               "open": true
             },
             "open": true
-          },
-          "open": true
-        },
+          }
+        }
+      },
+      "SmartDashboard": {
         "open": true
       }
     }

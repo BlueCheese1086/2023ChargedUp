@@ -39,7 +39,7 @@ public class AssistedDrive extends CommandBase {
     @Override
     public void execute() {
 
-        Pose2d nearestScore = PositionManager.getInstance().poseOfClosestScoring();
+        Pose2d nearestScore = PositionManager.getInstance().poseOfClosestScoring().toPose2d();
         Pose2d currentPos = PositionManager.getInstance().getRobotPose();
 
 

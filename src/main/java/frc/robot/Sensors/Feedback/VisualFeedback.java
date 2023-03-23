@@ -13,8 +13,15 @@ public class VisualFeedback extends SubsystemBase {
 
 	private LEDMode mode = LEDMode.DefaultColor;
 
+	private static VisualFeedback instance;
+
+	public static VisualFeedback getInstance() {
+		if (instance == null) instance = new VisualFeedback();
+		return instance;
+	}
+
 	/** Creates a new Lights. */
-	public VisualFeedback() {
+	private VisualFeedback() {
 		startRainbowHue = 0;
 		startDefaultIndex = 0;
 

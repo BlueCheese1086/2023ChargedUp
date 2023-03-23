@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 import frc.robot.Constants.ModuleConstants;
+import frc.robot.Util.DebugPID;
 
 public class SwerveModule extends SubsystemBase {
 
@@ -69,7 +70,7 @@ public class SwerveModule extends SubsystemBase {
         turn.setInverted(true);
         drive.setInverted(false);
 
-        turn.setIdleMode(IdleMode.kBrake);
+        turn.setIdleMode(IdleMode.kCoast);
         drive.setIdleMode(IdleMode.kBrake);
 
         turnEnc = turn.getEncoder();
@@ -130,6 +131,7 @@ public class SwerveModule extends SubsystemBase {
                 ));
 
         Shuffleboard.getTab("Pids").addNumber(name, () -> getCanCoderAngle().getDegrees());
+        new DebugPID(turnPID, name + "turn");
     }
 
     @Override
@@ -211,9 +213,7 @@ public class SwerveModule extends SubsystemBase {
      * @return Rotation2d of the current module angle
      */
     public Rotation2d getTurnAngle() {
-
         return Rotation2d.fromDegrees((turnEnc.getPosition() % 360 + 360) % 360 - 180);
-
     }
 
     /**
@@ -252,8 +252,6 @@ public class SwerveModule extends SubsystemBase {
     public void setState(SwerveModuleState in) {
 
         state = in;
-        // state = SwerveModuleState.optimize(in, getTurnAngle());
-
 
         // drivePID.setReference(state.speedMetersPerSecond, ControlType.kVelocity);
 
