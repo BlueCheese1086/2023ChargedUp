@@ -16,6 +16,7 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Robot;
 import frc.robot.Sensors.Field.FieldElements;
 
 public class Vision extends SubsystemBase {
@@ -25,12 +26,12 @@ public class Vision extends SubsystemBase {
     private final Camera frontFollowRight = new Camera(
             "frontright",
             new Transform3d(new Translation3d(
-                    Units.inchesToMeters(0), Units.inchesToMeters(-6.5), Units.inchesToMeters(16)),
+                    Units.inchesToMeters(0.0), Units.inchesToMeters(-6.5), Units.inchesToMeters(16)),
                     new Rotation3d(0, 0, 0)));
     private final Camera frontPrimLeft = new Camera(
             "frontleft",
             new Transform3d(new Translation3d(
-                    Units.inchesToMeters(0), Units.inchesToMeters(6.5), Units.inchesToMeters(16)),
+                    Units.inchesToMeters(0.0), Units.inchesToMeters(6.5), Units.inchesToMeters(16)),
                     new Rotation3d(0, 0, 0)));
 
     private Camera[] cameras = new Camera[] {
@@ -45,10 +46,12 @@ public class Vision extends SubsystemBase {
     protected Vision() {
         // camera = NetworkTableInstance.getDefault().getTable("photonvision");
 
-        for (Camera c : cameras) {
-            for (AprilTag t : FieldElements.tags) {
-                c.addSim(
-                        new SimVisionTarget(t.pose, 0.2, 0.2, t.ID));
+        if (Robot.isSimulation()) {
+            for (Camera c : cameras) {
+                for (AprilTag t : FieldElements.tags) {
+                    c.addSim(
+                            new SimVisionTarget(t.pose, 0.2, 0.2, t.ID));
+                }
             }
         }
 
@@ -128,6 +131,8 @@ public class Vision extends SubsystemBase {
                 / (Math.tan(Math.atan(m1) + phi) - Math.tan(Math.atan(m2) + phi));
         double robotCenterY = robotCenterX * Math.tan(Math.atan(m1) + phi);
 
+        // System.out.println(robotCenterY);
+
         SmartDashboard.putNumber("m1", -m1);
         SmartDashboard.putNumber("m2", -m2);
 
@@ -135,17 +140,28 @@ public class Vision extends SubsystemBase {
                 new Translation2d(
                         Math.signum(Math.cos(phi)) * Y,
                         Math.signum(Math.cos(phi)) * -X),
-                new Rotation2d()// gyro.minus(t.pose.getRotation().toRotation2d())
+                new Rotation2d(phi)
         ));
+
+        // System.out.println(leftCameraPose);
+
         Pose2d finalPose = leftCameraPose.plus(new Transform2d(
                 new Translation2d(
-                        Math.signum(Math.cos(phi)) * robotCenterX,
-                        Math.signum(Math.cos(phi)) * robotCenterY),
-                gyro.minus(t.pose.getRotation().toRotation2d())));
+                        0,
+                        bestTarget.leftCam.getPairDistance()/2),
+                new Rotation2d()));
+
+        // System.out.println(finalPose);
 
         // return new Pose2d(finalPose.getX(), finalPose.getY(), gyro);
         // return new Pose2d(leftCameraPose.getX(), leftCameraPose.getY(), gyro);
-        return finalPose;
+        // return finalPose;
+
+        return t.pose.plus(bestTarget.closestTarget.estimatedPose).toPose2d().plus(new Transform2d(
+            new Translation2d(
+                    0,
+                    bestTarget.leftCam.getPairDistance()/2),
+            new Rotation2d()));
     }
 
     public Rotation2d estimateGyroPose() {
@@ -219,17 +235,21 @@ public class Vision extends SubsystemBase {
 
         public final Camera parentCamera;
 
+        public final Transform3d estimatedPose;
+
         public Target(PhotonTrackedTarget t, Camera c) {
             xOffset = Units.degreesToRadians(t.getYaw());
             yOffset = Units.degreesToRadians(t.getPitch());
             area = t.getArea();
 
             tag = FieldElements.aprilTags.get(t.getFiducialId());
-            tagId = tag.ID;
+            tagId = this.tag.ID;
 
             distance = -1.0;
 
             parentCamera = c;
+
+            estimatedPose = t.getBestCameraToTarget();
         }
 
     }

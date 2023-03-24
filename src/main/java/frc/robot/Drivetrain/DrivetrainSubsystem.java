@@ -120,6 +120,8 @@ public class DrivetrainSubsystem extends SubsystemBase implements SubChecker {
             modulePositions[i1] = new SwerveModulePosition(modules[i1].getDistance(), modules[i1].getTurnAngle());
         }
 
+        // System.out.println(VisionManager.getInstance().getEstimatedPose());
+
         if (Robot.isReal() && !isMoving(0.1, 0.1)) {
             resetOdo(VisionManager.getInstance().getEstimatedPose());
         } else {

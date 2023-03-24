@@ -84,7 +84,7 @@ public class Constants {
         public static final double MINIMUM_STARTING_HEIGHT = (int)(Units.inchesToMeters(25)/(SPOOL_DIAMETER*Math.PI))*(double)SPOOL_DIAMETER*Math.PI;
 
         public static final double kP = 0.5;
-        public static final double kI = 0.01;
+        public static final double kI = 0.0;
         public static final double kD = 0.0;
         public static final double kFF = 0.0;
 
@@ -94,7 +94,7 @@ public class Constants {
 
         public static final int armId = 23;
 
-        public static final double GEARBOX_RATIO = -140.95;
+        public static final double GEARBOX_RATIO = 140.952380952;
 
         /**
          * Meters
@@ -114,7 +114,7 @@ public class Constants {
         public static final double kD = 0.0;
         public static final double kFF = 0.0;
 
-        public static final double ENC_OFFSET = 3.1;
+        public static final double ENC_OFFSET = 4.35 - Math.PI;//2.14 + Math.PI;//2.4;
 
     }
 
@@ -144,7 +144,7 @@ public class Constants {
 
         public static final double GEARBOX_RATIO = 0;
 
-        public static final double ENC_OFFSET = 0.0;
+        public static final double ENC_OFFSET = 3.40 - Math.PI;
 
     }
 

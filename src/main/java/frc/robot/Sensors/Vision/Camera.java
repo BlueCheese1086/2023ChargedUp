@@ -65,7 +65,12 @@ public class Camera extends PhotonCamera {
         if (simCam != null && Robot.isSimulation()) simCam.processFrame(PositionManager.getInstance().getRobotPose());
         targets.clear();
         for (PhotonTrackedTarget t : this.getLatestResult().getTargets()) {
-            targets.add(new Target(t, this));
+            if (t.getFiducialId() == -1) continue;
+            try {
+                targets.add(new Target(t, this));
+            } catch (Exception e) {
+                // System.out.println(t);
+            }
         }
     }
 

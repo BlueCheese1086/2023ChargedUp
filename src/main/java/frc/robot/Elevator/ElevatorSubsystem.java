@@ -16,6 +16,7 @@ import frc.robot.Robot;
 import frc.robot.Auto.SystemsCheck.SubChecker;
 import frc.robot.Auto.SystemsCheck.SystemsCheck;
 import frc.robot.Constants.ElevatorConstants;
+import frc.robot.Util.DebugPID;
 
 public class ElevatorSubsystem extends SubsystemBase implements SubChecker {
     
@@ -67,6 +68,7 @@ public class ElevatorSubsystem extends SubsystemBase implements SubChecker {
         // if (inStaringPos && bottomSwitch.get()) {
         //     leftEncoder.setPosition(-0.05);
         // }
+        new DebugPID(leftPID, "Elevator");
     }
 
     @Override

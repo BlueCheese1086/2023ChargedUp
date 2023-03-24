@@ -53,6 +53,7 @@ public class VisionManager extends SubsystemBase {
             y += e.getKey()*e.getValue().getY();
         }
         return new Pose2d(x, y, Gyro.getInstance().getAngle());
+        // return vision.estimateStereoTargetPos(vision.getStereoTargets().get(0), Gyro.getInstance().getAngle());
     }
 
     public Rotation2d getEstimatedGyro() {

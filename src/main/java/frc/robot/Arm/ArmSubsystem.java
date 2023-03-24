@@ -3,6 +3,7 @@ package frc.robot.Arm;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxAbsoluteEncoder;
+import com.revrobotics.SparkMaxAlternateEncoder;
 import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMax.IdleMode;
@@ -44,17 +45,9 @@ public class ArmSubsystem extends SubsystemBase implements SubChecker {
         absoluteEncoder.setPositionConversionFactor(2 * Math.PI);
         absoluteEncoder.setZeroOffset(ArmConstants.ENC_OFFSET);
 
-        relEncoder.setPositionConversionFactor(2*Math.PI / ArmConstants.GEARBOX_RATIO);
-
-        if (absoluteEncoder.getPosition() > ArmConstants.UPPER_RANGE) {
-            relEncoder.setPosition(2.0*Math.PI - absoluteEncoder.getPosition());
-        } else {
-            relEncoder.setPosition(absoluteEncoder.getPosition());
-        }
-
         controller = arm.getPIDController();
 
-        // controller.setFeedbackDevice(absoluteEncoder);
+        controller.setFeedbackDevice(absoluteEncoder);
 
         controller.setP(ArmConstants.kP);
         controller.setI(ArmConstants.kI);
@@ -70,7 +63,7 @@ public class ArmSubsystem extends SubsystemBase implements SubChecker {
     
     @Override
     public void periodic() {
-        state = new ArmState(relEncoder.getPosition(), relEncoder.getVelocity());
+        state = new ArmState(absoluteEncoder.getPosition(), absoluteEncoder.getVelocity());
     }
 
     public ArmState getCurrentState() {
@@ -82,7 +75,7 @@ public class ArmSubsystem extends SubsystemBase implements SubChecker {
             relEncoder.setPosition(a);
             return;
         }
-        controller.setReference(a, ControlType.kPosition);
+        controller.setReference(a + Math.PI, ControlType.kPosition);
     }
 
     public void reset() {

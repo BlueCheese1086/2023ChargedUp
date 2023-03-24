@@ -10,6 +10,8 @@ import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.SparkMaxAbsoluteEncoder.Type;
 
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -18,13 +20,14 @@ import frc.robot.Robot;
 import frc.robot.Auto.SystemsCheck.SubChecker;
 import frc.robot.Auto.SystemsCheck.SystemsCheck;
 import frc.robot.Constants.WristConstants;
+import frc.robot.StateManager.StateManager;
 import frc.robot.Util.DebugPID;
 
 public class WristSubsystem extends SubsystemBase implements SubChecker {
 
 	private WristState state;
 
-	private CANSparkMax left, right;
+	private CANSparkMax master, follow;
 	private SparkMaxPIDController controller;
 
 	private RelativeEncoder relEncoder;
@@ -32,35 +35,36 @@ public class WristSubsystem extends SubsystemBase implements SubChecker {
 
 	/** Creates a new Wrist. */
 	public WristSubsystem() {
-		left = new CANSparkMax(Constants.WristConstants.LEFT_ID, MotorType.kBrushless);
-		right = new CANSparkMax(Constants.WristConstants.RIGHT_ID, MotorType.kBrushless);
+		follow = new CANSparkMax(Constants.WristConstants.LEFT_ID, MotorType.kBrushless);
+		master = new CANSparkMax(Constants.WristConstants.RIGHT_ID, MotorType.kBrushless);
 
-		left.restoreFactoryDefaults();
-		right.restoreFactoryDefaults();
+		follow.restoreFactoryDefaults();
+		master.restoreFactoryDefaults();
 
-		left.setIdleMode(IdleMode.kBrake);
-		right.setIdleMode(IdleMode.kBrake);
+		follow.setIdleMode(IdleMode.kBrake);
+		master.setIdleMode(IdleMode.kBrake);
 
-		left.follow(ExternalFollower.kFollowerDisabled, 0);
-		right.follow(left, false);
+		master.setInverted(true);
+		follow.follow(master, false);
 
-		controller = left.getPIDController();
+		relEncoder = master.getEncoder();
+		absoluteEncoder = master.getAbsoluteEncoder(Type.kDutyCycle);
+		absoluteEncoder.setPositionConversionFactor(2 * Math.PI);
+		absoluteEncoder.setInverted(true);
+		absoluteEncoder.setZeroOffset(WristConstants.ENC_OFFSET);
+
+		controller = master.getPIDController();
+
+		controller.setFeedbackDevice(absoluteEncoder);
 
 		controller.setP(Constants.WristConstants.kP);
 		controller.setI(Constants.WristConstants.kI);
 		controller.setD(Constants.WristConstants.kD);
 		controller.setFF(Constants.WristConstants.kFF);
 
-		relEncoder = left.getEncoder();
-		absoluteEncoder = left.getAbsoluteEncoder(Type.kDutyCycle);
-		absoluteEncoder.setZeroOffset(WristConstants.ENC_OFFSET);
-		absoluteEncoder.setPositionConversionFactor(2 * Math.PI);// / WristConstants.GEARBOX_RATIO);
+		state = new WristState(absoluteEncoder.getPosition(), absoluteEncoder.getVelocity());
 
-		relEncoder.setPositionConversionFactor(2 * Math.PI / Constants.WristConstants.GEARBOX_RATIO);
-		relEncoder.setVelocityConversionFactor(2 * Math.PI / Constants.WristConstants.GEARBOX_RATIO / 60);
-		relEncoder.setPosition(absoluteEncoder.getPosition());
-
-		state = new WristState(relEncoder.getPosition(), relEncoder.getVelocity());
+		Shuffleboard.getTab("Wrist").addNumber("ABS", () -> absoluteEncoder.getPosition());
 
 		new DebugPID(controller, "Wrist");
 	}
@@ -70,7 +74,7 @@ public class WristSubsystem extends SubsystemBase implements SubChecker {
             relEncoder.setPosition(angle);
             return;
         }
-		controller.setReference(angle, ControlType.kPosition);
+		controller.setReference(angle + Math.PI, ControlType.kPosition);
 	}
 
 	public void reset() {
@@ -83,7 +87,7 @@ public class WristSubsystem extends SubsystemBase implements SubChecker {
 
 	@Override
 	public void periodic() {
-		state = new WristState(relEncoder.getPosition(), relEncoder.getVelocity());
+		state = new WristState(absoluteEncoder.getPosition(), absoluteEncoder.getVelocity());
 	}
 
 	public WristState getCurrentState() {

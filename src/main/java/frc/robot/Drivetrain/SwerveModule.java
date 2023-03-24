@@ -253,10 +253,10 @@ public class SwerveModule extends SubsystemBase {
 
         state = in;
 
-        // drivePID.setReference(state.speedMetersPerSecond, ControlType.kVelocity);
+        drivePID.setReference(state.speedMetersPerSecond, ControlType.kVelocity);
 
         // drive.set(driveSlewRateLimiter.calculate(state.speedMetersPerSecond/4.0));
-        drive.set(state.speedMetersPerSecond / 4.0);
+        // drive.set(state.speedMetersPerSecond / 4.0);
 
         // turnPID.setReference((turnEnc.getPosition() + delta % 360),
         // ControlType.kPosition);
@@ -266,6 +266,7 @@ public class SwerveModule extends SubsystemBase {
         if (Robot.isReal()) {
             turnPID.setReference(
                     state.angle.getDegrees(), ControlType.kPosition);
+            drivePID.setReference(state.speedMetersPerSecond, ControlType.kVelocity);
         } else {
             turnEnc.setPosition(in.angle.getDegrees());
         }

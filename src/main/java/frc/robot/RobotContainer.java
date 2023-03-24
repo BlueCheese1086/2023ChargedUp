@@ -79,7 +79,17 @@ public class RobotContainer {
 
 		arm.setDefaultCommand(new InstantCommand(() -> {
 			arm.setAngle((driver.getRightTriggerAxis() - driver.getLeftTriggerAxis()) * 2 * Math.PI);
+			// arm.setAngle(0);
 		}, arm));
+
+		// wrist.setDefaultCommand(new InstantCommand(() -> {
+		// 	wrist.setAngle((driver.getRightTriggerAxis() - driver.getLeftTriggerAxis()) * 2 * Math.PI);
+		// }, wrist));
+
+		elevator.setDefaultCommand(new InstantCommand(() -> {
+			elevator.setDesiredHeight(.6 + driver.getRightTriggerAxis() - driver.getLeftTriggerAxis());
+		}, elevator));
+
 
 		configureBindings();
 	}
@@ -90,15 +100,17 @@ public class RobotContainer {
 		 * DRIVER *
 		 **********/
 
-		new JoystickButton(driver, Button.kA.value).toggleOnTrue(new AssistedDrive(
-				drivetrain,
-				() -> filter(driver.getLeftY()),
-				() -> filter(driver.getLeftX()),
-				() -> filter(driver.getRightX())));
+		// new JoystickButton(driver, Button.kA.value).toggleOnTrue(new AssistedDrive(
+		// 		drivetrain,
+		// 		() -> filter(driver.getLeftY()),
+		// 		() -> filter(driver.getLeftX()),
+		// 		() -> filter(driver.getRightX())));
 
-		new JoystickButton(driver, Button.kB.value).toggleOnTrue(new InstantCommand(() -> {
-			stateManager.setPosition(Positions.stowed);
-		}));
+		// new JoystickButton(driver, Button.kB.value).toggleOnTrue(new InstantCommand(() -> {
+		// 	stateManager.setPosition(Positions.stowed);
+		// }));
+
+		// new JoystickButton(driver, Button.kA.value).whileTrue(
 
 		/************
 		 * OPERATOR *
