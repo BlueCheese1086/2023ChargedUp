@@ -36,9 +36,11 @@ public class ArmSubsystem extends SubsystemBase implements SubChecker {
 
         arm.restoreFactoryDefaults();
 
-        arm.setIdleMode(IdleMode.kCoast);
+        arm.setIdleMode(IdleMode.kBrake);
 
         arm.setInverted(false);
+
+        arm.setSmartCurrentLimit(25);
 
         relEncoder = arm.getEncoder();
         absoluteEncoder = arm.getAbsoluteEncoder(Type.kDutyCycle);
@@ -63,7 +65,7 @@ public class ArmSubsystem extends SubsystemBase implements SubChecker {
     
     @Override
     public void periodic() {
-        state = new ArmState(absoluteEncoder.getPosition(), absoluteEncoder.getVelocity());
+        state = new ArmState(absoluteEncoder.getPosition() - Math.PI, absoluteEncoder.getVelocity());
     }
 
     public ArmState getCurrentState() {
@@ -71,6 +73,22 @@ public class ArmSubsystem extends SubsystemBase implements SubChecker {
     }
 
     public void setAngle(double a) {
+        if (Robot.isSimulation()) {
+            relEncoder.setPosition(a);
+            return;
+        }
+        if (a > ArmConstants.UPPER_RANGE) {
+            controller.setReference(ArmConstants.UPPER_RANGE + Math.PI, ControlType.kPosition);
+            return;
+        }
+        if (a < ArmConstants.LOWER_RANGE) {
+            controller.setReference(ArmConstants.LOWER_RANGE + Math.PI, ControlType.kPosition);
+            return;
+        }
+        controller.setReference(a + Math.PI, ControlType.kPosition);
+    }
+
+    public void setAngleIgnoreLimit(double a) {
         if (Robot.isSimulation()) {
             relEncoder.setPosition(a);
             return;

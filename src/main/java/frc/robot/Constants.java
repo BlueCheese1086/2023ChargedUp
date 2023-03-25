@@ -83,9 +83,11 @@ public class Constants {
 
         public static final double MINIMUM_STARTING_HEIGHT = (int)(Units.inchesToMeters(25)/(SPOOL_DIAMETER*Math.PI))*(double)SPOOL_DIAMETER*Math.PI;
 
-        public static final double kP = 0.5;
-        public static final double kI = 0.0;
-        public static final double kD = 0.0;
+        public static final double TOLERANCE = Units.inchesToMeters(2);
+
+        public static final double kP = 3.0;
+        public static final double kI = 0.0005;
+        public static final double kD = 0.001;
         public static final double kFF = 0.0;
 
     }
@@ -104,10 +106,12 @@ public class Constants {
         // Arm Starting angle
         public static final double STARTING_ANGLE = 0.0;
         // Arm Range
-        public static final double RANGE = Units.degreesToRadians(150);
+        public static final double RANGE = Units.degreesToRadians(170);
 
         public static final double UPPER_RANGE = RANGE/2.0 - ElevatorConstants.TOWER_ANGLE_OFFSET;
-        public static final double LOWER_RANGE = -RANGE/2.0 - ElevatorConstants.TOWER_ANGLE_OFFSET;
+        public static final double LOWER_RANGE = -Units.degreesToRadians(60);
+
+        public static final double TOLERANCE = Units.degreesToRadians(15);
 
         public static final double kP = 1.0;
         public static final double kI = 0.0;
@@ -141,6 +145,11 @@ public class Constants {
         public static final double kI = 0.0;
         public static final double kD = 0.0;
         public static final double kFF = 0.0;
+
+        public static final double UPPER_RANGE = Units.degreesToRadians(90);
+        public static final double LOWER_RANGE = Units.degreesToRadians(-45);
+
+        public static final double TOLERANCE = Units.degreesToRadians(10);
 
         public static final double GEARBOX_RATIO = 0;
 

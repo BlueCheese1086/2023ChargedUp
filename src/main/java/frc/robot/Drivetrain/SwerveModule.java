@@ -109,7 +109,7 @@ public class SwerveModule extends SubsystemBase {
                 .withWidget(BuiltInWidgets.kGyro).withProperties(Map.ofEntries(
                     Map.entry("Starting angle", 0.0)
                 ));
-        layout.addNumber("Current Angle", () -> getCanCoderAngle().getDegrees())
+        layout.addNumber("ABS Angle", () -> getCanCoderAngle().getDegrees())
                 // .withPosition(0, 1)
                 // .withSize(2, 1)
                 .withWidget(BuiltInWidgets.kGyro).withProperties(Map.ofEntries(
@@ -142,30 +142,6 @@ public class SwerveModule extends SubsystemBase {
             driveEnc.setPosition(driveEnc.getPosition() + elapsed / 1000 * state.speedMetersPerSecond);
         }
         startTime = System.currentTimeMillis();
-    }
-
-    /**
-     * Calculate the angle motor setpoint based on the desired angle and the current
-     * angle measurement
-     * 
-     * @return Returns the calculated delta angle
-     */
-    public double calculateAdjustedAngle(double targetAngle, double currentAngle) {
-
-        double modAngle = currentAngle % 360;
-
-        if (modAngle < 0.0)
-            modAngle += 360;
-
-        double newTarget = targetAngle + currentAngle - modAngle;
-
-        if (targetAngle - modAngle > 180)
-            newTarget -= 360;
-        else if (targetAngle - modAngle < -180)
-            newTarget += 360;
-
-        return newTarget;
-
     }
 
     /**
@@ -216,6 +192,15 @@ public class SwerveModule extends SubsystemBase {
         return Rotation2d.fromDegrees((turnEnc.getPosition() % 360 + 360) % 360 - 180);
     }
 
+    public SwerveModuleState getAdjustedState(SwerveModuleState s, Rotation2d moduleAngle) {
+        if (Math.abs(s.angle.getDegrees() - moduleAngle.getDegrees()) > 90.0) {
+            return new SwerveModuleState(
+                -s.speedMetersPerSecond, 
+                new Rotation2d(moduleAngle.getRadians() + Math.PI));
+        }
+        return s;
+    }
+
     /**
      * Initializes the relative encoder
      */
@@ -253,20 +238,27 @@ public class SwerveModule extends SubsystemBase {
 
         state = in;
 
-        drivePID.setReference(state.speedMetersPerSecond, ControlType.kVelocity);
+        double targetAngle = in.angle.getDegrees();
+        double currentAngle = getTurnAngle().getDegrees();
+        double delta = ((targetAngle - currentAngle) % 360 + 360) % 360 - 180;
 
-        // drive.set(driveSlewRateLimiter.calculate(state.speedMetersPerSecond/4.0));
-        // drive.set(state.speedMetersPerSecond / 4.0);
+        if (delta > 90) {
+            Rotation2d newAngle = getTurnAngle().rotateBy(new Rotation2d(Math.PI));
+            state = new SwerveModuleState(
+                -state.speedMetersPerSecond,
+                newAngle.plus(new Rotation2d())
+            );
+        }
 
-        // turnPID.setReference((turnEnc.getPosition() + delta % 360),
-        // ControlType.kPosition);
-        // turnPID.setReference(
-        // calculateAdjustedAngle(state.angle.getDegrees(),
-        // getTurnAngle().getDegrees()), ControlType.kPosition);
+        // System.out.println(delta);
+        SmartDashboard.putNumber("Delta", delta);
+
+        drive.set(state.speedMetersPerSecond / 4.0);
+
         if (Robot.isReal()) {
             turnPID.setReference(
                     state.angle.getDegrees(), ControlType.kPosition);
-            drivePID.setReference(state.speedMetersPerSecond, ControlType.kVelocity);
+            // drivePID.setReference(state.speedMetersPerSecond, ControlType.kVelocity);
         } else {
             turnEnc.setPosition(in.angle.getDegrees());
         }

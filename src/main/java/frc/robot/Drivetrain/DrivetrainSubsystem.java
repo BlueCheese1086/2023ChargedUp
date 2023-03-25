@@ -153,7 +153,6 @@ public class DrivetrainSubsystem extends SubsystemBase implements SubChecker {
         this.speeds = sp;
         states = kinematics.toSwerveModuleStates(speeds, new Translation2d(0.0, 0.0));
         for (int i = 0; i < 4; i++) {
-            // states[i] = SwerveModuleState.optimize(states[i], modules[i].getTurnAngle());
             modules[i].setState(states[i]);
         }
         if (Robot.isSimulation()) {

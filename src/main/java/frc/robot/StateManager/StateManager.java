@@ -140,7 +140,7 @@ public class StateManager extends SubsystemBase {
 				double[] ik = inverseIt(difference.getX(), difference.getZ());
 				elevator.setDesiredHeight(ik[0]);
 				arm.setAngle(ik[1]);
-				wrist.setAngle(desiredWrist);
+				wrist.setAngle(desiredWrist, true);
 				return;
 			}
 		}
@@ -149,9 +149,9 @@ public class StateManager extends SubsystemBase {
 		elevator.setDesiredHeight(vals[0]);
 		arm.setAngle(vals[1]);
 		if (vals[2] != -100) {
-			wrist.setAngle(vals[2]);
+			wrist.setAngle(vals[2], true);
 		} else {
-			wrist.setAngle(((Piece) configurations.get("piecemode")).getWristAngle());
+			wrist.setAngle(((Piece) configurations.get("piecemode")).getWristAngle(), true);
 		}
 
 		if (current != desired && current.isHere(vals)) {

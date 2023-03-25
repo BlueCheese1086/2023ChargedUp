@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -14,7 +15,9 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Arm.ArmSubsystem;
+import frc.robot.Arm.Commands.SetArmAngle;
 import frc.robot.Drivetrain.DrivetrainSubsystem;
 import frc.robot.Drivetrain.Commands.AssistedDrive;
 import frc.robot.Drivetrain.Commands.DefaultDrive;
@@ -29,6 +32,7 @@ import frc.robot.Sensors.Vision.VisionManager;
 import frc.robot.StateManager.StateManager;
 import frc.robot.StateManager.Commands.AutoEE;
 import frc.robot.StateManager.Commands.DefaultManager;
+import frc.robot.StateManager.Commands.UnfoldStartingPos;
 import frc.robot.StateManager.StateManager.Piece;
 import frc.robot.StateManager.StateManager.Positions;
 import frc.robot.Wrist.WristSubsystem;
@@ -63,8 +67,8 @@ public class RobotContainer {
 
 		drivetrain.setDefaultCommand(
 				new DefaultDrive(drivetrain,
-						() -> filter(driver.getLeftY()),
-						() -> filter(driver.getLeftX()),
+						() -> filter(-driver.getLeftY()),
+						() -> filter(-driver.getLeftX()),
 						() -> filter(driver.getRightX())));
 
 		// intake.setDefaultCommand(new DefaultIntake(intake, () -> {
@@ -77,24 +81,32 @@ public class RobotContainer {
 		// 	new DefaultManager()
 		// );
 
-		arm.setDefaultCommand(new InstantCommand(() -> {
-			arm.setAngle((driver.getRightTriggerAxis() - driver.getLeftTriggerAxis()) * 2 * Math.PI);
-			// arm.setAngle(0);
-		}, arm));
+		// arm.setDefaultCommand(new InstantCommand(() -> {
+		// 	arm.setAngle((operator.getRightTriggerAxis() - operator.getLeftTriggerAxis()) * Math.PI);
+		// 	// arm.setAngle(0);
+		// }, arm));
 
 		// wrist.setDefaultCommand(new InstantCommand(() -> {
-		// 	wrist.setAngle((driver.getRightTriggerAxis() - driver.getLeftTriggerAxis()) * 2 * Math.PI);
+		// 	wrist.setAngle(0, true);
+		// 	// wrist.setAngle((driver.getRightTriggerAxis() - driver.getLeftTriggerAxis()) * 2 * Math.PI);
 		// }, wrist));
 
-		elevator.setDefaultCommand(new InstantCommand(() -> {
-			elevator.setDesiredHeight(.6 + driver.getRightTriggerAxis() - driver.getLeftTriggerAxis());
-		}, elevator));
+		// elevator.setDefaultCommand(new InstantCommand(() -> {
+		// 	elevator.setDesiredHeight(Units.inchesToMeters(20));
+		// 	// elevator.setDesiredHeight(.6 + driver.getRightTriggerAxis() - driver.getLeftTriggerAxis());
+		// }, elevator));
 
 
 		configureBindings();
 	}
 
 	private void configureBindings() {
+
+		// new JoystickButton(driver, Button.kA.value).onTrue(new UnfoldStartingPos(arm, wrist, elevator));
+
+		// new JoystickButton(driver, Button.kRightBumper.value).whileTrue(
+		// 	new SetArmAngle(() -> (driver.getRightTriggerAxis() - driver.getLeftTriggerAxis()) * 2 * Math.PI, arm, false)
+		// );
 
 		/**********
 		 * DRIVER *
@@ -116,22 +128,26 @@ public class RobotContainer {
 		 * OPERATOR *
 		 ************/
 
-		new JoystickButton(operator, Button.kY.value).onTrue(new InstantCommand(() -> {
-			stateManager.setPieceMode(stateManager.getPieceMode() == Piece.Cube ? Piece.Cone : Piece.Cube);
-		}));
 
-		new POVButton(operator, 0).onTrue(new InstantCommand(() -> {
-			stateManager.setPosition(Positions.high);
-		}));
-		new POVButton(operator, 90).onTrue(new InstantCommand(() -> {
-			stateManager.setPosition(Positions.mid);
-		}));
-		new POVButton(operator, 180).onTrue(new InstantCommand(() -> {
-			stateManager.setPosition(Positions.ground);
-		}));
-		new POVButton(operator, 270).onTrue(new InstantCommand(() -> {
-			stateManager.setPosition(Positions.stowed);
-		}));
+		//  new Trigger(() -> operator.getRightBumper()).onTrue(new DefaultIntake(intake, () -> 1));
+		//  new Trigger(() -> operator.getLeftBumper()).onTrue(new DefaultIntake(intake, () -> -1));
+
+		// new JoystickButton(operator, Button.kY.value).onTrue(new InstantCommand(() -> {
+		// 	stateManager.setPieceMode(stateManager.getPieceMode() == Piece.Cube ? Piece.Cone : Piece.Cube);
+		// }));
+
+		// new POVButton(operator, 0).onTrue(new InstantCommand(() -> {
+		// 	stateManager.setPosition(Positions.high);
+		// }));
+		// new POVButton(operator, 90).onTrue(new InstantCommand(() -> {
+		// 	stateManager.setPosition(Positions.mid);
+		// }));
+		// new POVButton(operator, 180).onTrue(new InstantCommand(() -> {
+		// 	stateManager.setPosition(Positions.ground);
+		// }));
+		// new POVButton(operator, 270).onTrue(new InstantCommand(() -> {
+		// 	stateManager.setPosition(Positions.stowed);
+		// }));
 	}
 
 	public double filter(double d) {
@@ -139,16 +155,18 @@ public class RobotContainer {
 	}
 
 	public Command getAutonomousCommand() {
-		return new SequentialCommandGroup(new ParallelRaceGroup(new WaitCommand(0.3),
+		return new SequentialCommandGroup(
+			new UnfoldStartingPos(arm, wrist, elevator),
+			new ParallelRaceGroup(new WaitCommand(0.3),
 				new DefaultDrive(drivetrain,
-						() -> 1,
+						() -> -1,
 						() -> 0.0,
 						() -> 0.0)),
 				new DefaultDrive(drivetrain, () -> 0.0, () -> 0.0, () -> 0.0),
 				new WaitCommand(1),
 				new ParallelRaceGroup(new WaitCommand(1.75),
 						new DefaultDrive(drivetrain,
-								() -> -0.5,
+								() -> 0.5,
 								() -> 0.0,
 								() -> 0.0)));
 		// return Commands.print("No autonomous command configured");

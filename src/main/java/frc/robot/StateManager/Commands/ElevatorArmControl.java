@@ -35,7 +35,7 @@ public class ElevatorArmControl extends CommandBase {
         e.setDesiredHeight(vals[0]);
         a.setAngle(vals[1]);
         if (vals[2] != -100) {
-            w.setAngle(vals[2]);
+            w.setAngle(vals[2], true);
         }
 
         if (current != desired && current.isHere(vals)) {

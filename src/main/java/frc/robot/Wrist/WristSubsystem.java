@@ -69,16 +69,28 @@ public class WristSubsystem extends SubsystemBase implements SubChecker {
 		new DebugPID(controller, "Wrist");
 	}
 
-	public void setAngle(double angle) {
+	public void setAngle(double angle, boolean fourBar) {
 		if (Robot.isSimulation()) {
             relEncoder.setPosition(angle);
             return;
         }
-		controller.setReference(angle + Math.PI, ControlType.kPosition);
+
+		double armAngle = StateManager.getInstance().getArmState().angle;
+
+		if (angle > WristConstants.UPPER_RANGE + armAngle) {
+            controller.setReference(WristConstants.UPPER_RANGE + Math.PI + armAngle, ControlType.kPosition);
+            return;
+        }
+        if (angle < WristConstants.LOWER_RANGE + armAngle) {
+            controller.setReference(WristConstants.LOWER_RANGE + Math.PI + armAngle, ControlType.kPosition);
+            return;
+        }
+
+		controller.setReference(angle + Math.PI + (fourBar ? -armAngle : 0.0), ControlType.kPosition);
 	}
 
 	public void reset() {
-		setAngle(0);
+		setAngle(0, false);
 	}
 
 	public void setVelocity(double angularSpeed) {
@@ -87,7 +99,7 @@ public class WristSubsystem extends SubsystemBase implements SubChecker {
 
 	@Override
 	public void periodic() {
-		state = new WristState(absoluteEncoder.getPosition(), absoluteEncoder.getVelocity());
+		state = new WristState(absoluteEncoder.getPosition() - Math.PI, absoluteEncoder.getVelocity());
 	}
 
 	public WristState getCurrentState() {
@@ -101,7 +113,7 @@ public class WristSubsystem extends SubsystemBase implements SubChecker {
 		return new InstantCommand(() -> {
 			double time = System.currentTimeMillis();
 			boolean working = false;
-			setAngle(Math.PI / 6.0);
+			setAngle(Math.PI / 6.0, false);
 			while (System.currentTimeMillis() - time < 2000) {
 			}
 			if (relEncoder.getPosition() > Math.PI / 12.0) {
