@@ -6,6 +6,7 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.SparkMaxAbsoluteEncoder.Type;
 
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -32,6 +33,9 @@ public class IntakeSubsystem extends SubsystemBase implements SubChecker {
 		intake = new CANSparkMax(Constants.IntakeConstants.ID, MotorType.kBrushless);
 		intakeEncoder = intake.getEncoder();
 		instance = this;
+
+		intake.setSmartCurrentLimit(25);
+        Shuffleboard.getTab("Subsystems").addBoolean("Intake", () -> true);
 	}
 
 	public void in() {

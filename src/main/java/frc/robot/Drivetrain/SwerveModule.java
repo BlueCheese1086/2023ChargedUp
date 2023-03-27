@@ -62,10 +62,10 @@ public class SwerveModule extends SubsystemBase {
         drive.restoreFactoryDefaults();
 
         turn.setSmartCurrentLimit(35);
-        drive.setSmartCurrentLimit(35);
+        drive.setSmartCurrentLimit(39);
 
-        drive.enableVoltageCompensation(12.0);
-        turn.enableVoltageCompensation(12.0);
+        // drive.enableVoltageCompensation(12.0);
+        // turn.enableVoltageCompensation(12.0);
 
         turn.setInverted(true);
         drive.setInverted(false);
@@ -189,7 +189,7 @@ public class SwerveModule extends SubsystemBase {
      * @return Rotation2d of the current module angle
      */
     public Rotation2d getTurnAngle() {
-        return Rotation2d.fromDegrees((turnEnc.getPosition() % 360 + 360) % 360 - 180);
+        return Rotation2d.fromDegrees((turnEnc.getPosition() % 360 + 360) % 360);
     }
 
     public SwerveModuleState getAdjustedState(SwerveModuleState s, Rotation2d moduleAngle) {
@@ -234,7 +234,7 @@ public class SwerveModule extends SubsystemBase {
      * 
      * @param in The desired state
      */
-    public void setState(SwerveModuleState in) {
+    public void setState(SwerveModuleState in, boolean override) {
 
         state = in;
 
@@ -242,23 +242,32 @@ public class SwerveModule extends SubsystemBase {
         double currentAngle = getTurnAngle().getDegrees();
         double delta = ((targetAngle - currentAngle) % 360 + 360) % 360 - 180;
 
-        if (delta > 90) {
-            Rotation2d newAngle = getTurnAngle().rotateBy(new Rotation2d(Math.PI));
-            state = new SwerveModuleState(
-                -state.speedMetersPerSecond,
-                newAngle.plus(new Rotation2d())
-            );
-        }
+        // if (delta > 90) {
+        //     Rotation2d newAngle = getTurnAngle().rotateBy(new Rotation2d(Math.PI));
+        //     state = new SwerveModuleState(
+        //         -state.speedMetersPerSecond,
+        //         newAngle.plus(new Rotation2d())
+        //     );
+        // }
+
+        state = SwerveModuleState.optimize(in, getTurnAngle());
 
         // System.out.println(delta);
         SmartDashboard.putNumber("Delta", delta);
 
-        drive.set(state.speedMetersPerSecond / 4.0);
+        // drive.set(state.speedMetersPerSecond / 4.0);
 
         if (Robot.isReal()) {
             turnPID.setReference(
                     state.angle.getDegrees(), ControlType.kPosition);
-            // drivePID.setReference(state.speedMetersPerSecond, ControlType.kVelocity);
+
+            drivePID.setReference(state.speedMetersPerSecond, ControlType.kVelocity);
+            // if (!override) {
+            //     System.out.println("Overr");
+            //     drivePID.setReference(state.speedMetersPerSecond, ControlType.kVelocity);
+            // } else {
+            //     drive.set(state.speedMetersPerSecond / 4.0);
+            // }
         } else {
             turnEnc.setPosition(in.angle.getDegrees());
         }

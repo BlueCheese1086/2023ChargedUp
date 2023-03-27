@@ -79,7 +79,8 @@ public class StateManager extends SubsystemBase {
 
 		configurations.putAll(Map.ofEntries(
 				Map.entry("piecemode", Piece.Cube),
-				Map.entry("inversekinematicson", true)));
+				Map.entry("inversekinematicson", false)));
+		Shuffleboard.getTab("Subsystems").addBoolean("State", () -> true);
 	}
 
 	@Override
@@ -107,13 +108,13 @@ public class StateManager extends SubsystemBase {
 
 	public void setPosition(Positions p) {
 		desiredPosition = p;
-		if (currentPosition == Positions.stowed && p != Positions.stowed) {
-			currentPosition = Positions.transition;
-			return;
-		} else if (currentPosition != Positions.stowed && p == Positions.stowed) {
-			currentPosition = Positions.transition;
-			return;
-		}
+		// if (currentPosition == Positions.stowed && p != Positions.stowed) {
+		// 	currentPosition = Positions.transition;
+		// 	return;
+		// } else if (currentPosition != Positions.stowed && p == Positions.stowed) {
+		// 	currentPosition = Positions.transition;
+		// 	return;
+		// }
 		currentPosition = p;
 	}
 
@@ -121,7 +122,7 @@ public class StateManager extends SubsystemBase {
 		Positions current = this.getCurrentPosition();
 		Positions desired = this.getDesiredPosition();
 
-		while (true) {
+		while ((Boolean) configurations.get("inversekinematicson")) {
 			if ((Boolean) configurations.get("inversekinematicson")) {
 				if (desired.getEffectors()[2] != -100) break;
 				Pose3d nearestScoring = PositionManager.getInstance().poseOfClosestScoring();
@@ -138,7 +139,7 @@ public class StateManager extends SubsystemBase {
 				Transform3d difference = endEff.minus(robotPose);
 				SmartDashboard.putString("Difference", difference.toString());
 				double[] ik = inverseIt(difference.getX(), difference.getZ());
-				elevator.setDesiredHeight(ik[0]);
+				// elevator.setDesiredHeight(ik[0]);
 				arm.setAngle(ik[1]);
 				wrist.setAngle(desiredWrist, true);
 				return;
@@ -146,8 +147,9 @@ public class StateManager extends SubsystemBase {
 		}
 
 		double[] vals = desired.getEffectors();
-		elevator.setDesiredHeight(vals[0]);
+		// elevator.setDesiredHeight(vals[0]);
 		arm.setAngle(vals[1]);
+		System.out.println(vals[2]);
 		if (vals[2] != -100) {
 			wrist.setAngle(vals[2], true);
 		} else {
@@ -217,8 +219,8 @@ public class StateManager extends SubsystemBase {
 	}
 
 	public enum Piece {
-		Cube(LEDMode.Cube, 0.0, -1),
-		Cone(LEDMode.Cone, -Math.PI / 2, 1);
+		Cube(LEDMode.Cube, -0.4, -1),
+		Cone(LEDMode.Cone, -0.4, 1);
 
 		private LEDMode mode;
 		private double pickupAngle;
@@ -267,17 +269,18 @@ public class StateManager extends SubsystemBase {
 		public double[] getEffectors() {
 			switch (this) {
 				case stowed:
-					return new double[] { 0.8, -1.5, 1 };
+					return new double[] { 0.44, 1.15, Math.PI/2
+					 };
 				case transition:
-					return new double[] { 0.75, -1.3, 1 };
+					return new double[] { 0.75, -1.3, Math.PI/4 };
 				case ground:
-					return new double[] { 0.51, -1.15, -100 };
+					return new double[] { 1, -0.6, -100 };
 				case mid:
-					return new double[] { 1.02, -1.05, -100 };
+					return new double[] { 0.69, 0, -100 };
 				case high:
-					return new double[] { 0.69, 0.23, -100 };
+					return new double[] { 0.8, Math.PI/4, -100 };
 				case player:
-					return new double[] { 0.69, 0.23, -100 };
+					return new double[] { 0.8, Math.PI/4, -100 };
 			}
 			return new double[] {};
 		}

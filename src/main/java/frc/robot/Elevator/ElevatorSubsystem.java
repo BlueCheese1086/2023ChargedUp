@@ -9,6 +9,7 @@ import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.SparkMaxAbsoluteEncoder.Type;
 
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -45,8 +46,8 @@ public class ElevatorSubsystem extends SubsystemBase implements SubChecker {
         left.restoreFactoryDefaults();
         right.restoreFactoryDefaults();
 
-        left.setIdleMode(IdleMode.kBrake);
-        right.setIdleMode(IdleMode.kBrake);
+        left.setIdleMode(IdleMode.kCoast);
+        right.setIdleMode(IdleMode.kCoast);
 
         // right.setInverted(true);
         right.follow(left, true);
@@ -69,6 +70,7 @@ public class ElevatorSubsystem extends SubsystemBase implements SubChecker {
         //     leftEncoder.setPosition(-0.05);
         // }
         new DebugPID(leftPID, "Elevator");
+        Shuffleboard.getTab("Subsystems").addBoolean("Elevator", () -> true);
     }
 
     @Override

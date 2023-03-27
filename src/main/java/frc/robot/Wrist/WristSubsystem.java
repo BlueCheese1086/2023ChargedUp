@@ -44,6 +44,8 @@ public class WristSubsystem extends SubsystemBase implements SubChecker {
 		follow.setIdleMode(IdleMode.kBrake);
 		master.setIdleMode(IdleMode.kBrake);
 
+		master.setSmartCurrentLimit(20);
+
 		master.setInverted(true);
 		follow.follow(master, false);
 
@@ -66,6 +68,7 @@ public class WristSubsystem extends SubsystemBase implements SubChecker {
 
 		Shuffleboard.getTab("Wrist").addNumber("ABS", () -> absoluteEncoder.getPosition());
 
+        Shuffleboard.getTab("Subsystems").addBoolean("Wrist", () -> true);
 		new DebugPID(controller, "Wrist");
 	}
 
@@ -86,7 +89,7 @@ public class WristSubsystem extends SubsystemBase implements SubChecker {
             return;
         }
 
-		controller.setReference(angle + Math.PI + (fourBar ? -armAngle : 0.0), ControlType.kPosition);
+		controller.setReference(angle + Math.PI + (fourBar ? armAngle : 0.0), ControlType.kPosition);
 	}
 
 	public void reset() {
@@ -99,7 +102,7 @@ public class WristSubsystem extends SubsystemBase implements SubChecker {
 
 	@Override
 	public void periodic() {
-		state = new WristState(absoluteEncoder.getPosition() - Math.PI, absoluteEncoder.getVelocity());
+		state = new WristState(absoluteEncoder.getPosition() - Math.PI - StateManager.getInstance().getArmState().angle, absoluteEncoder.getVelocity());
 	}
 
 	public WristState getCurrentState() {

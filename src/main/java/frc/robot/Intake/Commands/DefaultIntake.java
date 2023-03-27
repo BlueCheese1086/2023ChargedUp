@@ -20,7 +20,8 @@ public class DefaultIntake extends CommandBase {
 
     @Override
     public void execute() {
-        intake.intake(Math.signum(StateManager.getInstance().getPieceMode().getIntakeSpeed())*supplier.getAsDouble());
+        intake.intake(supplier.getAsDouble());
+        // intake.intake(Math.signum(StateManager.getInstance().getPieceMode().getIntakeSpeed())*supplier.getAsDouble());
     }
 
     @Override

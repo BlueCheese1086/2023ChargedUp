@@ -41,10 +41,10 @@ public class Constants {
         public static final double kModuleToModuleDistance = Units.inchesToMeters(19.750);
         public static final double kModuleToCenter = kModuleToModuleDistance / 2;
 
-        public static final double driveP = 0.01;
+        public static final double driveP = 0.1;
         public static final double driveI = 0.00;
         public static final double driveD = 0.0;
-        public static final double driveFF = 1.96;
+        public static final double driveFF = 2.96;
 
         public static final double turnP = 0.05;
         public static final double turnI = 0.0;
@@ -81,7 +81,7 @@ public class Constants {
 
         public static final double TOWER_ANGLE_OFFSET = Units.degreesToRadians(90-72);
 
-        public static final double MINIMUM_STARTING_HEIGHT = (int)(Units.inchesToMeters(25)/(SPOOL_DIAMETER*Math.PI))*(double)SPOOL_DIAMETER*Math.PI;
+        public static final double MINIMUM_STARTING_HEIGHT = (int)(Units.inchesToMeters(18)/(SPOOL_DIAMETER*Math.PI))*(double)SPOOL_DIAMETER*Math.PI;
 
         public static final double TOLERANCE = Units.inchesToMeters(2);
 
@@ -109,7 +109,7 @@ public class Constants {
         public static final double RANGE = Units.degreesToRadians(170);
 
         public static final double UPPER_RANGE = RANGE/2.0 - ElevatorConstants.TOWER_ANGLE_OFFSET;
-        public static final double LOWER_RANGE = -Units.degreesToRadians(60);
+        public static final double LOWER_RANGE = -Units.degreesToRadians(30);
 
         public static final double TOLERANCE = Units.degreesToRadians(15);
 
@@ -146,14 +146,14 @@ public class Constants {
         public static final double kD = 0.0;
         public static final double kFF = 0.0;
 
-        public static final double UPPER_RANGE = Units.degreesToRadians(90);
+        public static final double UPPER_RANGE = Units.degreesToRadians(180);
         public static final double LOWER_RANGE = Units.degreesToRadians(-45);
 
         public static final double TOLERANCE = Units.degreesToRadians(10);
 
         public static final double GEARBOX_RATIO = 0;
 
-        public static final double ENC_OFFSET = 3.40 - Math.PI;
+        public static final double ENC_OFFSET = 1.15 + Math.PI;
 
     }
 

@@ -36,7 +36,7 @@ public class ArmSubsystem extends SubsystemBase implements SubChecker {
 
         arm.restoreFactoryDefaults();
 
-        arm.setIdleMode(IdleMode.kBrake);
+        arm.setIdleMode(IdleMode.kCoast);
 
         arm.setInverted(false);
 
@@ -61,6 +61,7 @@ public class ArmSubsystem extends SubsystemBase implements SubChecker {
         Shuffleboard.getTab("Arm").addNumber("Absolute Encoder POS", () -> absoluteEncoder.getPosition());
 
         new DebugPID(controller, "ARM");
+        Shuffleboard.getTab("Subsystems").addBoolean("Arm", () -> true);
     }
     
     @Override
