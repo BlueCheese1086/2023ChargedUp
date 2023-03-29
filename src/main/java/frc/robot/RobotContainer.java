@@ -30,6 +30,7 @@ import frc.robot.Drivetrain.DrivetrainSubsystem;
 import frc.robot.Drivetrain.Commands.AssistedDrive;
 import frc.robot.Drivetrain.Commands.DefaultDrive;
 import frc.robot.Elevator.ElevatorSubsystem;
+import frc.robot.Elevator.Commands.SetHeight;
 import frc.robot.Intake.IntakeSubsystem;
 import frc.robot.Intake.Commands.DefaultIntake;
 import frc.robot.Sensors.Commands.BeforeField;
@@ -75,9 +76,9 @@ public class RobotContainer {
 
 		drivetrain.setDefaultCommand(
 				new DefaultDrive(drivetrain,
-						() -> filter(-driver.getLeftY()),
-						() -> filter(-driver.getLeftX()),
-						() -> filter(driver.getRightX())));
+						() -> filter(-operator.getLeftY()),
+						() -> filter(-operator.getLeftX()),
+						() -> filter(operator.getRightX())));
 
 		// intake.setDefaultCommand(new DefaultIntake(intake, () -> {
 		// return operator.getRightTriggerAxis() - operator.getLeftTriggerAxis();
@@ -85,24 +86,25 @@ public class RobotContainer {
 
 		// stateManager.setDefaultCommand(
 		// new AutoEE(stateManager, () -> false, () -> 0));
-		stateManager.setPosition(Positions.high);
+		stateManager.setPosition(Positions.mid);
 		// stateManager.setDefaultCommand(
-		// new DefaultManager(arm, wrist, elevator)
+		// 	new DefaultManager(arm, wrist, elevator)
 		// );
 
 		// arm.setDefaultCommand(new InstantCommand(() -> {
-		// 	arm.setAngle((operator.getRightTriggerAxis() - operator.getLeftTriggerAxis()) * Math.PI);
-		// 	// arm.setAngle(0);
+		// 	// arm.setAngle((operator.getRightTriggerAxis() - operator.getLeftTriggerAxis()) * Math.PI);
+		// 	arm.setAngle(0);
 		// }, arm));
 
 		// wrist.setDefaultCommand(new InstantCommand(() -> {
-		// 	wrist.setAngle(0, true);
+		// 	wrist.setAngle(wrist.getCurrentState().angle, false);
+		// 	// wrist.setAngle(0, true);
 		// 	// wrist.setAngle((driver.getRightTriggerAxis() - driver.getLeftTriggerAxis()) *
 		// 	// Math.PI, true);
 		// }, wrist));
 
 		// elevator.setDefaultCommand(new InstantCommand(() -> {
-		// 	elevator.setDesiredHeight(elevator.getCurrentState().height);
+		// 	elevator.setDesiredHeight(elevator.getCurrentState().height - operator.getRawAxis(1)*0.1);
 		// 	// elevator.setDesiredHeight(.6 + driver.getRightTriggerAxis() -
 		// 	// driver.getLeftTriggerAxis());
 		// }, elevator));
@@ -168,7 +170,13 @@ public class RobotContainer {
 		// Piece.Cone : Piece.Cube);
 		// }));
 
-		// new JoystickButton(operator, )
+		new Trigger(() -> Math.abs(operator.getLeftTriggerAxis() - operator.getRightTriggerAxis()) > 0.1).whileTrue(
+			new SetHeight(() -> {return elevator.getCurrentState().height - (operator.getLeftTriggerAxis() - operator.getRightTriggerAxis())*0.1;}, elevator).repeatedly()
+		);
+
+		new JoystickButton(operator, Button.kX.value).whileTrue(new DefaultManager(arm, wrist, elevator));
+		new JoystickButton(operator, Button.kA.value).whileTrue(new DefaultIntake(intake, () -> -1));
+		new JoystickButton(operator, Button.kB.value).whileTrue(new DefaultIntake(intake, () -> 1));
 
 		new POVButton(operator, 0).onTrue(new InstantCommand(() -> {
 			stateManager.setPosition(Positions.high);

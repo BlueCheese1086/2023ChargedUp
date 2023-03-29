@@ -5,6 +5,7 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMax.ControlType;
+import com.revrobotics.CANSparkMax.ExternalFollower;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.SparkMaxAbsoluteEncoder.Type;
@@ -24,9 +25,9 @@ public class ElevatorSubsystem extends SubsystemBase implements SubChecker {
     private final CANSparkMax left;
     private final CANSparkMax right;
 
-    private final RelativeEncoder leftEncoder;
+    private final RelativeEncoder relEncoder;
     private final AbsoluteEncoder absoluteEncoder;
-    private final SparkMaxPIDController leftPID;
+    private final SparkMaxPIDController controller;
 
 
     private ElevatorState currentState = new ElevatorState(0, 0);
@@ -46,36 +47,46 @@ public class ElevatorSubsystem extends SubsystemBase implements SubChecker {
         left.restoreFactoryDefaults();
         right.restoreFactoryDefaults();
 
-        left.setIdleMode(IdleMode.kCoast);
-        right.setIdleMode(IdleMode.kCoast);
+        left.setIdleMode(IdleMode.kBrake);
+        right.setIdleMode(IdleMode.kBrake);
 
-        // right.setInverted(true);
-        right.follow(left, true);
+        left.setInverted(false);
+        right.setInverted(true);
 
-        leftEncoder = left.getEncoder();
+        left.follow(ExternalFollower.kFollowerDisabled, 0);
+        left.follow(right, true);
+
+        // right.setSmartCurrentLimit(15);
+
+        relEncoder = right.getEncoder();
         absoluteEncoder = left.getAbsoluteEncoder(Type.kDutyCycle);
-        //Motor position to elevator height (meters)
-        leftEncoder.setPositionConversionFactor(ElevatorConstants.SPOOL_DIAMETER*Math.PI/ElevatorConstants.GEARBOX_RATIO);
-        //Motor velocity m/s
-        leftEncoder.setVelocityConversionFactor(ElevatorConstants.SPOOL_DIAMETER*Math.PI/ElevatorConstants.GEARBOX_RATIO/60);
-        leftEncoder.setPosition(ElevatorConstants.MINIMUM_STARTING_HEIGHT + absoluteEncoder.getPosition()*ElevatorConstants.SPOOL_DIAMETER*Math.PI);
+        absoluteEncoder.setInverted(true);
+        absoluteEncoder.setPositionConversionFactor(ElevatorConstants.SPOOL_DIAMETER * Math.PI);
+        absoluteEncoder.setZeroOffset(ElevatorConstants.ABS_OFFSET);
 
-        leftPID = left.getPIDController();
-        leftPID.setP(ElevatorConstants.kP);
-        leftPID.setI(ElevatorConstants.kI);
-        leftPID.setD(ElevatorConstants.kD);
-        leftPID.setFF(ElevatorConstants.kFF);
+        relEncoder.setPositionConversionFactor(ElevatorConstants.SPOOL_DIAMETER*Math.PI/ElevatorConstants.GEARBOX_RATIO);
+        relEncoder.setVelocityConversionFactor(ElevatorConstants.SPOOL_DIAMETER*Math.PI/ElevatorConstants.GEARBOX_RATIO/60);
+        relEncoder.setPosition(absoluteEncoder.getPosition());
+
+        controller = right.getPIDController();
+        controller.setP(ElevatorConstants.kP);
+        controller.setI(ElevatorConstants.kI);
+        controller.setD(ElevatorConstants.kD);
+        controller.setFF(ElevatorConstants.kFF);
+
+        controller.setFeedbackDevice(relEncoder);
 
         // if (inStaringPos && bottomSwitch.get()) {
         //     leftEncoder.setPosition(-0.05);
         // }
-        new DebugPID(leftPID, "Elevator");
+        new DebugPID(controller, "Elevator");
         Shuffleboard.getTab("Subsystems").addBoolean("Elevator", () -> true);
+        Shuffleboard.getTab("Elevator").addNumber("ABS", () -> absoluteEncoder.getPosition());
     }
 
     @Override
     public void periodic() {
-        currentState = new ElevatorState(leftEncoder.getPosition(), leftEncoder.getVelocity());
+        currentState = new ElevatorState(relEncoder.getPosition(), relEncoder.getVelocity());
     }
 
     /**
@@ -84,10 +95,14 @@ public class ElevatorSubsystem extends SubsystemBase implements SubChecker {
      */
     public void setDesiredHeight(double height) {
         if (Robot.isSimulation()) {
-            leftEncoder.setPosition(height);
+            relEncoder.setPosition(height);
             return;
         }
-        leftPID.setReference(height, ControlType.kPosition);
+        // if (Math.abs(leftEncoder.getVelocity()) > 0.05) {
+        //     leftPID.setReference(Math.signum(leftEncoder.getVelocity()) * 0.05, ControlType.kVelocity);
+        //     return;
+        // }
+        controller.setReference(height, ControlType.kPosition);
     }
 
     /**
@@ -131,7 +146,7 @@ public class ElevatorSubsystem extends SubsystemBase implements SubChecker {
           boolean working = false;
           setDesiredHeight(0.1);
           while (System.currentTimeMillis() - time < 2000) {}
-          if (leftEncoder.getPosition() > 0.05) {
+          if (relEncoder.getPosition() > 0.05) {
             working = true;
           }
           SystemsCheck.setSystemStatus(this, working);

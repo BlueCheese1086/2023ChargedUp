@@ -85,10 +85,12 @@ public class Constants {
 
         public static final double TOLERANCE = Units.inchesToMeters(2);
 
-        public static final double kP = 3.0;
-        public static final double kI = 0.0005;
-        public static final double kD = 0.001;
+        public static final double kP = 1.0;
+        public static final double kI = 0.0;
+        public static final double kD = 0.0;
         public static final double kFF = 0.0;
+
+        public static final double ABS_OFFSET = 0.067150 - Units.inchesToMeters(2);
 
     }
 

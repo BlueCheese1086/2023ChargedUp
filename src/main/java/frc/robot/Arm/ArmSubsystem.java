@@ -6,6 +6,7 @@ import com.revrobotics.SparkMaxAbsoluteEncoder;
 import com.revrobotics.SparkMaxAlternateEncoder;
 import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMax.ControlType;
+import com.revrobotics.CANSparkMax.FaultID;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.SparkMaxAbsoluteEncoder.Type;
@@ -66,6 +67,9 @@ public class ArmSubsystem extends SubsystemBase implements SubChecker {
     
     @Override
     public void periodic() {
+        if (arm.getFault(FaultID.kStall) && arm.getOutputCurrent() > 1) {
+            arm.stopMotor();
+        }
         state = new ArmState(absoluteEncoder.getPosition() - Math.PI, absoluteEncoder.getVelocity());
     }
 

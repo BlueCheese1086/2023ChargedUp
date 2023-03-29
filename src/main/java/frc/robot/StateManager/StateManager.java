@@ -147,14 +147,15 @@ public class StateManager extends SubsystemBase {
 		}
 
 		double[] vals = desired.getEffectors();
-		// elevator.setDesiredHeight(vals[0]);
+		elevator.setDesiredHeight(vals[0]);
 		arm.setAngle(vals[1]);
-		System.out.println(vals[2]);
-		if (vals[2] != -100) {
-			wrist.setAngle(vals[2], true);
-		} else {
-			wrist.setAngle(((Piece) configurations.get("piecemode")).getWristAngle(), true);
-		}
+		wrist.setAngle(((Piece) configurations.get("piecemode")).pickupAngle, false);
+		// System.out.println(vals[2]);
+		// if (vals[2] != -100) {
+		// 	wrist.setAngle(vals[2], true);
+		// } else {
+		// 	wrist.setAngle(((Piece) configurations.get("piecemode")).getWristAngle(), true);
+		// }
 
 		if (current != desired && current.isHere(vals)) {
 			this.setPosition(desired);
@@ -219,8 +220,8 @@ public class StateManager extends SubsystemBase {
 	}
 
 	public enum Piece {
-		Cube(LEDMode.Cube, -0.4, -1),
-		Cone(LEDMode.Cone, -0.4, 1);
+		Cube(LEDMode.Cube, 0, -1),
+		Cone(LEDMode.Cone, 0, 1);
 
 		private LEDMode mode;
 		private double pickupAngle;
@@ -269,18 +270,18 @@ public class StateManager extends SubsystemBase {
 		public double[] getEffectors() {
 			switch (this) {
 				case stowed:
-					return new double[] { 0.44, 1.15, Math.PI/2
+					return new double[] { 0.05, ArmConstants.UPPER_RANGE, Math.PI/2
 					 };
 				case transition:
-					return new double[] { 0.75, -1.3, Math.PI/4 };
+					return new double[] { 0.44, -1.3, Math.PI/4 };
 				case ground:
-					return new double[] { 1, -0.6, -100 };
+					return new double[] { 0.55, -0.9, -100 };
 				case mid:
-					return new double[] { 0.69, 0, -100 };
+					return new double[] { 0.4, Math.PI/6, -100 };
 				case high:
-					return new double[] { 0.8, Math.PI/4, -100 };
+					return new double[] { 0.55, Math.PI/4, -100 };
 				case player:
-					return new double[] { 0.8, Math.PI/4, -100 };
+					return new double[] { 0.4, Math.PI/4, -100 };
 			}
 			return new double[] {};
 		}

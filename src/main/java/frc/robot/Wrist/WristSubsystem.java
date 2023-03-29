@@ -5,13 +5,12 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxAbsoluteEncoder;
 import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMax.ControlType;
-import com.revrobotics.CANSparkMax.ExternalFollower;
+import com.revrobotics.CANSparkMax.FaultID;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.SparkMaxAbsoluteEncoder.Type;
 
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -78,18 +77,18 @@ public class WristSubsystem extends SubsystemBase implements SubChecker {
             return;
         }
 
-		double armAngle = StateManager.getInstance().getArmState().angle;
+		// double armAngle = StateManager.getInstance().getArmState().angle;
 
-		if (angle > WristConstants.UPPER_RANGE + armAngle) {
-            controller.setReference(WristConstants.UPPER_RANGE + Math.PI + armAngle, ControlType.kPosition);
-            return;
-        }
-        if (angle < WristConstants.LOWER_RANGE + armAngle) {
-            controller.setReference(WristConstants.LOWER_RANGE + Math.PI + armAngle, ControlType.kPosition);
-            return;
-        }
+		// if (angle > WristConstants.UPPER_RANGE + armAngle) {
+        //     controller.setReference(WristConstants.UPPER_RANGE + Math.PI + armAngle, ControlType.kPosition);
+        //     return;
+        // }
+        // if (angle < WristConstants.LOWER_RANGE + armAngle) {
+        //     controller.setReference(WristConstants.LOWER_RANGE + Math.PI + armAngle, ControlType.kPosition);
+        //     return;
+        // }
 
-		controller.setReference(angle + Math.PI + (fourBar ? armAngle : 0.0), ControlType.kPosition);
+		controller.setReference(angle + Math.PI, ControlType.kPosition);
 	}
 
 	public void reset() {
@@ -102,6 +101,9 @@ public class WristSubsystem extends SubsystemBase implements SubChecker {
 
 	@Override
 	public void periodic() {
+		if (master.getFault(FaultID.kStall) && master.getOutputCurrent() > 1) {
+            master.stopMotor();
+        }
 		state = new WristState(absoluteEncoder.getPosition() - Math.PI - StateManager.getInstance().getArmState().angle, absoluteEncoder.getVelocity());
 	}
 
