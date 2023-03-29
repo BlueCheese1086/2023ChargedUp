@@ -65,4 +65,14 @@ public class SwerveModule extends SubsystemBase {
         driveMotor.burnFlash();
         turnMotor.burnFlash();
     }
+
+    @Override
+    public void periodic() {
+
+    }
+
+    public void setState() {
+        
+    }
+
 }
