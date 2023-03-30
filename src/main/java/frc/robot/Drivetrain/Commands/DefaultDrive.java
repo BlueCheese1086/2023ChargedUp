@@ -2,10 +2,7 @@ package frc.robot.Drivetrain.Commands;
 
 import java.util.function.DoubleSupplier;
 
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.DriveConstants;
@@ -42,6 +39,14 @@ public class DefaultDrive extends CommandBase {
                 y_trans.getAsDouble() * DriveConstants.MAX_LINEAR_VELOCITY,
                 rot.getAsDouble() * DriveConstants.MAX_TURN_VELOCITY,
                 gyro.getAngle()
+        // gyro.getAngle().plus(new Rotation2d(DriverStation.getAlliance() ==
+        // Alliance.Red ? 0.0 : Math.PI))
+        );
+
+        speeds = new ChassisSpeeds(
+                x_trans.getAsDouble() * DriveConstants.MAX_LINEAR_VELOCITY,
+                y_trans.getAsDouble() * DriveConstants.MAX_LINEAR_VELOCITY,
+                rot.getAsDouble() * DriveConstants.MAX_TURN_VELOCITY
         // gyro.getAngle().plus(new Rotation2d(DriverStation.getAlliance() ==
         // Alliance.Red ? 0.0 : Math.PI))
         );

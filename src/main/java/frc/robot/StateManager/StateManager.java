@@ -91,7 +91,7 @@ public class StateManager extends SubsystemBase {
 
 		evLigament.setLength(elevatorHeight);
 		armLigament.setAngle(new Rotation2d(armAngle - Units.degreesToRadians(evLigament.getAngle())));
-		wristLigament.setAngle(new Rotation2d(wristAngle - armAngle));
+		wristLigament.setAngle(new Rotation2d(wristAngle));
 	}
 
 	public ArmState getArmState() {
@@ -149,13 +149,13 @@ public class StateManager extends SubsystemBase {
 		double[] vals = desired.getEffectors();
 		elevator.setDesiredHeight(vals[0]);
 		arm.setAngle(vals[1]);
-		wrist.setAngle(((Piece) configurations.get("piecemode")).pickupAngle, false);
-		// System.out.println(vals[2]);
-		// if (vals[2] != -100) {
-		// 	wrist.setAngle(vals[2], true);
-		// } else {
-		// 	wrist.setAngle(((Piece) configurations.get("piecemode")).getWristAngle(), true);
-		// }
+		// wrist.setAngle(((Piece) configurations.get("piecemode")).pickupAngle, false);
+		System.out.println(vals[2]);
+		if (vals[2] != -100) {
+			wrist.setAngle(vals[2], false);
+		} else {
+			wrist.setAngle(((Piece) configurations.get("piecemode")).getWristAngle(), false);
+		}
 
 		if (current != desired && current.isHere(vals)) {
 			this.setPosition(desired);
@@ -221,7 +221,7 @@ public class StateManager extends SubsystemBase {
 
 	public enum Piece {
 		Cube(LEDMode.Cube, 0, -1),
-		Cone(LEDMode.Cone, 0, 1);
+		Cone(LEDMode.Cone, -Math.PI/4, -1);
 
 		private LEDMode mode;
 		private double pickupAngle;

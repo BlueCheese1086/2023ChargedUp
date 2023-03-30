@@ -255,13 +255,13 @@ public class SwerveModule extends SubsystemBase {
         // System.out.println(delta);
         SmartDashboard.putNumber("Delta", delta);
 
-        // drive.set(state.speedMetersPerSecond / 4.0);
+        drive.set(state.speedMetersPerSecond / 4.0);
 
         if (Robot.isReal()) {
             turnPID.setReference(
                     state.angle.getDegrees(), ControlType.kPosition);
 
-            drivePID.setReference(state.speedMetersPerSecond, ControlType.kVelocity);
+            // drivePID.setReference(state.speedMetersPerSecond, ControlType.kVelocity);
             // if (!override) {
             //     System.out.println("Overr");
             //     drivePID.setReference(state.speedMetersPerSecond, ControlType.kVelocity);

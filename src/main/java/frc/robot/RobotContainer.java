@@ -76,9 +76,9 @@ public class RobotContainer {
 
 		drivetrain.setDefaultCommand(
 				new DefaultDrive(drivetrain,
-						() -> filter(-operator.getLeftY()),
-						() -> filter(-operator.getLeftX()),
-						() -> filter(operator.getRightX())));
+						() -> filter(driver.getLeftY()),
+						() -> filter(driver.getLeftX()),
+						() -> filter(driver.getRightX())));
 
 		// intake.setDefaultCommand(new DefaultIntake(intake, () -> {
 		// return operator.getRightTriggerAxis() - operator.getLeftTriggerAxis();
@@ -108,6 +108,8 @@ public class RobotContainer {
 		// 	// elevator.setDesiredHeight(.6 + driver.getRightTriggerAxis() -
 		// 	// driver.getLeftTriggerAxis());
 		// }, elevator));
+
+		intake.setDefaultCommand(new DefaultIntake(intake, () -> -0.3));
 
 		auto.setDefaultOption("Nothing", Commands.print("No autonomous command configured"));
 		// auto.addOption("Wall Move", drivetrain.getFollowCommand("WallMove"));
@@ -164,11 +166,9 @@ public class RobotContainer {
 		// operator.getLeftTriggerAxis(), arm, false)
 		// );
 
-		// new JoystickButton(operator, Button.kY.value).onTrue(new InstantCommand(() ->
-		// {
-		// stateManager.setPieceMode(stateManager.getPieceMode() == Piece.Cube ?
-		// Piece.Cone : Piece.Cube);
-		// }));
+		new JoystickButton(operator, Button.kY.value).onTrue(new InstantCommand(() -> {
+			stateManager.setPieceMode(stateManager.getPieceMode() == Piece.Cube ? Piece.Cone : Piece.Cube);
+		}));
 
 		new Trigger(() -> Math.abs(operator.getLeftTriggerAxis() - operator.getRightTriggerAxis()) > 0.1).whileTrue(
 			new SetHeight(() -> {return elevator.getCurrentState().height - (operator.getLeftTriggerAxis() - operator.getRightTriggerAxis())*0.1;}, elevator).repeatedly()
