@@ -1,24 +1,31 @@
 package frc.robot.SparkMaxUtils;
 
 import java.util.ArrayList;
-import java.util.Map;
 
-import edu.wpi.first.networktables.GenericEntry;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import com.revrobotics.CANSparkMax.FaultID;
+
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class SparkMaxManager extends SubsystemBase {
-    
-    private static ArrayList<Map.Entry<GenericEntry, SparkMax>> maxes = new ArrayList<>();
+
+    private static ArrayList<SparkMax> maxes = new ArrayList<>();
 
     public static void addMax(SparkMax m) {
-        GenericEntry overrideEntry = Shuffleboard.getTab("Motor Overrides").add(m.getName(), false).getEntry();
-        maxes.add(Map.entry(overrideEntry, m));
+        maxes.add(m);
     }
 
     public void periodic() {
-        for (Map.Entry<GenericEntry, SparkMax> entry : maxes) {
-            entry.getValue().setDisabled(entry.getKey().getBoolean(false));
+        for (SparkMax m : maxes) {
+            SmartDashboard.putNumber(String.format("%s/Position", m.getName()), m.getEncoder().getPosition());
+            SmartDashboard.putNumber(String.format("%s/Velocity", m.getName()), m.getEncoder().getVelocity());
+            SmartDashboard.putNumber(String.format("%s/Current", m.getName()), m.getOutputCurrent());
+            SmartDashboard.putNumber(String.format("%s/Temperature(C)", m.getName()), m.getMotorTemperature());
+            SmartDashboard.putBoolean(String.format("%s/Stall", m.getName()), m.getFault(FaultID.kStall));
+
+            if (m.getDisabled()) {
+                m.stopMotor();
+            }
         }
     }
 

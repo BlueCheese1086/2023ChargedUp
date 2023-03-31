@@ -1,56 +1,54 @@
 package frc.robot.Configuration;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-import edu.wpi.first.networktables.GenericEntry;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
-import edu.wpi.first.wpilibj.shuffleboard.SuppliedValueWidget;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
-public class ControllableConfiguration extends SubsystemBase {
+public class ControllableConfiguration {
     
-    private final HashMap<String, Object> configurations = new HashMap<>();
-
-    private final ArrayList<SuppliedValueWidget<?>> entries = new ArrayList<>();
-
     private final String name;
+    private final String subsystem;
 
-    public ControllableConfiguration(String name, Map.Entry<String, Object>... values) {
-        this.name = name;
-        for (Map.Entry<String, Object> entry : values) {
-            configurations.put(entry.getKey(), entry.getValue());
+    private final Object defaultValue;
+
+    private final SendableChooser<?> sendable;
+
+    public ControllableConfiguration(String subsystem, String key, Object defaultValue) {
+        this.name = key;
+        this.defaultValue = defaultValue;
+        this.subsystem = subsystem;
+        if (defaultValue instanceof SendableChooser<?>) {
+            this.sendable = (SendableChooser<?>) defaultValue;
+        } else {
+            this.sendable = null;
         }
-        putOnTelemetry(configurations);
+        setValue(this.defaultValue);
     }
 
-    @Override
-    public void periodic() {
-        for (SuppliedValueWidget<?> e : entries) {
-            System.out.println(e.toString());
+    public void setValue(Object value) {
+        String networkKey = String.format("/%s/%s", subsystem, name);
+        if (value instanceof Integer || value instanceof Double) {
+            SmartDashboard.putNumber(networkKey, value instanceof Integer ? ((Integer)value).doubleValue() : ((Double)value).doubleValue());
+        } else if (value instanceof String) {
+            SmartDashboard.putString(networkKey, (String) value);
+        } else if (value instanceof Boolean) {
+            SmartDashboard.putBoolean(networkKey, (Boolean) value);
+        } else if (value instanceof SendableChooser<?>) {
+            SmartDashboard.putData(networkKey, (SendableChooser<?>) value);
         }
     }
 
-    public void putOnTelemetry(HashMap<String, Object> toPut) {
-        ShuffleboardTab tab = Shuffleboard.getTab(name + " configuration");
-        toPut.forEach((String s, Object o) -> {
-            configurations.put(s, o);
-            if (o instanceof Boolean) {
-                entries.add(tab.addBoolean(s, () -> ((Boolean) o).booleanValue()));
-            } else if (o instanceof Integer) {
-                entries.add(tab.addNumber(s, () -> ((Integer) o).doubleValue()));
-            } else if (o instanceof Double) {
-                entries.add(tab.addNumber(s, () -> ((Double) o).doubleValue()));
-            } else if (o instanceof String) {
-                entries.add(tab.addString(s, () -> ((String) o)));
-            }
-        });
+    public Object getValue() {
+        String networkKey = String.format("/%s/%s", subsystem, name);
+        if (defaultValue instanceof Integer || defaultValue instanceof Double) {
+            return (Double) SmartDashboard.getNumber(networkKey, defaultValue instanceof Integer ? ((Integer)defaultValue).doubleValue() : ((Double)defaultValue).doubleValue());
+        } else if (defaultValue instanceof String) {
+            return (String) SmartDashboard.getString(networkKey, (String) defaultValue);
+        } else if (defaultValue instanceof Boolean) {
+            return (Boolean) SmartDashboard.putBoolean(networkKey, (Boolean) defaultValue);
+        } else if (defaultValue instanceof SendableChooser<?>) {
+            return sendable.getSelected();
+        }
+        return defaultValue;
     }
-
-    // public Object getValue(String key) {
-
-    // }
 
 }
