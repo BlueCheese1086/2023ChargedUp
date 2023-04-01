@@ -36,6 +36,17 @@ public class Gyro {
         return Rotation2d.fromDegrees(((pigeon.getYaw()%360)+360)%360-180);
     }
 
+    public Rotation2d getPitchAtHeading(Rotation2d heading) {
+
+        double pitch = pigeon.getPitch();
+        double roll = pigeon.getRoll();
+        Rotation2d angleDelta = getAngle().minus(heading);
+
+        double pitchAtHeading = pitch*angleDelta.getCos() + roll*angleDelta.getSin();
+
+        return Rotation2d.fromDegrees(pitchAtHeading);
+    }
+
     public void setAngle(double a) {
         pigeon.setYaw(a);
     }

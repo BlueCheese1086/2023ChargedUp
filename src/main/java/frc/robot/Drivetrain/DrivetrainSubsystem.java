@@ -3,6 +3,12 @@ package frc.robot.Drivetrain;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.pathplanner.lib.PathConstraints;
+import com.pathplanner.lib.PathPlanner;
+import com.pathplanner.lib.auto.PIDConstants;
+import com.pathplanner.lib.auto.SwerveAutoBuilder;
+
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -10,10 +16,13 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Configuration.ControllableConfiguration;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ModuleConstants;
+import frc.robot.Drivetrain.Commands.Auto.AutoBalance;
+import frc.robot.Sensors.Field.PositionManager;
 import frc.robot.Sensors.Gyro.Gyro;
 
 public class DrivetrainSubsystem extends SubsystemBase {
@@ -60,6 +69,8 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
     private final SwerveDriveOdometry odometry;
 
+    private final SwerveAutoBuilder autoBuilder;
+
     private final HashMap<String, ControllableConfiguration> configurations = new HashMap<>();
 
     public DrivetrainSubsystem() {
@@ -78,6 +89,22 @@ public class DrivetrainSubsystem extends SubsystemBase {
         gyro = Gyro.getInstance();
 
         odometry = new SwerveDriveOdometry(kinematics, gyro.getAngle(), modulePositions);
+
+        Map<String, Command> eventMap = Map.ofEntries(
+            Map.entry("AutoBalance", new AutoBalance(this))
+        );
+
+        autoBuilder = new SwerveAutoBuilder(
+            () -> PositionManager.getInstance().getRobotPose(), 
+            (Pose2d p) -> {
+                odometry.resetPosition(gyro.getAngle(), modulePositions, p);
+            },
+            new PIDConstants(1, 0, 0), 
+            new PIDConstants(1, 0, 0), 
+            (ChassisSpeeds s) -> {this.drive(s);}, 
+            eventMap, 
+            true, 
+            this);
 
         configurations.putAll(Map.ofEntries(
             Map.entry("ClosedLoop", new ControllableConfiguration("Drivetrain", "ClosedLoop", true)),
@@ -124,5 +151,9 @@ public class DrivetrainSubsystem extends SubsystemBase {
         for (int i = 0; i < modules.length; i++) {
             modules[i].setDesiredState(new SwerveModuleState(0.0, Rotation2d.fromDegrees(a[i])));
         }
+    }
+
+    public Command getPathCommand(String name) {
+        return autoBuilder.fullAuto(PathPlanner.loadPath(name, new PathConstraints(3, 2)));
     }
 }
