@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Arm.ArmState;
@@ -17,6 +18,7 @@ import frc.robot.Configuration.ControllableConfiguration;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.IntakeConstants;
+import frc.robot.Constants.WristConstants;
 import frc.robot.Sensors.Feedback.VisualFeedback.LEDMode;
 import frc.robot.Sensors.Field.FieldElements;
 import frc.robot.Wrist.WristState;
@@ -32,7 +34,6 @@ public class StateManager extends SubsystemBase {
 	private final double ARM_LENGTH = ArmConstants.ARM_LENGTH;
 	private final double INTAKE_LENGTH = IntakeConstants.INTAKE_LENGTH;
 
-	private double elevatorHeight = 0;
 	private double armAngle = 0;
 	private double wristAngle = 0;
 
@@ -43,13 +44,23 @@ public class StateManager extends SubsystemBase {
 
 	private Mechanism2d totalMech = new Mechanism2d(2, 2);
 	MechanismRoot2d root = totalMech.getRoot("elevator", 0, 0);
-	MechanismLigament2d evLigament = root.append(new MechanismLigament2d("ev", elevatorHeight,
-			Units.radiansToDegrees(Math.PI / 2), 2, new Color8Bit(255, 0, 0)));
-	MechanismLigament2d armLigament = evLigament.append(
-			new MechanismLigament2d("arm", ARM_LENGTH, 90.0));
-	MechanismLigament2d wristLigament = armLigament.append(
-		new MechanismLigament2d("wrist", INTAKE_LENGTH, 90.0)
-	);
+	MechanismLigament2d evLigament = root.append(new MechanismLigament2d(
+		"ev", 
+		Units.inchesToMeters(32),
+		81, 
+		2, 
+		new Color8Bit(255, 0, 0)
+	));
+	MechanismLigament2d armLigament = evLigament.append(new MechanismLigament2d(
+		"arm", 
+		ARM_LENGTH, 
+		90.0
+	));
+	MechanismLigament2d wristLigament = armLigament.append(new MechanismLigament2d(
+		"wrist", 
+		INTAKE_LENGTH, 
+		90.0
+	));
 
 	public static StateManager getInstance() {
 		return instance;
@@ -76,7 +87,10 @@ public class StateManager extends SubsystemBase {
 		wristAngle = wrist.getCurrentState().angle;
 
 		armLigament.setAngle(new Rotation2d(armAngle - Units.degreesToRadians(evLigament.getAngle())));
-		wristLigament.setAngle(new Rotation2d(wristAngle));
+		wristLigament.setAngle(new Rotation2d(wristAngle + armAngle));
+
+		SmartDashboard.putNumber("/State/ArmAngle", armAngle);
+		SmartDashboard.putNumber("/State/WristAngle", wristAngle);
 	}
 
 	public ArmState getArmState() {
@@ -97,13 +111,12 @@ public class StateManager extends SubsystemBase {
 		Positions desired = this.getDesiredPosition();
 
 		double[] vals = desired.getEffectors();
-		arm.setAngle(vals[1]);
+		arm.setAngle(vals[0]);
 		// wrist.setAngle(((Piece) configurations.get("piecemode")).pickupAngle, false);
-		System.out.println(vals[2]);
-		if (vals[2] != -100) {
-			wrist.setAngle(vals[2], false);
+		if (vals[1] != -100) {
+			wrist.setAngle(vals[1], true);
 		} else {
-			wrist.setAngle(((Piece) configurations.get("PieceMode").getValue()).getWristAngle(), false);
+			wrist.setAngle(((Piece) configurations.get("PieceMode").getValue()).getWristAngle(), true);
 		}
 
 		if (current != desired && current.isHere(vals)) {
@@ -133,7 +146,7 @@ public class StateManager extends SubsystemBase {
 
 	public enum Piece {
 		Cube(LEDMode.Cube, 0, -1),
-		Cone(LEDMode.Cone, -Math.PI/4, -1);
+		Cone(LEDMode.Cone, -Math.PI/6, -1);
 
 		private LEDMode mode;
 		private double pickupAngle;
@@ -182,12 +195,11 @@ public class StateManager extends SubsystemBase {
 		public double[] getEffectors() {
 			switch (this) {
 				case stowed:
-					return new double[] { 0.05, ArmConstants.UPPER_RANGE, Math.PI/2
-					 };
+					return new double[] {ArmConstants.LOWER_RANGE, WristConstants.UPPER_RANGE};
 				case transition:
 					return new double[] {-1.3, Math.PI/4};
 				case ground:
-					return new double[] {-0.9, -100};
+					return new double[] {-0.7, -100};
 				case mid:
 					return new double[] {Math.PI/6, -100};
 				case high:

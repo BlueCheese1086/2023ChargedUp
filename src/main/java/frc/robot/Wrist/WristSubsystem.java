@@ -89,7 +89,13 @@ public class WristSubsystem extends SubsystemBase {
             relEncoder.setPosition(angle);
             return;
         }
-		controller.setReference(angle + Math.PI, ControlType.kPosition);
+		double targetAngle = angle + Math.PI + (fourBar ? -StateManager.getInstance().getArmState().angle : 0.0);
+		if (targetAngle > WristConstants.UPPER_RANGE + Math.PI) {
+			targetAngle = WristConstants.UPPER_RANGE + Math.PI;
+		} else if (targetAngle < WristConstants.LOWER_RANGE + Math.PI) {
+			targetAngle = WristConstants.LOWER_RANGE + Math.PI;
+		}
+		controller.setReference(targetAngle, ControlType.kPosition);
 	}
 
 	public void reset() {

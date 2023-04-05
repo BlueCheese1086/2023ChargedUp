@@ -34,7 +34,7 @@ public class IntakeSubsystem extends SubsystemBase {
 		intakeEncoder = intake.getEncoder();
 		instance = this;
 
-		intake.setSmartCurrentLimit(25);
+		intake.setSmartCurrentLimit(35);
         Shuffleboard.getTab("Subsystems").addBoolean("Intake", () -> true);
 
         configurations.putAll(Map.ofEntries(

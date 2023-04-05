@@ -37,7 +37,7 @@ public class ArmSubsystem extends SubsystemBase {
         arm = new SparkMax("Arm Motor", ArmConstants.armId, MotorType.kBrushless);
 
         arm.restoreFactoryDefaults();
-        arm.setIdleMode(IdleMode.kCoast);
+        arm.setIdleMode(IdleMode.kBrake);
         arm.setInverted(false);
         arm.setSmartCurrentLimit(25);
 

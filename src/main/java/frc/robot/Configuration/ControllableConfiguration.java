@@ -44,7 +44,7 @@ public class ControllableConfiguration {
         } else if (defaultValue instanceof String) {
             return (String) SmartDashboard.getString(networkKey, (String) defaultValue);
         } else if (defaultValue instanceof Boolean) {
-            return (Boolean) SmartDashboard.putBoolean(networkKey, (Boolean) defaultValue);
+            return (Boolean) SmartDashboard.getBoolean(networkKey, (Boolean) defaultValue);
         } else if (defaultValue instanceof SendableChooser<?>) {
             return sendable.getSelected();
         }

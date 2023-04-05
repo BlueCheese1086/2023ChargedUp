@@ -4,7 +4,6 @@ import com.revrobotics.SparkMaxPIDController;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.shuffleboard.ComplexWidget;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class DebugPID extends SubsystemBase {
@@ -12,33 +11,52 @@ public class DebugPID extends SubsystemBase {
     SparkMaxPIDController controller;
     PIDController debug;
     PIDController lastDebug;
+    double ff;
+    double lastFF;
 
     ComplexWidget widget;
+
+    ControllableConfiguration kp, ki, kd, kff;
 
     public DebugPID(SparkMaxPIDController c, String name) {
         this.controller = c;
         debug = new PIDController(
             c.getP(), 
             c.getI(), 
-            c.getD());
+            c.getD()
+        );
         this.lastDebug = new PIDController(
             c.getP(), 
             c.getI(), 
-            c.getD());
-        Shuffleboard.getTab("Debug").add(name, debug);
+            c.getD()
+        );
+        
+        kp = new ControllableConfiguration("DrivetrainTuning", "P", controller.getP());
+        ki = new ControllableConfiguration("DrivetrainTuning", "I", controller.getI());
+        kd = new ControllableConfiguration("DrivetrainTuning", "D", controller.getD());
+        kff = new ControllableConfiguration("DrivetrainTuning", "FF", controller.getFF());
+            // Shuffleboard.getTab("Debug").add(name, debug);
     }
 
     @Override
     public void periodic() {
-        if (!equals(debug, lastDebug)) {
+        debug = new PIDController(
+            (Double) kp.getValue(),
+            (Double) ki.getValue(),
+            (Double) kd.getValue()
+        );
+        ff = (Double) kff.getValue();
+        if (!equals(debug, lastDebug) || ff != lastFF) {
             controller.setP(debug.getP());
             controller.setI(debug.getI());
             controller.setD(debug.getD());
+            controller.setFF(ff);
             // controller.setReference(debug.getSetpoint(), ControlType.kPosition);
         }
         lastDebug.setP(debug.getP());
         lastDebug.setI(debug.getI());
         lastDebug.setD(debug.getD());
+        lastFF = ff;
     }
 
     private boolean equals(PIDController one, PIDController two) {

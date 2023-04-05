@@ -12,7 +12,9 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.AnalogEncoder;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Configuration.ControllableConfiguration;
 import frc.robot.Constants.DriveConstants;
@@ -22,6 +24,8 @@ import frc.robot.SparkMaxUtils.SparkMax;
 public class SwerveModule extends SubsystemBase {
 
     private final DrivetrainSubsystem drivetrain;
+
+    private final String name;
 
     private final SparkMax driveMotor;
     private final SparkMax turnMotor;
@@ -34,13 +38,15 @@ public class SwerveModule extends SubsystemBase {
     private final SparkMaxPIDController driveController;
     private final SparkMaxPIDController turnController;
 
-    private SwerveModuleState desiredState;
-    private SwerveModuleState actualState;
+    private SwerveModuleState desiredState = new SwerveModuleState();
+    private SwerveModuleState actualState = new SwerveModuleState();
 
     private HashMap<String, ControllableConfiguration> configurations = new HashMap<>();
 
     public SwerveModule(String name, DrivetrainSubsystem drivetrain, int driveMotorId, int turnMotorId, int absoluteEncoderId, double absoluteEncoderOffset) {
         this.drivetrain = drivetrain;
+        
+        this.name = name + " module";
         
         driveMotor = new SparkMax(name + " Drive Motor", driveMotorId, MotorType.kBrushless);
         turnMotor = new SparkMax(name + " Turn Motor", turnMotorId, MotorType.kBrushless);
@@ -48,10 +54,13 @@ public class SwerveModule extends SubsystemBase {
         driveMotor.restoreFactoryDefaults();
         turnMotor.restoreFactoryDefaults();
 
+        driveMotor.setInverted(false);
+        turnMotor.setInverted(true);
+
         driveMotor.setSmartCurrentLimit(ModuleConstants.driveCurrentLimit);
         turnMotor.setSmartCurrentLimit(ModuleConstants.turnCurrentLimit);
 
-        driveMotor.setIdleMode(IdleMode.kCoast);
+        driveMotor.setIdleMode(IdleMode.kBrake);
         turnMotor.setIdleMode(IdleMode.kCoast);
 
         absoluteEncoder = new AnalogEncoder(absoluteEncoderId);
@@ -62,8 +71,8 @@ public class SwerveModule extends SubsystemBase {
         driveRelEncoder.setVelocityConversionFactor(ModuleConstants.WHEEL_CIRCUMPHRENCE / ModuleConstants.DRIVE_RATIO / 60);
 
         turnRelEncoder = turnMotor.getEncoder();
-        turnRelEncoder.setPositionConversionFactor(2 * Math.PI / ModuleConstants.STEER_RATIO);
-        turnRelEncoder.setVelocityConversionFactor(2 * Math.PI / ModuleConstants.STEER_RATIO / 60);
+        turnRelEncoder.setPositionConversionFactor(2.0 * Math.PI / ModuleConstants.STEER_RATIO);
+        turnRelEncoder.setVelocityConversionFactor(2.0 * Math.PI / ModuleConstants.STEER_RATIO / 60);
 
         driveController = driveMotor.getPIDController();
         driveController.setP(ModuleConstants.driveP);
@@ -82,6 +91,8 @@ public class SwerveModule extends SubsystemBase {
         configurations.putAll(Map.ofEntries(
             Map.entry("Enabled", new ControllableConfiguration("Drivetrain", name, true))
         ));
+
+        // new DebugPID(driveController, "DriveController");
     }
 
     @Override
@@ -89,23 +100,39 @@ public class SwerveModule extends SubsystemBase {
         turnMotor.setDisabled(!(Boolean)configurations.get("Enabled").getValue());
         driveMotor.setDisabled(!(Boolean)configurations.get("Enabled").getValue());
 
-        actualState = new SwerveModuleState(driveRelEncoder.getVelocity(), new Rotation2d());
+        SmartDashboard.putNumber(String.format("Drivetrain/%s/Absolute Encoder", name), absoluteEncoder.getAbsolutePosition());
+        SmartDashboard.putNumber(String.format("Drivetrain/%s/Target Angle", name), desiredState.angle.getDegrees());
+        SmartDashboard.putNumber(String.format("Drivetrain/%s/Actual Angle", name), actualState.angle.getDegrees());
+        SmartDashboard.putNumber(String.format("Drivetrain/%s/Target Velo", name), desiredState.speedMetersPerSecond);
+        SmartDashboard.putNumber(String.format("Drivetrain/%s/Actual Velo", name), actualState.speedMetersPerSecond);
+        SmartDashboard.putNumber(String.format("Drivetrain/%s/Motor ENC Angle (DEG)", name), Units.radiansToDegrees(turnRelEncoder.getPosition()));
+
+        actualState = new SwerveModuleState(driveRelEncoder.getVelocity(), getModuleAngle());
     }
 
     public void initializeEncoders() {
+        SmartDashboard.putNumber(String.format("Drivetrain/%s/Init Angle", name), Units.radiansToDegrees((absoluteEncoder.getAbsolutePosition() - absoluteOffset) * 2 * Math.PI));
         turnRelEncoder.setPosition((absoluteEncoder.getAbsolutePosition() - absoluteOffset) * 2 * Math.PI - Math.PI);
         driveRelEncoder.setPosition(0.0);
     }
 
     public Rotation2d getModuleAngle() {
         return new Rotation2d(
-            (turnRelEncoder.getPosition() % 2 * Math.PI + 2 * Math.PI) % 2 * Math.PI - Math.PI
+            ((turnRelEncoder.getPosition() + Math.PI) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI) - Math.PI
         );
+    }
+
+    public double getDistance() {
+        return driveRelEncoder.getPosition();
+    }
+
+    public double getAdjustedAngle(Rotation2d desiredAngle) {
+        return turnRelEncoder.getPosition() + (desiredAngle.minus(getModuleAngle())).getRadians();
     }
 
     public void setDesiredState(SwerveModuleState s) {
         desiredState = s;
-        turnController.setReference(desiredState.angle.getRadians(), ControlType.kPosition);
+        turnController.setReference(getAdjustedAngle(desiredState.angle), ControlType.kPosition);
         if (drivetrain.getClosedLoopEnabled()) {
             driveController.setReference(desiredState.speedMetersPerSecond, ControlType.kVelocity);
         } else {

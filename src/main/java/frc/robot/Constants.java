@@ -7,28 +7,28 @@ public class Constants {
     public static final class DriveConstants {
         public static final int frontLeftTurnID = 3;
         public static final int frontLeftDriveID = 4;
-        public static final int frontLeftAbsID = 3;
+        public static final int frontLeftAbsID = 0;
         public static final double frontLeftOffset = 0.059;
 
         public static final int frontRightTurnID = 6;
         public static final int frontRightDriveID = 5;
-        public static final int frontRightAbsID = 2;
-        public static final double frontRightOffset = 0.404;
+        public static final int frontRightAbsID = 1;
+        public static final double frontRightOffset = 0.407;
 
         public static final int backLeftTurnID = 8;
         public static final int backLeftDriveID = 7;
-        public static final int backLeftAbsID = 1;
-        public static final double backLeftOffset = 0.514;
+        public static final int backLeftAbsID = 2;
+        public static final double backLeftOffset = 0.515;
 
         public static final int backRightTurnID = 1;
         public static final int backRightDriveID = 2;
-        public static final int backRightAbsID = 0;
-        public static final double backRightOffset = 0.532;
+        public static final int backRightAbsID = 3;
+        public static final double backRightOffset = 0.530;
 
         //m/s
         public static final double MAX_LINEAR_VELOCITY = Units.feetToMeters(16);
         //rad/s
-        public static final double MAX_TURN_VELOCITY = 11;
+        public static final double MAX_TURN_VELOCITY = MAX_LINEAR_VELOCITY/ModuleConstants.kModuleHypToCenter;
     }
 
     public static class ModuleConstants {
@@ -40,15 +40,16 @@ public class Constants {
 
         public static final double kModuleToModuleDistance = Units.inchesToMeters(19.750);
         public static final double kModuleToCenter = kModuleToModuleDistance / 2;
+        public static final double kModuleHypToCenter = Math.sqrt(kModuleToCenter*kModuleToCenter*2);
 
-        public static final double driveP = 0.1;
+        public static final double driveP = 0.05;
         public static final double driveI = 0.00;
         public static final double driveD = 0.0;
-        public static final double driveFF = 2.96;
+        public static final double driveFF = 0.26;
 
-        public static final double turnP = 0.05;
+        public static final double turnP = 1;
         public static final double turnI = 0.0;
-        public static final double turnD = 0.005;
+        public static final double turnD = 0.0;
 
         public static final int driveCurrentLimit = 35;
         public static final int turnCurrentLimit = 39;
@@ -75,8 +76,8 @@ public class Constants {
         // Arm Range
         public static final double RANGE = Units.degreesToRadians(170);
 
-        public static final double UPPER_RANGE = Units.degreesToRadians(70);
-        public static final double LOWER_RANGE = -Units.degreesToRadians(30);
+        public static final double UPPER_RANGE = 1.5;
+        public static final double LOWER_RANGE = -1.69;
 
         public static final double TOLERANCE = Units.degreesToRadians(15);
 
@@ -85,7 +86,7 @@ public class Constants {
         public static final double kD = 0.0;
         public static final double kFF = 0.0;
 
-        public static final double ENC_OFFSET = 4.35 - Math.PI;//2.14 + Math.PI;//2.4;
+        public static final double ENC_OFFSET = 4.18 - Math.PI;
 
     }
 
@@ -106,14 +107,14 @@ public class Constants {
         public static final double kD = 0.0;
         public static final double kFF = 0.0;
 
-        public static final double UPPER_RANGE = Units.degreesToRadians(180);
-        public static final double LOWER_RANGE = Units.degreesToRadians(-45);
+        public static final double UPPER_RANGE = 3.1;
+        public static final double LOWER_RANGE = -.27;
 
         public static final double TOLERANCE = Units.degreesToRadians(10);
 
         public static final double GEARBOX_RATIO = 0;
 
-        public static final double ENC_OFFSET = 1.15 + Math.PI;
+        public static final double ENC_OFFSET = 4.346279 - Math.PI;
 
     }
 
