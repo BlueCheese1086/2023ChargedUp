@@ -2,6 +2,8 @@ package frc.robot.Sensors.Feedback;
 
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
@@ -10,13 +12,16 @@ public class VisualFeedback extends SubsystemBase {
 	private static final AddressableLEDBuffer ledBuffer = new AddressableLEDBuffer(Constants.LEDConstants.COUNT);
 	private static int startRainbowHue;
 	private static int startDefaultIndex;
+	private static double cheeseDex = 0.0;
+	private static double cheeseMult = 1.0;
 
 	private LEDMode mode = LEDMode.DefaultColor;
 
 	private static VisualFeedback instance;
 
 	public static VisualFeedback getInstance() {
-		if (instance == null) instance = new VisualFeedback();
+		if (instance == null)
+			instance = new VisualFeedback();
 		return instance;
 	}
 
@@ -85,6 +90,30 @@ public class VisualFeedback extends SubsystemBase {
 		startDefaultIndex++;
 	}
 
+	private static void cheese() {
+		if (cheeseDex > 1.0) {
+			cheeseMult = -1;
+			cheeseDex = 1;
+		} else if (cheeseDex < 0.0) {
+			cheeseMult = 1;
+			cheeseDex = 0;
+		}
+		SmartDashboard.putNumber("/LEDS/DEX", cheeseDex);
+		for (int i = 0; i < ledBuffer.getLength(); i++) {
+			ledBuffer.setRGB(
+					i,
+					(int) (Color.kYellow.red * cheeseDex * 255
+							+ (1 - cheeseDex) * Color.kBlue.red * 255),
+					(int) (Color.kYellow.green * cheeseDex * 255
+							+ (1 - cheeseDex) * Color.kBlue.green * 255),
+					(int) (Color.kYellow.blue * cheeseDex * 255
+							+ (1 - cheeseDex) * Color.kBlue.blue * 255));
+		}
+		cheeseDex = cheeseDex + (1.0 / 250.0 * cheeseMult);
+		// System.out.println(cheeseDex);
+		lights.setData(ledBuffer);
+	}
+
 	public void setMode(LEDMode mode) {
 		this.mode = mode;
 	}
@@ -95,6 +124,7 @@ public class VisualFeedback extends SubsystemBase {
 		Cube(() -> cube()),
 		Bad(() -> bad()),
 		Good(() -> good()),
+		Cheese(() -> cheese()),
 		DefaultColor(() -> defaultColor());
 
 		NullFunction method;

@@ -14,8 +14,10 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.AnalogEncoder;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Robot;
 import frc.robot.Configuration.ControllableConfiguration;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ModuleConstants;
@@ -42,6 +44,8 @@ public class SwerveModule extends SubsystemBase {
     private SwerveModuleState actualState = new SwerveModuleState();
 
     private HashMap<String, ControllableConfiguration> configurations = new HashMap<>();
+
+    private final Timer periodic = new Timer();
 
     public SwerveModule(String name, DrivetrainSubsystem drivetrain, int driveMotorId, int turnMotorId, int absoluteEncoderId, double absoluteEncoderOffset) {
         this.drivetrain = drivetrain;
@@ -92,7 +96,7 @@ public class SwerveModule extends SubsystemBase {
             Map.entry("Enabled", new ControllableConfiguration("Drivetrain", name, true))
         ));
 
-        // new DebugPID(driveController, "DriveController");
+        periodic.start();
     }
 
     @Override
@@ -108,6 +112,13 @@ public class SwerveModule extends SubsystemBase {
         SmartDashboard.putNumber(String.format("Drivetrain/%s/Motor ENC Angle (DEG)", name), Units.radiansToDegrees(turnRelEncoder.getPosition()));
 
         actualState = new SwerveModuleState(driveRelEncoder.getVelocity(), getModuleAngle());
+        
+        if (Robot.isSimulation()) {
+            driveRelEncoder.setPosition(driveRelEncoder.getPosition() + desiredState.speedMetersPerSecond*periodic.get());
+        }
+
+        periodic.reset();
+        periodic.start();
     }
 
     public void initializeEncoders() {
@@ -132,6 +143,10 @@ public class SwerveModule extends SubsystemBase {
 
     public void setDesiredState(SwerveModuleState s) {
         desiredState = s;
+        if (Robot.isSimulation()) {
+            turnRelEncoder.setPosition(s.angle.getRadians());
+            return;
+        }
         turnController.setReference(getAdjustedAngle(desiredState.angle), ControlType.kPosition);
         if (drivetrain.getClosedLoopEnabled()) {
             driveController.setReference(desiredState.speedMetersPerSecond, ControlType.kVelocity);

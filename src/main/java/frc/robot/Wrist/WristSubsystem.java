@@ -13,6 +13,7 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.SparkMaxAbsoluteEncoder.Type;
 
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 import frc.robot.Configuration.ControllableConfiguration;
@@ -25,7 +26,7 @@ public class WristSubsystem extends SubsystemBase {
 
 	private WristState state;
 
-	private SparkMax master, follow;
+	private SparkMax master;//, follow;
 	private SparkMaxPIDController controller;
 
 	private RelativeEncoder relEncoder;
@@ -33,26 +34,31 @@ public class WristSubsystem extends SubsystemBase {
 
     private final HashMap<String, ControllableConfiguration> configurations = new HashMap<>();
 
+	private double referencePoint = 0.0;
+
 	/** Creates a new Wrist. */
 	public WristSubsystem() {
-		follow = new SparkMax("Intake Follow", WristConstants.LEFT_ID, MotorType.kBrushless);
+		// follow = new SparkMax("Intake Follow", WristConstants.LEFT_ID, MotorType.kBrushless);
 		master = new SparkMax("Intake Master", WristConstants.RIGHT_ID, MotorType.kBrushless);
 
-		follow.restoreFactoryDefaults();
+		// follow.restoreFactoryDefaults();
 		master.restoreFactoryDefaults();
 
-		follow.setIdleMode(IdleMode.kBrake);
+		// follow.setIdleMode(IdleMode.kBrake);
 		master.setIdleMode(IdleMode.kBrake);
 
-		master.setSmartCurrentLimit(20);
+		master.setSmartCurrentLimit(25);
 
-		master.setInverted(true);
-		follow.follow(master, false);
+		master.setInverted(false);
+		// follow.follow(master, false);
 
 		relEncoder = master.getEncoder();
+		relEncoder.setPositionConversionFactor(2*Math.PI/WristConstants.GEARBOX_RATIO);
+		relEncoder.setVelocityConversionFactor(2*Math.PI/WristConstants.GEARBOX_RATIO/60);
 		absoluteEncoder = master.getAbsoluteEncoder(Type.kDutyCycle);
 		absoluteEncoder.setPositionConversionFactor(2 * Math.PI);
-		absoluteEncoder.setInverted(true);
+		absoluteEncoder.setVelocityConversionFactor(2 * Math.PI / 60);
+		absoluteEncoder.setInverted(false);
 		absoluteEncoder.setZeroOffset(WristConstants.ENC_OFFSET);
 
 		controller = master.getPIDController();
@@ -81,25 +87,31 @@ public class WristSubsystem extends SubsystemBase {
 		if (!(Boolean) configurations.get("Enabled").getValue() || (master.getFault(FaultID.kStall) && master.getOutputCurrent() > 1)) {
             master.stopMotor();
         }
-		state = new WristState(absoluteEncoder.getPosition() - Math.PI - StateManager.getInstance().getArmState().angle, absoluteEncoder.getVelocity());
+		state = new WristState(absoluteEncoder.getPosition() - Math.PI + StateManager.getInstance().getArmState().angle, absoluteEncoder.getVelocity());
+		SmartDashboard.putNumber("/Wrist/ABS", absoluteEncoder.getPosition());
 	}
 
-	public void setAngle(double angle, boolean fourBar) {
+	public void setAngle(double angle) {
 		if (Robot.isSimulation()) {
             relEncoder.setPosition(angle);
             return;
         }
-		double targetAngle = angle + Math.PI + (fourBar ? -StateManager.getInstance().getArmState().angle : 0.0);
+		double targetAngle = angle + Math.PI - StateManager.getInstance().getArmState().angle;
 		if (targetAngle > WristConstants.UPPER_RANGE + Math.PI) {
 			targetAngle = WristConstants.UPPER_RANGE + Math.PI;
 		} else if (targetAngle < WristConstants.LOWER_RANGE + Math.PI) {
 			targetAngle = WristConstants.LOWER_RANGE + Math.PI;
 		}
+		referencePoint = targetAngle;
 		controller.setReference(targetAngle, ControlType.kPosition);
 	}
 
+	public boolean atSetpoint(double t) {
+		return Math.abs(referencePoint - absoluteEncoder.getPosition()) < t;
+	}
+
 	public void reset() {
-		setAngle(0, false);
+		setAngle(0);
 	}
 
 	public void setVelocity(double angularSpeed) {

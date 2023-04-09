@@ -45,11 +45,6 @@ public class Drive extends CommandBase {
         );
 
         drivetrain.drive(speeds);
-        // if (speeds.omegaRadiansPerSecond == 0 && speeds.vxMetersPerSecond == 0 && speeds.vyMetersPerSecond == 0) {
-        //     drivetrain.frictionBrake();
-        // } else {
-        //     drivetrain.drive(speeds);
-        // }
     }
 
     @Override

@@ -8,7 +8,7 @@ public class ControllableConfiguration {
     private final String name;
     private final String subsystem;
 
-    private final Object defaultValue;
+    private Object defaultValue;
 
     private final SendableChooser<?> sendable;
 
@@ -34,6 +34,8 @@ public class ControllableConfiguration {
             SmartDashboard.putBoolean(networkKey, (Boolean) value);
         } else if (value instanceof SendableChooser<?>) {
             SmartDashboard.putData(networkKey, (SendableChooser<?>) value);
+        } else {
+            defaultValue = value;
         }
     }
 

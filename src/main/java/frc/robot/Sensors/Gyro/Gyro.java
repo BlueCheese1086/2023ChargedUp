@@ -74,7 +74,7 @@ public class Gyro extends SubsystemBase {
         Rotation2d angleDelta = getAngle().minus(heading);
         // System.out.println(angleDelta.getDegrees());
 
-        double pitchAtHeading = pitch*angleDelta.getCos()*angleDelta.getCos() + roll*angleDelta.getSin()*angleDelta.getSin();
+        double pitchAtHeading = pitch*angleDelta.getCos()*angleDelta.getCos()*Math.signum(-angleDelta.getCos()) + roll*angleDelta.getSin()*angleDelta.getSin()*Math.signum(angleDelta.getSin());
 
         return Rotation2d.fromDegrees(pitchAtHeading);
     }

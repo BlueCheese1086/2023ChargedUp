@@ -36,7 +36,7 @@ public class Constants {
         public static final double STEER_RATIO = 150.0/7.0;
         public static final double DRIVE_RATIO = 6.12;
 
-        public static final double WHEEL_CIRCUMPHRENCE = Units.inchesToMeters(4 * Math.PI);
+        public static final double WHEEL_CIRCUMPHRENCE = Units.inchesToMeters(3.75 * Math.PI);
 
         public static final double kModuleToModuleDistance = Units.inchesToMeters(19.750);
         public static final double kModuleToCenter = kModuleToModuleDistance / 2;
@@ -81,9 +81,9 @@ public class Constants {
 
         public static final double TOLERANCE = Units.degreesToRadians(15);
 
-        public static final double kP = 1.0;
-        public static final double kI = 0.0;
-        public static final double kD = 0.0;
+        public static final double kP = 0.75;
+        public static final double kI = 0.0001;
+        public static final double kD = 1.0;
         public static final double kFF = 0.0;
 
         public static final double ENC_OFFSET = 4.18 - Math.PI;
@@ -104,17 +104,17 @@ public class Constants {
 
         public static final double kP = 1.0;
         public static final double kI = 0.0;
-        public static final double kD = 0.0;
+        public static final double kD = 0.5;
         public static final double kFF = 0.0;
 
-        public static final double UPPER_RANGE = 3.1;
-        public static final double LOWER_RANGE = -.27;
+        public static final double UPPER_RANGE = 2.9;
+        public static final double LOWER_RANGE = -.47;
 
         public static final double TOLERANCE = Units.degreesToRadians(10);
 
-        public static final double GEARBOX_RATIO = 0;
+        public static final double GEARBOX_RATIO = 1/45;
 
-        public static final double ENC_OFFSET = 4.346279 - Math.PI;
+        public static final double ENC_OFFSET = 3.04967 + Math.PI;
 
     }
 
@@ -122,7 +122,7 @@ public class Constants {
 
         public static final int PORT = 0;
 
-        public static final int COUNT = 255;
+        public static final int COUNT = 300;
 
     }
 

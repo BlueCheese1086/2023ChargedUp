@@ -1,10 +1,12 @@
 package frc.robot.Drivetrain;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;
+import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.auto.PIDConstants;
 import com.pathplanner.lib.auto.SwerveAutoBuilder;
 
@@ -17,6 +19,8 @@ import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.FunctionalCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.SafeSubsystem;
 import frc.robot.Configuration.ControllableConfiguration;
@@ -86,7 +90,7 @@ public class DrivetrainSubsystem extends SubsystemBase implements SafeSubsystem 
 
         gyro = Gyro.getInstance();
 
-        odometry = new SwerveDriveOdometry(kinematics, gyro.getAngle(), modulePositions);
+        odometry = new SwerveDriveOdometry(kinematics, new Rotation2d(), modulePositions);
 
         for (SwerveModule s : modules) {
             s.initializeEncoders();
@@ -107,8 +111,8 @@ public class DrivetrainSubsystem extends SubsystemBase implements SafeSubsystem 
                 odometry.resetPosition(gyro.getAngle(), modulePositions, p);
             },
             kinematics,
-            new PIDConstants(1.5, 0.01, 0.15, 0.02),
-            new PIDConstants(1, 0, 0.0, 0.02), 
+            new PIDConstants(1.0, 0.0, 0.0),
+            new PIDConstants(1.0, 0.0, 0.0), 
             (SwerveModuleState[] s) -> {setStates(s);}, 
             eventMap, 
             true, 
@@ -125,7 +129,6 @@ public class DrivetrainSubsystem extends SubsystemBase implements SafeSubsystem 
             modulePositions[i] = new SwerveModulePosition(modules[i].getDistance(), modules[i].getModuleAngle());
         }
 
-        // TODO: Implement Vision
         odometry.update(gyro.getAngle(), modulePositions);
         PositionManager.getInstance().setRobotPose(odometry.getPoseMeters());
     }
@@ -173,30 +176,19 @@ public class DrivetrainSubsystem extends SubsystemBase implements SafeSubsystem 
     }
 
     public Command getPathCommand(String name, PathConstraints p) {
-        // PathPlannerTrajectory t = PathPlanner.loadPath(name, p);
-        // return new SequentialCommandGroup(
-        //     new InstantCommand(() -> {
-        //         odometry.resetPosition(
-        //             Gyro.getInstance().getAngle(), 
-        //             modulePositions, 
-        //             PathPlannerTrajectory.transformTrajectoryForAlliance(t, DriverStation.getAlliance()).getInitialHolonomicPose()
-        //         );
-        //     }, this),
-        //     new PPSwerveControllerCommand(
-        //         t, 
-        //         () -> odometry.getPoseMeters(), 
-        //         kinematics, 
-        //         // new PIDController(3, .01, .1),
-        //         // new PIDController(3, .01, .1),                
-        //         // new PIDController(kp, ki, kd),
-        //         new PIDController(1, 0, 0),
-        //         new PIDController(1, 0, 0),
-        //         new PIDController(1, 0, 0),
-        //         this::setStates,
-        //         true,
-        //         this
-        //     )
-        // );
-        return autoBuilder.fullAuto(PathPlanner.loadPath(name, p));
+        List<PathPlannerTrajectory> path = PathPlanner.loadPathGroup(name, p.maxVelocity, p.maxAcceleration);
+        return new SequentialCommandGroup(
+            new FunctionalCommand(
+                () -> {},
+                () -> {
+                    Gyro.getInstance().getGyro().setYaw(path.get(0).getInitialHolonomicPose().getRotation().getDegrees()+180);
+                },
+                (Boolean f) -> {},
+                () -> {
+                    return Math.abs(Gyro.getInstance().getAngle().getDegrees() - path.get(0).getInitialHolonomicPose().getRotation().getDegrees()) < 0.3;
+                }
+            ),
+            autoBuilder.fullAuto(path)
+        );
     }
 }

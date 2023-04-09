@@ -6,7 +6,7 @@ import java.util.Map;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import frc.robot.Constants.IntakeConstants;
@@ -19,23 +19,15 @@ public class IntakeSubsystem extends SubsystemBase {
 
     private final HashMap<String, ControllableConfiguration> configurations = new HashMap<>();
 
-	private static IntakeSubsystem instance;
-
-	public static IntakeSubsystem getInstance() {
-		if (instance == null) {
-			instance = new IntakeSubsystem();
-		}
-		return instance;
-	}
-
 	/** Creates a new Intake. */
 	public IntakeSubsystem() {
 		intake = new SparkMax("Intake Motor", IntakeConstants.ID, MotorType.kBrushless);
 		intakeEncoder = intake.getEncoder();
-		instance = this;
 
-		intake.setSmartCurrentLimit(35);
-        Shuffleboard.getTab("Subsystems").addBoolean("Intake", () -> true);
+		intake.restoreFactoryDefaults();
+
+		intake.setSmartCurrentLimit(20);
+		intake.setInverted(true);
 
         configurations.putAll(Map.ofEntries(
             Map.entry("Enabled", new ControllableConfiguration("Subsystems", "Intake Enabled", true))
@@ -47,15 +39,9 @@ public class IntakeSubsystem extends SubsystemBase {
         if (!(Boolean) configurations.get("Enabled").getValue()) {
             intake.stopMotor();
         }
+		SmartDashboard.putNumber("/Intake/Speed", intake.get());
+		SmartDashboard.putNumber("/Intake/Current", intake.getOutputCurrent());
     }
-
-	public void in() {
-		intake.set(0.5);
-	}
-
-	public void out() {
-		intake.set(-0.5);
-	}
 
 	public void stop() {
 		intake.set(0);

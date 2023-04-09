@@ -33,6 +33,8 @@ public class ArmSubsystem extends SubsystemBase {
 
     private final HashMap<String, ControllableConfiguration> configurations = new HashMap<>();
 
+    private double referencePoint = 0.0;
+
     public ArmSubsystem() {
         arm = new SparkMax("Arm Motor", ArmConstants.armId, MotorType.kBrushless);
 
@@ -57,11 +59,11 @@ public class ArmSubsystem extends SubsystemBase {
 
         Shuffleboard.getTab("Arm").addNumber("Absolute Encoder POS", () -> absoluteEncoder.getPosition());
 
-        new DebugPID(controller, "ARM");
-
         configurations.putAll(Map.ofEntries(
             Map.entry("Enabled", new ControllableConfiguration("Subsystems", "Arm Enabled", true))
         ));
+
+        new DebugPID(controller, "ARM");
     }
     
     @Override
@@ -81,15 +83,20 @@ public class ArmSubsystem extends SubsystemBase {
             relEncoder.setPosition(a);
             return;
         }
+        referencePoint = a + Math.PI;
         if (a > ArmConstants.UPPER_RANGE) {
-            controller.setReference(ArmConstants.UPPER_RANGE + Math.PI, ControlType.kPosition);
+            referencePoint = ArmConstants.UPPER_RANGE + Math.PI;
             return;
         }
         if (a < ArmConstants.LOWER_RANGE) {
-            controller.setReference(ArmConstants.LOWER_RANGE + Math.PI, ControlType.kPosition);
+            referencePoint = ArmConstants.LOWER_RANGE + Math.PI;
             return;
         }
-        controller.setReference(a + Math.PI, ControlType.kPosition);
+        controller.setReference(referencePoint, ControlType.kPosition);
+    }
+
+    public boolean atSetpoint(double t) {
+        return Math.abs(referencePoint - Math.PI - this.getCurrentState().angle) < t;
     }
 
     public void setAngleIgnoreLimit(double a) {

@@ -31,10 +31,10 @@ public class DebugPID extends SubsystemBase {
             c.getD()
         );
         
-        kp = new ControllableConfiguration("DrivetrainTuning", "P", controller.getP());
-        ki = new ControllableConfiguration("DrivetrainTuning", "I", controller.getI());
-        kd = new ControllableConfiguration("DrivetrainTuning", "D", controller.getD());
-        kff = new ControllableConfiguration("DrivetrainTuning", "FF", controller.getFF());
+        kp = new ControllableConfiguration("Tuning/"+name, "P", controller.getP());
+        ki = new ControllableConfiguration("Tuning/"+name, "I", controller.getI());
+        kd = new ControllableConfiguration("Tuning/"+name, "D", controller.getD());
+        kff = new ControllableConfiguration("Tuning/"+name, "FF", controller.getFF());
             // Shuffleboard.getTab("Debug").add(name, debug);
     }
 
