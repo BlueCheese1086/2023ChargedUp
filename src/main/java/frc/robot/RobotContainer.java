@@ -4,53 +4,85 @@
 
 package frc.robot;
 
-import com.ctre.phoenix.time.StopWatch;
+import java.util.Map;
 
+import com.ctre.phoenix.time.StopWatch;
+import com.pathplanner.lib.PathConstraints;
+
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.XboxController.Button;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import edu.wpi.first.wpilibj2.command.button.POVButton;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.Arm.ArmSubsystem;
 import frc.robot.Drivetrain.DrivetrainSubsystem;
+import frc.robot.Drivetrain.Commands.AlignmentDrive;
 import frc.robot.Drivetrain.Commands.Drive;
+import frc.robot.Drivetrain.Commands.Auto.AutoBalance;
+import frc.robot.Intake.IntakeSubsystem;
+import frc.robot.Intake.Commands.DefaultIntake;
 import frc.robot.Sensors.Feedback.VisualFeedback;
 import frc.robot.Sensors.Feedback.VisualFeedback.LEDMode;
+import frc.robot.Sensors.Field.PositionManager;
+import frc.robot.Sensors.Gyro.Gyro;
+import frc.robot.Sensors.Vision.Vision;
+import frc.robot.SparkMaxUtils.SparkMaxManager;
+import frc.robot.StateManager.StateManager;
+import frc.robot.StateManager.Commands.AutoSetPosition;
+import frc.robot.StateManager.Commands.DefaultManager;
+import frc.robot.StateManager.Commands.Intake;
+import frc.robot.StateManager.Commands.Outtake;
+import frc.robot.StateManager.StateManager.Piece;
+import frc.robot.StateManager.StateManager.Positions;
+import frc.robot.Wrist.WristSubsystem;
 
 public class RobotContainer {
 
-	// WristSubsystem wrist = new WristSubsystem();
-	// ArmSubsystem arm = new ArmSubsystem();
-	// IntakeSubsystem intake = new IntakeSubsystem();
-	// StateManager state = new StateManager(arm, wrist, intake);
+	WristSubsystem wrist = new WristSubsystem();
+	ArmSubsystem arm = new ArmSubsystem();
+	IntakeSubsystem intake = new IntakeSubsystem();
+	StateManager state = new StateManager(arm, wrist, intake);
 
 	DrivetrainSubsystem drivetrain = new DrivetrainSubsystem();
+
+	SendableChooser<Command> autoCommands = new SendableChooser<>();
 
 	XboxController driver, operator;
 
 	public RobotContainer() {
 
-		// PositionManager.getInstance();
-		// Vision.getInstance();
+		new SparkMaxManager();
 
-		// drivetrain.setEvents(
-		// 	Map.ofEntries(
-        //     	Map.entry("AutoBalance", new AutoBalance(drivetrain)),
-		// 		Map.entry("High", new InstantCommand(() -> {
-		// 			arm.setAngle(0);
-		// 		}, arm)),
-		// 		Map.entry("IntakeDown", new AutoSetPosition(Positions.ground)),
-		// 		Map.entry("IntakeCone", 
-		// 			new SequentialCommandGroup(
-		// 				new InstantCommand(() -> {state.setPieceMode(Piece.Cone);}),
-		// 				new ParallelRaceGroup(
-		// 					new WaitCommand(2),
-		// 					new Intake(arm, wrist, intake, true)
-		// 				),
-		// 				new AutoSetPosition(Positions.stowed),
-		// 				new DefaultIntake(intake, () -> -0.3).raceWith(new WaitCommand(0.1))
-		// 			)
+		PositionManager.getInstance();
+		Vision.getInstance();
 
-		// 		)
-        // 	)
-		// );
+		drivetrain.setEvents(
+			Map.ofEntries(
+            	Map.entry("AutoBalance", new AutoBalance(drivetrain)),
+				Map.entry("High", new InstantCommand(() -> {
+					arm.setAngle(0);
+				}, arm)),
+				Map.entry("IntakeDown", new AutoSetPosition(Positions.ground)),
+				Map.entry("IntakeCone", 
+					new SequentialCommandGroup(
+						new InstantCommand(() -> {state.setPieceMode(Piece.Cone);}),
+						new ParallelRaceGroup(
+							new WaitCommand(2),
+							new Intake(arm, wrist, intake, true)
+						),
+						new AutoSetPosition(Positions.stowed),
+						new DefaultIntake(intake, () -> -0.3).raceWith(new WaitCommand(0.1))
+					)
+				)
+        	)
+		);
 		
 		
 
@@ -70,6 +102,9 @@ public class RobotContainer {
 		// state.setDefaultCommand(new DefaultManager(arm, wrist));
 
 		// intake.setDefaultCommand(new DefaultIntake(intake, () -> -0.3));
+
+		StopWatch s = new StopWatch();
+		s.start();
 
 		VisualFeedback.getInstance().setMode(LEDMode.Cheese);
 
@@ -146,147 +181,146 @@ public class RobotContainer {
 	}
 
 	public Command getAutonomousCommand() {
-		return Commands.print("Hello");
 		// return new SequentialCommandGroup(
 		// 	scoreMid(),
 		// 	drivetrain.getPathCommand("Qual100", new PathConstraints(3, 1.5)),
 		// 	new AutoBalance(drivetrain)
 		// );
-		// return scorePickBalance();
+		return scorePickBalance();
 	}
 
-	// private Command scorePickBalance() {
-	// 	return new SequentialCommandGroup(
-	// 		scoreMid(),
-	// 		drivetrain.getPathCommand("Quals114", new PathConstraints(2, 1)),
-	// 		new AutoBalance(drivetrain)
-	// 	);
-	// }
+	private Command scorePickBalance() {
+		return new SequentialCommandGroup(
+			scoreMid(),
+			drivetrain.getPathCommand("Quals114", new PathConstraints(2, 1)),
+			new AutoBalance(drivetrain)
+		);
+	}
 
-	// private Command scoreMid() {
-	// 	return new SequentialCommandGroup(
-	// 		// new ParallelRaceGroup(
-	// 		// 	new Outtake(arm, wrist, intake),
-	// 		// 	new WaitCommand(0.01)
-	// 		// ),
-	// 		new ParallelRaceGroup(
-	// 			new Intake(arm, wrist, intake, false).repeatedly(),
-	// 			new WaitCommand(1)
-	// 		),
-	// 		new AutoSetPosition(Positions.midAuto),
-	// 		new WaitCommand(0.5),
-	// 		new ParallelRaceGroup(
-	// 			new Outtake(arm, wrist, intake).repeatedly(),
-	// 			new WaitCommand(1)
-	// 		).andThen(
-	// 			new DefaultIntake(intake, () -> -0.4).raceWith(
-	// 				new WaitCommand(0.1)
-	// 			)
-	// 		),
-	// 		new AutoSetPosition(Positions.stowed)
-	// 	);
-	// }
+	private Command scoreMid() {
+		return new SequentialCommandGroup(
+			// new ParallelRaceGroup(
+			// 	new Outtake(arm, wrist, intake),
+			// 	new WaitCommand(0.01)
+			// ),
+			new ParallelRaceGroup(
+				new Intake(arm, wrist, intake, false).repeatedly(),
+				new WaitCommand(1)
+			),
+			new AutoSetPosition(Positions.midAuto),
+			new WaitCommand(0.5),
+			new ParallelRaceGroup(
+				new Outtake(arm, wrist, intake).repeatedly(),
+				new WaitCommand(1)
+			).andThen(
+				new DefaultIntake(intake, () -> -0.4).raceWith(
+					new WaitCommand(0.1)
+				)
+			),
+			new AutoSetPosition(Positions.stowed)
+		);
+	}
 
-	// private Command scoreCubeMid() {
-	// 	return new SequentialCommandGroup(
-	// 		new ParallelRaceGroup(
-	// 			new Outtake(arm, wrist, intake),
-	// 			new WaitCommand(0.01)
-	// 		),
-	// 		new ParallelRaceGroup(
-	// 			new Intake(arm, wrist, intake, false).repeatedly(),
-	// 			new WaitCommand(1)
-	// 		),
-	// 		new AutoSetPosition(Positions.mid),
-	// 		new WaitCommand(0.5),
-	// 		new ParallelRaceGroup(
-	// 			new Outtake(arm, wrist, intake).repeatedly(),
-	// 			new WaitCommand(1)
-	// 		).andThen(
-	// 			new DefaultIntake(intake, () -> -0.4).raceWith(
-	// 				new WaitCommand(0.1)
-	// 			)
-	// 		),
-	// 		new AutoSetPosition(Positions.stowed)
-	// 	);
-	// }
+	private Command scoreCubeMid() {
+		return new SequentialCommandGroup(
+			new ParallelRaceGroup(
+				new Outtake(arm, wrist, intake),
+				new WaitCommand(0.01)
+			),
+			new ParallelRaceGroup(
+				new Intake(arm, wrist, intake, false).repeatedly(),
+				new WaitCommand(1)
+			),
+			new AutoSetPosition(Positions.mid),
+			new WaitCommand(0.5),
+			new ParallelRaceGroup(
+				new Outtake(arm, wrist, intake).repeatedly(),
+				new WaitCommand(1)
+			).andThen(
+				new DefaultIntake(intake, () -> -0.4).raceWith(
+					new WaitCommand(0.1)
+				)
+			),
+			new AutoSetPosition(Positions.stowed)
+		);
+	}
 
-	// private Command quals41() {
-	// 	return new SequentialCommandGroup(
-	// 		new ParallelRaceGroup(
-	// 			new Outtake(arm, wrist, intake),
-	// 			new WaitCommand(0.01)
-	// 		),
-	// 		new ParallelRaceGroup(
-	// 			new Intake(arm, wrist, intake, false).repeatedly(),
-	// 			new WaitCommand(1)
-	// 		),
-	// 		new AutoSetPosition(Positions.mid),
-	// 		new WaitCommand(0.5),
-	// 		new ParallelRaceGroup(
-	// 			new Outtake(arm, wrist, intake).repeatedly(),
-	// 			new WaitCommand(1)
-	// 		).andThen(
-	// 			new DefaultIntake(intake, () -> -0.4).raceWith(
-	// 				new WaitCommand(0.1)
-	// 			)
-	// 		),
-	// 		new AutoSetPosition(Positions.stowed),
-	// 		drivetrain.getPathCommand("OnlyBalance", new PathConstraints(3, 1.5)),
-	// 		new AutoBalance(drivetrain)
-	// 	);
-	// }
+	private Command quals41() {
+		return new SequentialCommandGroup(
+			new ParallelRaceGroup(
+				new Outtake(arm, wrist, intake),
+				new WaitCommand(0.01)
+			),
+			new ParallelRaceGroup(
+				new Intake(arm, wrist, intake, false).repeatedly(),
+				new WaitCommand(1)
+			),
+			new AutoSetPosition(Positions.mid),
+			new WaitCommand(0.5),
+			new ParallelRaceGroup(
+				new Outtake(arm, wrist, intake).repeatedly(),
+				new WaitCommand(1)
+			).andThen(
+				new DefaultIntake(intake, () -> -0.4).raceWith(
+					new WaitCommand(0.1)
+				)
+			),
+			new AutoSetPosition(Positions.stowed),
+			drivetrain.getPathCommand("OnlyBalance", new PathConstraints(3, 1.5)),
+			new AutoBalance(drivetrain)
+		);
+	}
 
-	// private Command quals25() {
-	// 	return new SequentialCommandGroup(
-	// 		new ParallelRaceGroup(
-	// 			new Outtake(arm, wrist, intake),
-	// 			new WaitCommand(0.01)
-	// 		),
-	// 		new ParallelRaceGroup(
-	// 			new Intake(arm, wrist, intake, false).repeatedly(),
-	// 			new WaitCommand(1)
-	// 		),
-	// 		new AutoSetPosition(Positions.mid),
-	// 		new WaitCommand(0.5),
-	// 		new ParallelRaceGroup(
-	// 			new Outtake(arm, wrist, intake).repeatedly(),
-	// 			new WaitCommand(1)
-	// 		).andThen(
-	// 			new DefaultIntake(intake, () -> -0.4).raceWith(
-	// 				new WaitCommand(0.1)
-	// 			)
-	// 		),
-	// 		new AutoSetPosition(Positions.stowed),
-	// 		drivetrain.getPathCommand("1PieceBalance", new PathConstraints(3, 1.5)),
-	// 		new AutoBalance(drivetrain)
-	// 	);
-	// }
+	private Command quals25() {
+		return new SequentialCommandGroup(
+			new ParallelRaceGroup(
+				new Outtake(arm, wrist, intake),
+				new WaitCommand(0.01)
+			),
+			new ParallelRaceGroup(
+				new Intake(arm, wrist, intake, false).repeatedly(),
+				new WaitCommand(1)
+			),
+			new AutoSetPosition(Positions.mid),
+			new WaitCommand(0.5),
+			new ParallelRaceGroup(
+				new Outtake(arm, wrist, intake).repeatedly(),
+				new WaitCommand(1)
+			).andThen(
+				new DefaultIntake(intake, () -> -0.4).raceWith(
+					new WaitCommand(0.1)
+				)
+			),
+			new AutoSetPosition(Positions.stowed),
+			drivetrain.getPathCommand("1PieceBalance", new PathConstraints(3, 1.5)),
+			new AutoBalance(drivetrain)
+		);
+	}
 
-	// private Command quals18() {
-	// 	return new SequentialCommandGroup(
-	// 		new ParallelRaceGroup(
-	// 			new Outtake(arm, wrist, intake),
-	// 			new WaitCommand(0.01)
-	// 		),
-	// 		new ParallelRaceGroup(
-	// 			new Intake(arm, wrist, intake, false).repeatedly(),
-	// 			new WaitCommand(1)
-	// 		),
-	// 		new AutoSetPosition(Positions.mid),
-	// 		new WaitCommand(0.5),
-	// 		new ParallelRaceGroup(
-	// 			new Outtake(arm, wrist, intake).repeatedly(),
-	// 			new WaitCommand(1)
-	// 		).andThen(
-	// 			new DefaultIntake(intake, () -> -0.4).raceWith(
-	// 				new WaitCommand(0.1)
-	// 			)
-	// 		),
-	// 		new AutoSetPosition(Positions.stowed),
-	// 		new WaitCommand(3),
-	// 		drivetrain.getPathCommand("1PieceFollowBees", new PathConstraints(3, 1.5))
-	// 		// new AutoBalance(drivetrain)
-	// 	);
-	// }
+	private Command quals18() {
+		return new SequentialCommandGroup(
+			new ParallelRaceGroup(
+				new Outtake(arm, wrist, intake),
+				new WaitCommand(0.01)
+			),
+			new ParallelRaceGroup(
+				new Intake(arm, wrist, intake, false).repeatedly(),
+				new WaitCommand(1)
+			),
+			new AutoSetPosition(Positions.mid),
+			new WaitCommand(0.5),
+			new ParallelRaceGroup(
+				new Outtake(arm, wrist, intake).repeatedly(),
+				new WaitCommand(1)
+			).andThen(
+				new DefaultIntake(intake, () -> -0.4).raceWith(
+					new WaitCommand(0.1)
+				)
+			),
+			new AutoSetPosition(Positions.stowed),
+			new WaitCommand(3),
+			drivetrain.getPathCommand("1PieceFollowBees", new PathConstraints(3, 1.5))
+			// new AutoBalance(drivetrain)
+		);
+	}
 }

@@ -26,7 +26,7 @@ public class Constants {
         public static final double backRightOffset = 0.530;
 
         //m/s
-        public static final double MAX_LINEAR_VELOCITY = Units.feetToMeters(16);
+        public static final double MAX_LINEAR_VELOCITY = Units.feetToMeters(5);
         //rad/s
         public static final double MAX_TURN_VELOCITY = MAX_LINEAR_VELOCITY/ModuleConstants.kModuleHypToCenter;
     }

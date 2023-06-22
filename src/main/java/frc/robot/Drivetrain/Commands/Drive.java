@@ -37,11 +37,17 @@ public class Drive extends CommandBase {
 
     @Override
     public void execute() {
-        ChassisSpeeds speeds = ChassisSpeeds.fromFieldRelativeSpeeds(
-                x_trans.getAsDouble() * DriveConstants.MAX_LINEAR_VELOCITY * (Double) speedPercentage.getValue(),
-                y_trans.getAsDouble() * DriveConstants.MAX_LINEAR_VELOCITY * (Double) speedPercentage.getValue(),
-                rot.getAsDouble() * DriveConstants.MAX_TURN_VELOCITY * (Double) speedPercentage.getValue(),
-                gyro.getAngle().rotateBy(new Rotation2d(DriverStation.getAlliance() == Alliance.Blue ? 0 : Math.PI))
+        // ChassisSpeeds speeds = ChassisSpeeds.fromFieldRelativeSpeeds(
+        //         x_trans.getAsDouble() * DriveConstants.MAX_LINEAR_VELOCITY * (Double) speedPercentage.getValue(),
+        //         y_trans.getAsDouble() * DriveConstants.MAX_LINEAR_VELOCITY * (Double) speedPercentage.getValue(),
+        //         rot.getAsDouble() * DriveConstants.MAX_TURN_VELOCITY * (Double) speedPercentage.getValue(),
+        //         gyro.getAngle().rotateBy(new Rotation2d(DriverStation.getAlliance() == Alliance.Blue ? 0 : Math.PI))
+        // );
+
+        ChassisSpeeds speeds = new ChassisSpeeds(
+            x_trans.getAsDouble() * DriveConstants.MAX_LINEAR_VELOCITY * (Double) speedPercentage.getValue(),
+            y_trans.getAsDouble() * DriveConstants.MAX_LINEAR_VELOCITY * (Double) speedPercentage.getValue(),
+            rot.getAsDouble() * DriveConstants.MAX_TURN_VELOCITY * (Double) speedPercentage.getValue()
         );
 
         drivetrain.drive(speeds);
