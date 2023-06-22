@@ -148,7 +148,7 @@ public class SwerveModule extends SubsystemBase {
             return;
         }
         turnController.setReference(getAdjustedAngle(desiredState.angle), ControlType.kPosition);
-        if (drivetrain.getClosedLoopEnabled()) {
+        if (true) {
             driveController.setReference(desiredState.speedMetersPerSecond, ControlType.kVelocity);
         } else {
             driveMotor.set(desiredState.speedMetersPerSecond/DriveConstants.MAX_LINEAR_VELOCITY);
