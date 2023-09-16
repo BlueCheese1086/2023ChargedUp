@@ -17,15 +17,12 @@ public class SparkMaxManager extends SubsystemBase {
 
     public void periodic() {
         for (SparkMax m : maxes) {
+            SmartDashboard.putBoolean(String.format("%s/IsConnected", m.getName()), m.isConnected());
             SmartDashboard.putNumber(String.format("%s/Position", m.getName()), m.getEncoder().getPosition());
             SmartDashboard.putNumber(String.format("%s/Velocity", m.getName()), m.getEncoder().getVelocity());
             SmartDashboard.putNumber(String.format("%s/Current", m.getName()), m.getOutputCurrent());
             SmartDashboard.putNumber(String.format("%s/Temperature(C)", m.getName()), m.getMotorTemperature());
             SmartDashboard.putBoolean(String.format("%s/Stall", m.getName()), m.getFault(FaultID.kStall));
-
-            if (m.getDisabled()) {
-                m.stopMotor();
-            }
         }
     }
 

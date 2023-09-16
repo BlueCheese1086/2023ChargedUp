@@ -2,6 +2,6 @@ package frc.robot;
 
 public interface SafeSubsystem {
 
-    public boolean isStopped();
-    
+    public boolean isSafe();
+
 }
