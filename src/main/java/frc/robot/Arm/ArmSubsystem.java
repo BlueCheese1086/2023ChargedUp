@@ -13,6 +13,7 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.SparkMaxAbsoluteEncoder.Type;
 
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 import frc.robot.Configuration.ControllableConfiguration;
@@ -68,6 +69,7 @@ public class ArmSubsystem extends SubsystemBase {
     
     @Override
     public void periodic() {
+
         if (!(Boolean) configurations.get("Enabled").getValue() || (arm.getFault(FaultID.kStall) && arm.getOutputCurrent() > 1)) {
             arm.stopMotor();
         }
