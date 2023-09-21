@@ -13,13 +13,16 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.SparkMaxAbsoluteEncoder.Type;
 
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
-import frc.robot.Configuration.ControllableConfiguration;
-import frc.robot.Configuration.DebugPID;
 import frc.robot.Constants.ArmConstants;
+import frc.robot.LiveConfiguration.ControllableConfiguration;
+import frc.robot.LiveConfiguration.DebugPID;
 import frc.robot.SparkMaxUtils.SparkMax;
+import frc.robot.SparkMaxUtils.Configurations.SparkMaxConfiguration;
+import frc.robot.SparkMaxUtils.Configurations.SparkMaxPIDConfiguration;
+import frc.robot.SparkMaxUtils.Configurations.SparkMaxRelativeConfiguration;
+import frc.robot.SparkMaxUtils.Configurations.SparkMaxPIDConfiguration.SensorFeedback;
 
 public class ArmSubsystem extends SubsystemBase {
 
@@ -37,24 +40,24 @@ public class ArmSubsystem extends SubsystemBase {
     private double referencePoint = 0.0;
 
     public ArmSubsystem() {
-        arm = new SparkMax("Arm Motor", ArmConstants.armId, MotorType.kBrushless);
-
-        arm.restoreFactoryDefaults();
-        arm.setIdleMode(IdleMode.kBrake);
-        arm.setInverted(false);
-        arm.setSmartCurrentLimit(25);
+        arm = new SparkMax("Arm Motor", new SparkMaxConfiguration(
+            ArmConstants.armId,
+            MotorType.kBrushless,
+            false,
+            25,
+            IdleMode.kBrake
+        ), SparkMaxRelativeConfiguration.getDefault(), new SparkMaxPIDConfiguration(
+            ArmConstants.kP, 
+            ArmConstants.kI,
+            ArmConstants.kD,
+            ArmConstants.kFF,
+            SensorFeedback.absolute)
+        );
 
         relEncoder = arm.getEncoder();
         absoluteEncoder = arm.getAbsoluteEncoder(Type.kDutyCycle);
         absoluteEncoder.setPositionConversionFactor(2 * Math.PI);
         absoluteEncoder.setZeroOffset(ArmConstants.ENC_OFFSET);
-
-        controller = arm.getPIDController();
-        controller.setFeedbackDevice(absoluteEncoder);
-        controller.setP(ArmConstants.kP);
-        controller.setI(ArmConstants.kI);
-        controller.setD(ArmConstants.kD);
-        controller.setFF(ArmConstants.kFF);
 
         state = new ArmState(1, 0);
 

@@ -1,6 +1,5 @@
 package frc.robot.Drivetrain;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -23,10 +22,8 @@ import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.SafeSubsystem;
-import frc.robot.Configuration.ControllableConfiguration;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ModuleConstants;
-import frc.robot.Sensors.Field.PositionManager;
 import frc.robot.Sensors.Gyro.Gyro;
 
 public class DrivetrainSubsystem extends SubsystemBase implements SafeSubsystem {
@@ -74,8 +71,6 @@ public class DrivetrainSubsystem extends SubsystemBase implements SafeSubsystem 
 
     private SwerveAutoBuilder autoBuilder;
 
-    private final HashMap<String, ControllableConfiguration> configurations = new HashMap<>();
-
     public DrivetrainSubsystem() {
         for (int i = 0; i < modules.length; i++) {
             modulePositions[i] = modules[i].getSwerveModulePosition();
@@ -95,11 +90,6 @@ public class DrivetrainSubsystem extends SubsystemBase implements SafeSubsystem 
         for (SwerveModule s : modules) {
             s.initializeEncoders();
         }
-
-        configurations.putAll(Map.ofEntries(
-            Map.entry("ClosedLoop", new ControllableConfiguration("Drivetrain", "ClosedLoop", true)),
-            Map.entry("Enabled", new ControllableConfiguration("Subsystems", "Drivetrain Enabled", true))
-        ));
     }
 
     public void setEvents(Map<String, Command> entries) {
@@ -121,24 +111,19 @@ public class DrivetrainSubsystem extends SubsystemBase implements SafeSubsystem 
 
     @Override
     public void periodic() {
-        if (!(Boolean) configurations.get("Enabled").getValue()) {
-            stop();
-        }
-
         for (int i = 0; i < modules.length; i++) {
             modulePositions[i] = new SwerveModulePosition(modules[i].getDistance(), modules[i].getModuleAngle());
         }
 
         odometry.update(gyro.getAngle(), modulePositions);
-        PositionManager.getInstance().setRobotPose(odometry.getPoseMeters());
+        // PositionManager.getInstance().setRobotPose(odometry.getPoseMeters());
     }
 
-    public boolean getClosedLoopEnabled() {
-        return (Boolean) configurations.get("ClosedLoop").getValue();
+    public boolean isSafe() {
+        return true;
     }
 
     public void drive(ChassisSpeeds speeds) {
-        if (isStopped()) return;
         SwerveModuleState[] moduleStates = kinematics.toSwerveModuleStates(speeds);
         for (int i = 0; i < modules.length; i++) {
             moduleStates[i] = SwerveModuleState.optimize(moduleStates[i], modules[i].getModuleAngle());
@@ -169,10 +154,6 @@ public class DrivetrainSubsystem extends SubsystemBase implements SafeSubsystem 
         for (int i = 0; i < modules.length; i++) {
             modules[i].setDesiredState(new SwerveModuleState(0.0, Rotation2d.fromDegrees(a[i])));
         }
-    }
-
-    public boolean isStopped() {
-        return !(Boolean) configurations.get("Enabled").getValue();
     }
 
     public Command getPathCommand(String name, PathConstraints p) {

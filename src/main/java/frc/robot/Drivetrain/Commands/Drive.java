@@ -7,9 +7,9 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.Configuration.ControllableConfiguration;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Drivetrain.DrivetrainSubsystem;
+import frc.robot.LiveConfiguration.ControllableConfiguration;
 import frc.robot.Sensors.Gyro.Gyro;
 
 public class Drive extends CommandBase {

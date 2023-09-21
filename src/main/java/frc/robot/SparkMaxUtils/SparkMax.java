@@ -23,6 +23,8 @@ public class SparkMax extends CANSparkMax {
     private final SparkMaxRelativeConfiguration relConfig;
     private final SparkMaxAbsoluteConfiguration absConfig;
     private final SparkMaxPIDConfiguration pidConfig;
+
+    private IdleMode idle;
     
     public SparkMax(String name, SparkMaxConfiguration config, SparkMaxRelativeConfiguration relConfig, SparkMaxPIDConfiguration pidConfig) {
         super(config.ID, config.MOTOR_TYPE);
@@ -79,12 +81,24 @@ public class SparkMax extends CANSparkMax {
                 pid.setFeedbackDevice(super.getEncoder());
             }
         }
+        idle = config.IDLE_MODE;
+        super.burnFlash();
     }
 
     public boolean isConnected() {
         REVLibError error = super.getLastError();
         return error != REVLibError.kCANDisconnected && 
         error != REVLibError.kInvalidCANId;
+    }
+
+    public REVLibError setIdleMode(IdleMode i) {
+        if (i.value == idle.value) return REVLibError.kOk;
+        idle = i;
+        return super.setIdleMode(i);
+    }
+
+    public IdleMode getIdleMode() {
+        return idle;
     }
 
     public String getName() {

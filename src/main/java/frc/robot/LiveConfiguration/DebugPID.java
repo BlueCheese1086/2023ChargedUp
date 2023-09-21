@@ -1,4 +1,4 @@
-package frc.robot.Configuration;
+package frc.robot.LiveConfiguration;
 
 import com.revrobotics.SparkMaxPIDController;
 

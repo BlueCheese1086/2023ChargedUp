@@ -106,10 +106,8 @@ public class Constants {
         public static final double kD = 0.5;
         public static final double kFF = 0.0;
 
-        public static final double UPPER_RANGE = 2.9;
-        public static final double LOWER_RANGE = -.47;
-
-        public static final double TOLERANCE = Units.degreesToRadians(10);
+        public static final double UPPER_RANGE = 0.0;
+        public static final double LOWER_RANGE = 0.0;
 
         public static final double GEARBOX_RATIO = 1/45;
 

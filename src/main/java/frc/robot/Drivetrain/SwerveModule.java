@@ -16,16 +16,20 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.AnalogEncoder;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
-import frc.robot.Configuration.ControllableConfiguration;
-import frc.robot.Constants.DriveConstants;
+import frc.robot.SafeSubsystem;
 import frc.robot.Constants.ModuleConstants;
+import frc.robot.LiveConfiguration.ControllableConfiguration;
 import frc.robot.SparkMaxUtils.SparkMax;
+import frc.robot.SparkMaxUtils.Configurations.SparkMaxConfiguration;
+import frc.robot.SparkMaxUtils.Configurations.SparkMaxPIDConfiguration;
+import frc.robot.SparkMaxUtils.Configurations.SparkMaxRelativeConfiguration;
+import frc.robot.SparkMaxUtils.Configurations.SparkMaxPIDConfiguration.SensorFeedback;
 
-public class SwerveModule extends SubsystemBase {
-
-    private final DrivetrainSubsystem drivetrain;
+public class SwerveModule extends SubsystemBase implements SafeSubsystem {
 
     private final String name;
 
@@ -48,24 +52,48 @@ public class SwerveModule extends SubsystemBase {
     private final Timer periodic = new Timer();
 
     public SwerveModule(String name, DrivetrainSubsystem drivetrain, int driveMotorId, int turnMotorId, int absoluteEncoderId, double absoluteEncoderOffset) {
-        this.drivetrain = drivetrain;
-        
         this.name = name + " module";
         
-        driveMotor = new SparkMax(name + " Drive Motor", driveMotorId, MotorType.kBrushless);
-        turnMotor = new SparkMax(name + " Turn Motor", turnMotorId, MotorType.kBrushless);
-
-        driveMotor.restoreFactoryDefaults();
-        turnMotor.restoreFactoryDefaults();
-
-        driveMotor.setInverted(false);
-        turnMotor.setInverted(true);
-
-        driveMotor.setSmartCurrentLimit(ModuleConstants.driveCurrentLimit);
-        turnMotor.setSmartCurrentLimit(ModuleConstants.turnCurrentLimit);
-
-        driveMotor.setIdleMode(IdleMode.kBrake);
-        turnMotor.setIdleMode(IdleMode.kCoast);
+        driveMotor = new SparkMax(name + " Drive Motor", 
+            new SparkMaxConfiguration(
+                driveMotorId, 
+                MotorType.kBrushless, 
+                false, 
+                45, 
+                IdleMode.kBrake
+            ),
+            new SparkMaxRelativeConfiguration(
+                false, 
+                ModuleConstants.WHEEL_CIRCUMPHRENCE / ModuleConstants.DRIVE_RATIO / 60.0, 
+                ModuleConstants.WHEEL_CIRCUMPHRENCE / ModuleConstants.DRIVE_RATIO
+            ),
+            new SparkMaxPIDConfiguration(
+                ModuleConstants.driveP, 
+                ModuleConstants.driveI, 
+                ModuleConstants.driveD, 
+                ModuleConstants.driveFF,
+                SensorFeedback.relative
+            ));
+        turnMotor = new SparkMax(name + " Turn Motor", 
+        new SparkMaxConfiguration(
+                turnMotorId, 
+                MotorType.kBrushless, 
+                true, 
+                45, 
+                IdleMode.kBrake
+            ),
+            new SparkMaxRelativeConfiguration(
+                false, 
+                2.0 * Math.PI / ModuleConstants.STEER_RATIO / 60.0,
+                2.0 * Math.PI / ModuleConstants.STEER_RATIO
+            ),
+            new SparkMaxPIDConfiguration(
+                ModuleConstants.turnP, 
+                ModuleConstants.turnI, 
+                ModuleConstants.turnD, 
+                1.0,
+                SensorFeedback.relative
+            ));
 
         absoluteEncoder = new AnalogEncoder(absoluteEncoderId);
         absoluteOffset = absoluteEncoderOffset;
@@ -101,8 +129,15 @@ public class SwerveModule extends SubsystemBase {
 
     @Override
     public void periodic() {
-        turnMotor.setDisabled(!(Boolean)configurations.get("Enabled").getValue());
-        driveMotor.setDisabled(!(Boolean)configurations.get("Enabled").getValue());
+        if (!isSafe()) {
+            if (turnMotor.isConnected() && !driveMotor.isConnected()) {
+                driveMotor.setIdleMode(IdleMode.kCoast);
+            } else {
+                driveMotor.setIdleMode(IdleMode.kCoast);
+                turnMotor.setIdleMode(IdleMode.kCoast);
+                CommandScheduler.getInstance().cancel(this.getCurrentCommand());
+            }
+        }
 
         SmartDashboard.putNumber(String.format("Drivetrain/%s/Absolute Encoder", name), absoluteEncoder.getAbsolutePosition());
         SmartDashboard.putNumber(String.format("Drivetrain/%s/Target Angle", name), desiredState.angle.getDegrees());
@@ -119,6 +154,10 @@ public class SwerveModule extends SubsystemBase {
 
         periodic.reset();
         periodic.start();
+    }
+
+    public boolean isSafe() {
+        return driveMotor.isConnected() && turnMotor.isConnected();
     }
 
     public void initializeEncoders() {
@@ -142,17 +181,15 @@ public class SwerveModule extends SubsystemBase {
     }
 
     public void setDesiredState(SwerveModuleState s) {
-        desiredState = s;
-        if (Robot.isSimulation()) {
-            turnRelEncoder.setPosition(s.angle.getRadians());
-            return;
-        }
-        turnController.setReference(getAdjustedAngle(desiredState.angle), ControlType.kPosition);
-        if (drivetrain.getClosedLoopEnabled()) {
+        new InstantCommand(() -> {
+            desiredState = s;
+            if (Robot.isSimulation()) {
+                turnRelEncoder.setPosition(s.angle.getRadians());
+                return;
+            }
+            turnController.setReference(getAdjustedAngle(desiredState.angle), ControlType.kPosition);
             driveController.setReference(desiredState.speedMetersPerSecond, ControlType.kVelocity);
-        } else {
-            driveMotor.set(desiredState.speedMetersPerSecond/DriveConstants.MAX_LINEAR_VELOCITY);
-        }
+        }, this).schedule();
     }
 
     public void stop() {

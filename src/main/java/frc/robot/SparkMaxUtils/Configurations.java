@@ -1,6 +1,5 @@
 package frc.robot.SparkMaxUtils;
 
-import com.revrobotics.MotorFeedbackSensor;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
@@ -100,6 +99,7 @@ public class Configurations {
         public final double kP;
         public final double kI;
         public final double kD;
+        public final double kFF;
         public final SensorFeedback feedback;
 
         /**
@@ -111,15 +111,17 @@ public class Configurations {
             double P,
             double I,
             double D,
+            double FF,
             SensorFeedback feedbackDevice) {
                 kP = P;
                 kI = I;
                 kD = D;
+                kFF = FF;
                 feedback = feedbackDevice;
         }
 
         public static SparkMaxPIDConfiguration getDefault() {
-            return new SparkMaxPIDConfiguration(0, 0, 0, SensorFeedback.relative);
+            return new SparkMaxPIDConfiguration(0, 0, 0, 0, SensorFeedback.relative);
         }
     }
 }
