@@ -64,8 +64,8 @@ public class SwerveModule extends SubsystemBase implements SafeSubsystem {
             ),
             new SparkMaxRelativeConfiguration(
                 false, 
-                ModuleConstants.WHEEL_CIRCUMPHRENCE / ModuleConstants.DRIVE_RATIO / 60.0, 
-                ModuleConstants.WHEEL_CIRCUMPHRENCE / ModuleConstants.DRIVE_RATIO
+                ModuleConstants.WHEEL_CIRCUMPHRENCE / ModuleConstants.DRIVE_RATIO, 
+                ModuleConstants.WHEEL_CIRCUMPHRENCE / ModuleConstants.DRIVE_RATIO / 60.0
             ),
             new SparkMaxPIDConfiguration(
                 ModuleConstants.driveP, 
@@ -84,8 +84,8 @@ public class SwerveModule extends SubsystemBase implements SafeSubsystem {
             ),
             new SparkMaxRelativeConfiguration(
                 false, 
-                2.0 * Math.PI / ModuleConstants.STEER_RATIO / 60.0,
-                2.0 * Math.PI / ModuleConstants.STEER_RATIO
+                2.0 * Math.PI / ModuleConstants.STEER_RATIO,
+                2.0 * Math.PI / ModuleConstants.STEER_RATIO / 60.0
             ),
             new SparkMaxPIDConfiguration(
                 ModuleConstants.turnP, 

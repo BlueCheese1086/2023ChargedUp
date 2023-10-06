@@ -115,6 +115,14 @@ public class Constants {
 
     }
 
+    public static class ElevatorConstants {
+
+        public static final int motorID = 0;
+    
+        public static final double conversionFactor = 1.0;
+
+    }
+
     public static class LEDConstants {
 
         public static final int PORT = 0;

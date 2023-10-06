@@ -48,8 +48,8 @@ public class Configurations {
          */
         public SparkMaxRelativeConfiguration(
             boolean invertedRotation,
-            double velocityConv,
-            double posInv) {
+            double posInv,
+            double velocityConv) {
                 INVERTED = invertedRotation;
                 VELOCITY_CONVERSION_RATE = velocityConv;
                 POSITION_CONVERSION_RATE = posInv;

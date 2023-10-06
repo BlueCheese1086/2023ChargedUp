@@ -101,6 +101,10 @@ public class SparkMax extends CANSparkMax {
         return idle;
     }
 
+    public SparkMaxConfiguration getConfig() {
+        return config;
+    }
+
     public String getName() {
         return name;
     }

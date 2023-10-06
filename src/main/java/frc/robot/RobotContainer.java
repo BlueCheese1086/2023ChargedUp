@@ -14,11 +14,11 @@ import frc.robot.Wrist.WristSubsystem;
 
 public class RobotContainer {
 
-	WristSubsystem wrist = new WristSubsystem();
-	ArmSubsystem arm = new ArmSubsystem();
-	IntakeSubsystem intake = new IntakeSubsystem();
+	WristSubsystem wrist;// = new WristSubsystem();
+	ArmSubsystem arm;// = new ArmSubsystem();
+	IntakeSubsystem intake;// = new IntakeSubsystem();
 
-	DrivetrainSubsystem drivetrain = new DrivetrainSubsystem();
+	DrivetrainSubsystem drivetrain;// = new DrivetrainSubsystem();
 
 	SendableChooser<Command> autoCommands = new SendableChooser<>();
 
@@ -26,6 +26,10 @@ public class RobotContainer {
 
 	public RobotContainer() {
 
+		wrist = new WristSubsystem();
+		arm = new ArmSubsystem();
+		intake = new IntakeSubsystem();
+		drivetrain = new DrivetrainSubsystem();
 
 		configureBindings();
 	}
